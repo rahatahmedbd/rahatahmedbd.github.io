@@ -1,1 +1,378 @@
-/* Base CSS — Reset + Typography */
+/* ========================================================
+   BASE.CSS — Reset & Base Typography
+   Rahat Ahmed Portfolio v2.0
+   ======================================================== */
+
+/* ======================================================
+   1. RESET & BOX-SIZING
+   ====================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+html {
+  font-size: 16px; /* Base for rem calculations */
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ======================================================
+   2. BODY & BASE TYPOGRAPHY
+   ====================================================== */
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ======================================================
+   3. HEADINGS HIERARCHY
+   ====================================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+  letter-spacing: var(--ls-tight);
+}
+
+h1 {
+  font-size: var(--fs-hero);
+  font-weight: var(--fw-extrabold);
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: var(--fs-3xl);
+}
+
+h3 {
+  font-size: var(--fs-2xl);
+}
+
+h4 {
+  font-size: var(--fs-xl);
+}
+
+h5 {
+  font-size: var(--fs-lg);
+}
+
+h6 {
+  font-size: var(--fs-md);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wider);
+  color: var(--color-text-soft);
+}
+
+/* ======================================================
+   4. PARAGRAPHS & TEXT ELEMENTS
+   ====================================================== */
+
+p {
+  margin-bottom: var(--space-md);
+  max-width: 70ch; /* Optimal reading width */
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+b, strong {
+  font-weight: var(--fw-bold);
+  color: var(--color-text);
+}
+
+i, em {
+  font-style: italic;
+}
+
+small {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+/* Language specific */
+[lang="bn"] {
+  font-family: var(--font-display);
+  line-height: 1.8; /* Bengali needs more line height */
+}
+
+[lang="en"] {
+  font-family: var(--font-english);
+}
+
+/* ======================================================
+   5. LINKS
+   ====================================================== */
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: var(--transition-fast);
+  cursor: pointer;
+}
+
+a:hover {
+  color: var(--color-primary-light);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+}
+
+a:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ======================================================
+   6. IMAGES & MEDIA
+   ====================================================== */
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+img {
+  object-fit: cover;
+}
+
+/* Prevent layout shift */
+img[width][height] {
+  height: auto;
+}
+
+/* ======================================================
+   7. LISTS
+   ====================================================== */
+
+ul, ol {
+  list-style: none;
+  padding: 0;
+}
+
+/* Only for content lists */
+.content-list {
+  list-style-position: inside;
+  padding-left: var(--space-lg);
+}
+
+.content-list li {
+  margin-bottom: var(--space-sm);
+  position: relative;
+}
+
+.content-list ul li::marker {
+  color: var(--color-primary);
+}
+
+/* ======================================================
+   8. FORM ELEMENTS (Base)
+   ====================================================== */
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  transition: var(--transition-fast);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+button {
+  cursor: pointer;
+  font-weight: var(--fw-semibold);
+}
+
+button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* ======================================================
+   9. SELECTION & HIGHLIGHT
+   ====================================================== */
+
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+/* ======================================================
+   10. SCROLLBAR (Webkit)
+   ====================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-alt);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary-soft) var(--color-bg-alt);
+}
+
+/* ======================================================
+   11. ACCESSIBILITY UTILITIES
+   ====================================================== */
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus visible for keyboard navigation */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Skip to main content link */
+.skip-to-main {
+  position: absolute;
+  left: -9999px;
+  z-index: 999;
+  padding: var(--space-md);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  text-decoration: none;
+  font-weight: var(--fw-semibold);
+  border-radius: var(--radius-md);
+}
+
+.skip-to-main:focus {
+  left: var(--space-md);
+  top: var(--space-md);
+}
+
+/* ======================================================
+   12. DARK MODE SUPPORT (Auto/Override)
+   ====================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #12100e;
+    --color-bg-alt: #1a1714;
+    --color-bg-elevated: #221e1a;
+    
+    --color-text: #f5f0e8;
+    --color-text-soft: #c9c0b3;
+    --color-text-muted: #8b7f73;
+    
+    --color-border: rgba(245, 240, 232, 0.12);
+    
+    --glass-bg: rgba(30, 26, 22, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Manual dark mode toggle */
+[data-theme="dark"] {
+  --color-bg: #12100e;
+  --color-bg-alt: #1a1714;
+  --color-bg-elevated: #221e1a;
+  
+  --color-text: #f5f0e8;
+  --color-text-soft: #c9c0b3;
+  --color-text-muted: #8b7f73;
+  
+  --color-border: rgba(245, 240, 232, 0.12);
+  
+  --glass-bg: rgba(30, 26, 22, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* ======================================================
+   13. UTILITY CLASSES
+   ====================================================== */
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.font-display { font-family: var(--font-display); }
+.font-body { font-family: var(--font-body); }
+.font-english { font-family: var(--font-english); }
+
+.hidden { display: none !important; }
+.invisible { visibility: hidden; }
