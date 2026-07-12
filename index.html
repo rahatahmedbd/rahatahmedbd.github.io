@@ -167,7 +167,106 @@
        SKIP TO MAIN CONTENT (Accessibility)
        ================================================ -->
   <a href="#main" class="skip-to-main">Skip to main content</a>
+  <!-- ================================================
+       NAVIGATION
+       ================================================ -->
+  <header class="nav" id="nav" role="banner">
+    <div class="nav__container">
 
+      <!-- Brand / Logo -->
+      <a href="#home" class="nav__brand" aria-label="Rahat Ahmed — Home">
+        <span class="nav__logo" aria-hidden="true">RA</span>
+        <span class="nav__brand-text">
+          <span class="nav__brand-name" data-lang-bn="রাহাত আহমেদ" data-lang-en="Rahat Ahmed">রাহাত আহমেদ</span>
+          <span class="nav__brand-role" data-lang-bn="পোর্টফোলিও" data-lang-en="Portfolio">পোর্টফোলিও</span>
+        </span>
+      </a>
+
+      <!-- Desktop Menu -->
+      <nav class="nav__menu" id="navMenu" aria-label="Main navigation">
+        <ul class="nav__list">
+          <li>
+            <a href="#home" class="nav__link is-active" data-lang-bn="হোম" data-lang-en="Home">হোম</a>
+          </li>
+          <li>
+            <a href="#about" class="nav__link" data-lang-bn="পরিচয়" data-lang-en="About">পরিচয়</a>
+          </li>
+          <li>
+            <a href="#education" class="nav__link" data-lang-bn="শিক্ষা" data-lang-en="Education">শিক্ষা</a>
+          </li>
+          <li>
+            <a href="#achievements" class="nav__link" data-lang-bn="অর্জন" data-lang-en="Achievements">অর্জন</a>
+          </li>
+          <li>
+            <a href="#experience" class="nav__link" data-lang-bn="অভিজ্ঞতা" data-lang-en="Experience">অভিজ্ঞতা</a>
+          </li>
+          <li>
+            <a href="#blood" class="nav__link nav__link--blood" data-lang-bn="শান্তিচক্র" data-lang-en="Shantichakra">শান্তিচক্র</a>
+          </li>
+          <li>
+            <a href="#tribute" class="nav__link" data-lang-bn="শ্রদ্ধাঞ্জলি" data-lang-en="Tribute">শ্রদ্ধাঞ্জলি</a>
+          </li>
+          <li>
+            <a href="#gallery" class="nav__link" data-lang-bn="গ্যালারি" data-lang-en="Gallery">গ্যালারি</a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Right Side Controls -->
+      <div class="nav__controls">
+
+        <!-- Language Switcher -->
+        <div class="lang-switch" role="group" aria-label="Language selector">
+          <button class="lang-switch__btn is-active" data-lang="bn" aria-label="Bangla" type="button">বাং</button>
+          <button class="lang-switch__btn" data-lang="en" aria-label="English" type="button">EN</button>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" type="button">
+          <svg class="theme-toggle__icon theme-toggle__sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+          <svg class="theme-toggle__icon theme-toggle__moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+
+        <!-- Contact CTA -->
+        <a href="#contact" class="btn btn--primary btn--sm nav__cta" data-lang-bn="যোগাযোগ" data-lang-en="Contact">যোগাযোগ</a>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="nav__toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navMobile" type="button">
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- Mobile Drawer Menu -->
+    <div class="nav__mobile" id="navMobile" aria-hidden="true">
+      <nav class="nav__mobile-nav" aria-label="Mobile navigation">
+        <ul class="nav__mobile-list">
+          <li><a href="#home" class="nav__mobile-link" data-lang-bn="হোম" data-lang-en="Home">হোম</a></li>
+          <li><a href="#about" class="nav__mobile-link" data-lang-bn="পরিচয়" data-lang-en="About">পরিচয়</a></li>
+          <li><a href="#education" class="nav__mobile-link" data-lang-bn="শিক্ষা" data-lang-en="Education">শিক্ষা</a></li>
+          <li><a href="#achievements" class="nav__mobile-link" data-lang-bn="অর্জন" data-lang-en="Achievements">অর্জন</a></li>
+          <li><a href="#experience" class="nav__mobile-link" data-lang-bn="অভিজ্ঞতা" data-lang-en="Experience">অভিজ্ঞতা</a></li>
+          <li><a href="#blood" class="nav__mobile-link nav__mobile-link--blood" data-lang-bn="শান্তিচক্র ব্লাড সোসাইটি" data-lang-en="Shantichakra Blood Society">শান্তিচক্র ব্লাড সোসাইটি</a></li>
+          <li><a href="#tribute" class="nav__mobile-link" data-lang-bn="শ্রদ্ধাঞ্জলি" data-lang-en="Tribute">শ্রদ্ধাঞ্জলি</a></li>
+          <li><a href="#gallery" class="nav__mobile-link" data-lang-bn="গ্যালারি" data-lang-en="Gallery">গ্যালারি</a></li>
+          <li><a href="#contact" class="nav__mobile-link nav__mobile-link--cta" data-lang-bn="যোগাযোগ করুন" data-lang-en="Contact Me">যোগাযোগ করুন</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Mobile Menu Backdrop -->
+    <div class="nav__backdrop" id="navBackdrop" aria-hidden="true"></div>
+
+  </header>
   <!-- ================================================
        MAIN CONTENT WRAPPER
        (Sections will be added in next steps)
