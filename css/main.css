@@ -1,1 +1,91 @@
-/* Main CSS — Imports All CSS Files */
+/* ========================================================
+   MAIN.CSS — Master Stylesheet
+   Rahat Ahmed Portfolio v2.0
+   
+   This file imports all CSS modules in the correct order.
+   Only THIS file should be linked in index.html
+   ======================================================== */
+
+/* ======================================================
+   IMPORT ORDER MATTERS!
+   
+   1. Variables    → Design tokens (colors, fonts, spacing)
+   2. Base         → Reset + typography foundations
+   3. Layout       → Grid system + containers
+   4. Animations   → Motion + reveal effects
+   5. Components   → Buttons, cards, forms, chips
+   6. Dark Mode    → Theme overrides (must be last)
+   ====================================================== */
+
+@import url('variables.css');
+@import url('base.css');
+@import url('layout.css');
+@import url('animations.css');
+@import url('components.css');
+@import url('dark-mode.css');
+
+/* ======================================================
+   GLOBAL OVERRIDES & FINAL TOUCHES
+   ====================================================== */
+
+/* Prevent horizontal scroll on entire page */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Better image rendering */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Selection styling (already in base, but ensuring priority) */
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  text-shadow: none;
+}
+
+/* Print styles */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  .nav,
+  .theme-toggle,
+  .lang-switch,
+  .btn,
+  footer {
+    display: none !important;
+  }
+  
+  a {
+    color: black !important;
+    text-decoration: underline !important;
+  }
+  
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+  }
+}
+
+/* ======================================================
+   FONT LOADING OPTIMIZATION
+   Font is loaded via HTML <link> with font-display: swap
+   This prevents FOUT/FOIT issues
+   ====================================================== */
+
+@font-face {
+  font-family: 'Fallback';
+  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  size-adjust: 100%;
+  ascent-override: 100%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+}
