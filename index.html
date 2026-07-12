@@ -273,15 +273,97 @@
        ================================================ -->
   <main id="main">
     
-    <!-- Placeholder — will be replaced with sections -->
-    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 40px;">
-      <div>
-        <h1 style="color: var(--color-primary); font-size: 3rem; margin-bottom: 16px;">রাহাত আহমেদ</h1>
-        <p style="color: var(--color-text-soft); font-size: 1.2rem;">Portfolio v2.0 — Under Construction</p>
-        <p style="color: var(--color-text-muted); font-size: 1rem; margin-top: 20px;">Building step by step... ✨</p>
-      </div>
-    </div>
+    <main id="main">
 
+    <!-- ================================================
+         HERO SECTION
+         ================================================ -->
+    <section class="hero section section--lg" id="home" aria-label="Hero section">
+      <div class="hero__bg" aria-hidden="true"></div>
+      <div class="hero__glow hero__glow--1" aria-hidden="true"></div>
+      <div class="hero__glow hero__glow--2" aria-hidden="true"></div>
+
+      <div class="container">
+        <div class="hero__inner">
+
+          <!-- Hero Image -->
+          <div class="hero__media" data-reveal="scale">
+            <div class="hero__image-wrap">
+              <div class="hero__ring hero__ring--1" aria-hidden="true"></div>
+              <div class="hero__ring hero__ring--2" aria-hidden="true"></div>
+
+              <div class="avatar avatar--xl avatar--bordered hero__avatar">
+                <img 
+                  src="assets/images/profile.jpg" 
+                  alt="Portrait of Rahat Ahmed"
+                  width="320" 
+                  height="320"
+                  loading="eager"
+                  decoding="async"
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero Content -->
+          <div class="hero__content">
+
+            <p class="hero__eyebrow" data-reveal="fade" data-reveal-delay="100">
+              <span data-lang-bn="বিসমিল্লাহির রাহমানির রাহিম" data-lang-en="In the name of Allah, the Most Gracious, the Most Merciful">
+                বিসমিল্লাহির রাহমানির রাহিম
+              </span>
+            </p>
+
+            <h1 class="hero__title" data-reveal="up" data-reveal-delay="200">
+              <span class="hero__title-main" data-lang-bn="রাহাত আহমেদ" data-lang-en="Rahat Ahmed">রাহাত আহমেদ</span>
+              <span class="hero__title-sub" lang="en">Rahat Ahmed</span>
+            </h1>
+
+            <p class="hero__subtitle" data-reveal="up" data-reveal-delay="300">
+              <span data-lang-bn="আমি একজন শিক্ষার্থী, গৃহশিক্ষক, রক্তদাতা, BNCC ক্যাডেট এবং উদীয়মান ওয়েব ডেভেলপার। শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য।" data-lang-en="I am a student, home tutor, blood donor, BNCC cadet, and aspiring web developer. My goal is to support people through education, community service, and technology.">
+                আমি একজন শিক্ষার্থী, গৃহশিক্ষক, রক্তদাতা, BNCC ক্যাডেট এবং উদীয়মান ওয়েব ডেভেলপার। শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য।
+              </span>
+            </p>
+
+            <div class="hero__chips cluster cluster--center" data-reveal="up" data-reveal-delay="400">
+              <span class="chip" data-lang-bn="HSC শিক্ষার্থী" data-lang-en="HSC Student">HSC শিক্ষার্থী</span>
+              <span class="chip" data-lang-bn="গৃহশিক্ষক" data-lang-en="Home Tutor">গৃহশিক্ষক</span>
+              <span class="chip chip--blood" data-lang-bn="A+ রক্তদাতা" data-lang-en="A+ Blood Donor">A+ রক্তদাতা</span>
+              <span class="chip" data-lang-bn="BNCC ক্যাডেট" data-lang-en="BNCC Cadet">BNCC ক্যাডেট</span>
+              <span class="chip" data-lang-bn="ওয়েব ডেভেলপার" data-lang-en="Web Developer">ওয়েব ডেভেলপার</span>
+            </div>
+
+            <div class="hero__actions cluster cluster--center cluster--gap-md" data-reveal="up" data-reveal-delay="500">
+              <a href="#achievements" class="btn btn--primary btn--lg" data-lang-bn="আমার অর্জন দেখুন" data-lang-en="View My Achievements">
+                আমার অর্জন দেখুন
+              </a>
+              <a href="#contact" class="btn btn--ghost btn--lg" data-lang-bn="যোগাযোগ করুন" data-lang-en="Contact Me">
+                যোগাযোগ করুন
+              </a>
+            </div>
+
+            <div class="hero__meta cluster cluster--center" data-reveal="fade" data-reveal-delay="600">
+              <span class="badge badge--gold">
+                <span data-lang-bn="রক্তের গ্রুপ: A+" data-lang-en="Blood Group: A+">রক্তের গ্রুপ: A+</span>
+              </span>
+              <span class="badge badge--success">
+                <span data-lang-bn="৪ বার রক্তদান" data-lang-en="4 Times Blood Donor">৪ বার রক্তদান</span>
+              </span>
+            </div>
+
+            <a href="#about" class="hero__scroll" aria-label="Scroll down to about section" data-reveal="fade" data-reveal-delay="700">
+              <span class="hero__scroll-text" data-lang-bn="নিচে দেখুন" data-lang-en="Scroll Down">নিচে দেখুন</span>
+              <span class="hero__scroll-indicator" aria-hidden="true">
+                <span class="hero__scroll-dot"></span>
+              </span>
+            </a>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
   </main>
 
   <!-- ================================================
