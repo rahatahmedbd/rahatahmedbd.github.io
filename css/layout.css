@@ -1,1 +1,363 @@
-/* Layout CSS — Grid + Container */
+/* ========================================================
+   LAYOUT.CSS — Grid System & Containers
+   Rahat Ahmed Portfolio v2.0
+   ======================================================== */
+
+/* ======================================================
+   1. SECTION BASE
+   ====================================================== */
+
+.section {
+  position: relative;
+  padding-top: var(--section-py-md);
+  padding-bottom: var(--section-py-md);
+  overflow: hidden;
+}
+
+.section--sm {
+  padding-top: var(--section-py-sm);
+  padding-bottom: var(--section-py-sm);
+}
+
+.section--lg {
+  padding-top: var(--section-py-lg);
+  padding-bottom: var(--section-py-lg);
+}
+
+.section--dark {
+  background-color: var(--color-bg-alt);
+}
+
+.section--primary {
+  background: linear-gradient(
+    165deg,
+    var(--color-primary-dark),
+    var(--color-primary) 60%
+  );
+  color: var(--color-text-inverse);
+}
+
+.section--tribute {
+  background-color: var(--color-tribute-bg);
+  color: var(--color-tribute-text);
+}
+
+/* ======================================================
+   2. CONTAINER (Content Wrapper)
+   ====================================================== */
+
+.container {
+  width: 100%;
+  max-width: var(--container-lg);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-padding-x);
+  padding-right: var(--container-padding-x);
+}
+
+.container--sm {
+  max-width: var(--container-sm);
+}
+
+.container--md {
+  max-width: var(--container-md);
+}
+
+.container--xl {
+  max-width: var(--container-xl);
+}
+
+.container--full {
+  max-width: 100%;
+}
+
+/* ======================================================
+   3. SECTION HEADER (Eyebrow + Title + Subtitle)
+   ====================================================== */
+
+.section-header {
+  text-align: center;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: var(--space-2xl);
+}
+
+.section-header--left {
+  text-align: left;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.section-header__eyebrow {
+  display: inline-block;
+  font-family: var(--font-english);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-widest);
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: var(--space-sm);
+  padding: 4px 12px;
+  background-color: var(--color-primary-soft);
+  border-radius: var(--radius-full);
+}
+
+.section-header__title {
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-bold);
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+}
+
+.section-header__subtitle {
+  font-size: var(--fs-md);
+  color: var(--color-text-soft);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-header--left .section-header__subtitle {
+  margin-left: 0;
+}
+
+/* Light variant for dark backgrounds */
+.section-header--light .section-header__title {
+  color: var(--color-text-inverse);
+}
+
+.section-header--light .section-header__subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.section-header--light .section-header__eyebrow {
+  color: var(--color-text-inverse);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ======================================================
+   4. GRID SYSTEM
+   ====================================================== */
+
+.grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+/* Auto-fit grids (responsive without media queries) */
+.grid--auto-sm {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.grid--auto-md {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.grid--auto-lg {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+/* Fixed columns (mobile first) */
+.grid--1 { grid-template-columns: 1fr; }
+.grid--2 { grid-template-columns: 1fr; }
+.grid--3 { grid-template-columns: 1fr; }
+.grid--4 { grid-template-columns: 1fr; }
+
+/* Tablet: 600px+ */
+@media (min-width: 600px) {
+  .grid--2 { grid-template-columns: repeat(2, 1fr); }
+  .grid--3 { grid-template-columns: repeat(2, 1fr); }
+  .grid--4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Laptop: 900px+ */
+@media (min-width: 900px) {
+  .grid--3 { grid-template-columns: repeat(3, 1fr); }
+  .grid--4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Grid gaps */
+.grid--gap-sm { gap: var(--space-md); }
+.grid--gap-md { gap: var(--space-lg); }
+.grid--gap-lg { gap: var(--space-xl); }
+.grid--gap-xl { gap: var(--space-2xl); }
+
+/* ======================================================
+   5. SPLIT LAYOUT (Two-column asymmetric)
+   ====================================================== */
+
+.split {
+  display: grid;
+  gap: var(--space-2xl);
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .split--1-1 { grid-template-columns: 1fr 1fr; }
+  .split--1-2 { grid-template-columns: 1fr 2fr; }
+  .split--2-1 { grid-template-columns: 2fr 1fr; }
+  .split--2-3 { grid-template-columns: 2fr 3fr; }
+  .split--3-2 { grid-template-columns: 3fr 2fr; }
+}
+
+/* Reverse order on mobile */
+.split__reverse-mobile > *:first-child {
+  order: 2;
+}
+
+@media (min-width: 900px) {
+  .split__reverse-mobile > *:first-child {
+    order: 0;
+  }
+}
+
+/* ======================================================
+   6. FLEX HELPERS
+   ====================================================== */
+
+.flex {
+  display: flex;
+}
+
+.flex--center {
+  align-items: center;
+  justify-content: center;
+}
+
+.flex--between {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex--start {
+  align-items: flex-start;
+}
+
+.flex--end {
+  align-items: flex-end;
+}
+
+.flex--column {
+  flex-direction: column;
+}
+
+.flex--wrap {
+  flex-wrap: wrap;
+}
+
+.flex--gap-xs { gap: var(--space-xs); }
+.flex--gap-sm { gap: var(--space-sm); }
+.flex--gap-md { gap: var(--space-md); }
+.flex--gap-lg { gap: var(--space-lg); }
+.flex--gap-xl { gap: var(--space-xl); }
+
+/* ======================================================
+   7. STACK (Vertical Rhythm)
+   ====================================================== */
+
+.stack > * + * {
+  margin-top: var(--space-md);
+}
+
+.stack--xs > * + * { margin-top: var(--space-xs); }
+.stack--sm > * + * { margin-top: var(--space-sm); }
+.stack--md > * + * { margin-top: var(--space-md); }
+.stack--lg > * + * { margin-top: var(--space-lg); }
+.stack--xl > * + * { margin-top: var(--space-xl); }
+
+/* ======================================================
+   8. CLUSTER (Inline group with wrapping)
+   ====================================================== */
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.cluster--center {
+  justify-content: center;
+}
+
+.cluster--gap-md { gap: var(--space-md); }
+.cluster--gap-lg { gap: var(--space-lg); }
+
+/* ======================================================
+   9. ASPECT RATIO BOXES
+   ====================================================== */
+
+.aspect {
+  position: relative;
+  overflow: hidden;
+}
+
+.aspect--1x1 { aspect-ratio: 1 / 1; }
+.aspect--4x3 { aspect-ratio: 4 / 3; }
+.aspect--16x9 { aspect-ratio: 16 / 9; }
+.aspect--3x4 { aspect-ratio: 3 / 4; }
+.aspect--21x9 { aspect-ratio: 21 / 9; }
+
+.aspect > img,
+.aspect > video,
+.aspect > iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ======================================================
+   10. DIVIDER
+   ====================================================== */
+
+.divider {
+  height: 1px;
+  background: var(--color-divider);
+  border: 0;
+  margin: var(--space-xl) 0;
+}
+
+.divider--strong {
+  background: var(--color-border-strong);
+}
+
+.divider--gradient {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-primary),
+    transparent
+  );
+}
+
+/* ======================================================
+   11. SPACER
+   ====================================================== */
+
+.spacer-sm { height: var(--space-md); }
+.spacer-md { height: var(--space-xl); }
+.spacer-lg { height: var(--space-2xl); }
+.spacer-xl { height: var(--space-3xl); }
+
+/* ======================================================
+   12. OVERFLOW PROTECTION (Critical for Mobile)
+   ====================================================== */
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+.section, .container {
+  overflow-x: hidden;
+}
+
+/* Prevent images from breaking layout */
+img, svg, video, iframe {
+  max-width: 100%;
+}
