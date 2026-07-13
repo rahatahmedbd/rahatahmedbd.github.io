@@ -3166,3 +3166,9 @@ section[id] {
     object-fit: contain;
     display: block;
 }
+.blood__logo{
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    object-fit:cover;
+}
