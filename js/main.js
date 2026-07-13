@@ -14,6 +14,38 @@
   'use strict';
 
   // ======================================================
+  // LOAD ALL MODULES
+  // ======================================================
+  const modules = [
+    'js/nav.js',
+    'js/reveal.js',
+    'js/counter.js',
+    'js/language.js',
+    'js/theme.js'
+  ];
+
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.defer = true;
+      script.onload = () => resolve(src);
+      script.onerror = () => reject(new Error(`Failed to load: ${src}`));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function loadAllModules() {
+    try {
+      await Promise.all(modules.map(loadScript));
+      console.log('✓ All modules loaded');
+      initializeApp();
+    } catch (error) {
+      console.error('Module loading error:', error);
+    }
+  }
+
+  // ======================================================
   // GLOBAL INITIALIZATION
   // ======================================================
   function initializeApp() {
@@ -147,9 +179,9 @@
   // START APP
   // ======================================================
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeApp);
+    document.addEventListener('DOMContentLoaded', loadAllModules);
   } else {
-    initializeApp();
+    loadAllModules();
   }
 
 })();
