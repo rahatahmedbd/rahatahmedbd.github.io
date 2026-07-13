@@ -403,6 +403,207 @@
   .services__desc {
     color: #FFFFFF !important;
   }
+  /* ============================================
+       CONTRAST FIX — All Text Visibility
+       ============================================ */
+    
+    /* Blood Section — All Text White */
+    .blood *:not(button):not(.btn):not(.badge):not(.chip):not(.tag) {
+      color: #FFFFFF !important;
+    }
+    
+    .blood p,
+    .blood span,
+    .blood strong,
+    .blood small,
+    .blood h1,
+    .blood h2,
+    .blood h3,
+    .blood h4,
+    .blood h5,
+    .blood h6,
+    .blood a,
+    .blood li {
+      color: #FFFFFF !important;
+    }
+    
+    .blood .section-header__subtitle,
+    .blood__desc,
+    .blood__role-desc {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+    
+    .blood-service__desc,
+    .blood-stat__label {
+      color: rgba(255, 255, 255, 0.90) !important;
+    }
+    
+    /* Blood Section Cards */
+    .blood .card,
+    .blood-stat,
+    .blood-service,
+    .blood__role-card {
+      background: rgba(255, 255, 255, 0.10) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+    }
+    
+    /* Web Services Card — All Text White */
+    .services__card *:not(button):not(.btn):not(.tag) {
+      color: #FFFFFF !important;
+    }
+    
+    .services__card h1,
+    .services__card h2,
+    .services__card h3,
+    .services__card h4,
+    .services__card p,
+    .services__card span,
+    .services__card strong,
+    .services__title,
+    .services__subtitle,
+    .services__desc,
+    .services__types-title,
+    .services__feature {
+      color: #FFFFFF !important;
+    }
+    
+    .services__desc {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+    
+    /* Services tags on primary bg */
+    .services__card .tag {
+      background: rgba(255, 255, 255, 0.15) !important;
+      color: #FFFFFF !important;
+      border: 1px solid rgba(255, 255, 255, 0.30) !important;
+    }
+    
+    .services__card .tag:hover {
+      background: rgba(255, 255, 255, 0.25) !important;
+    }
+    
+    /* Services Features */
+    .services__features {
+      background: rgba(255, 255, 255, 0.15) !important;
+    }
+    
+    /* Web Services Contact Button */
+    .services__card .btn--light {
+      background: #FFFFFF !important;
+      color: #8B0F32 !important;
+      font-weight: 700 !important;
+    }
+    
+    .services__card .btn--light:hover {
+      background: #FFF5EA !important;
+      color: #5A0A20 !important;
+    }
+    
+    /* Blood Section — Ghost buttons */
+    .blood .btn--ghost {
+      background: transparent !important;
+      color: #FFFFFF !important;
+      border: 2px solid rgba(255, 255, 255, 0.50) !important;
+    }
+    
+    .blood .btn--ghost:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+      color: #FFFFFF !important;
+      border-color: #FFFFFF !important;
+    }
+    
+    /* Blood Section — Light buttons */
+    .blood .btn--light {
+      background: #FFFFFF !important;
+      color: #8B0F32 !important;
+      font-weight: 700 !important;
+    }
+    
+    /* Blood Section — Badges */
+    .blood .badge {
+      background: rgba(255, 255, 255, 0.20) !important;
+      color: #FFFFFF !important;
+      border: 1px solid rgba(255, 255, 255, 0.30) !important;
+    }
+    
+    .blood .badge--gold {
+      background: linear-gradient(135deg, #C99A3E, #A4772B) !important;
+      color: #FFFFFF !important;
+    }
+    
+    /* Blood Section — Chips */
+    .blood .chip {
+      background: rgba(255, 255, 255, 0.15) !important;
+      color: #FFFFFF !important;
+      border: 1px solid rgba(255, 255, 255, 0.30) !important;
+    }
+    
+    /* Blood Section — Quote */
+    .blood .quote,
+    .blood__quote {
+      background: rgba(255, 255, 255, 0.10) !important;
+      color: #FFFFFF !important;
+      border-left: 4px solid #C99A3E !important;
+    }
+    
+    .blood .quote p,
+    .blood__quote p {
+      color: #FFFFFF !important;
+      font-style: italic !important;
+    }
+    
+    /* Blood Section — Icons */
+    .blood-service__icon {
+      font-size: 2.5rem !important;
+      opacity: 1 !important;
+    }
+    
+    /* Blood Section — Stat Numbers */
+    .blood-stat__number {
+      color: #FFFFFF !important;
+      font-weight: 800 !important;
+      font-size: 2.5rem !important;
+    }
+    
+    /* Tribute Section — Text Contrast */
+    .tribute *:not(button):not(.btn) {
+      color: #E8E0D5 !important;
+    }
+    
+    .tribute p,
+    .tribute span:not(.tribute__section-ornament):not(.tribute__ornament),
+    .tribute strong,
+    .tribute small {
+      color: rgba(232, 224, 213, 0.90) !important;
+    }
+    
+    .tribute h1,
+    .tribute h2,
+    .tribute h3,
+    .tribute h4,
+    .tribute .tribute__name,
+    .tribute .section-header__title {
+      color: #E8E0D5 !important;
+    }
+    
+    .tribute .tribute__section-title,
+    .tribute .tribute__inna,
+    .tribute .tribute-role__title,
+    .tribute .tribute-work__number,
+    .tribute .tribute__relation {
+      color: #C99A3E !important;
+    }
+    
+    .tribute .section-header__eyebrow {
+      color: #C99A3E !important;
+      background: rgba(201, 154, 62, 0.15) !important;
+    }
+    
+    .tribute .tribute__dua-text p {
+      color: #C99A3E !important;
+  }
       </style>
   <!-- ================================================
        STRUCTURED DATA (Schema.org — Person)
