@@ -3160,16 +3160,20 @@ img {
 section[id] {
   scroll-margin-top: 80px;
    }
-.blood__icon{
-    width: 150px;
-    height: 150px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
+.blood__icon {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+  z-index: 2;
 }
 
-.blood__logo{
-    width: 130px;
-    height: 130px;
-    object-fit: contain;
+.blood__logo {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  display: block;
 }
