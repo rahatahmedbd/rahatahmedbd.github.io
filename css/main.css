@@ -402,8 +402,7 @@ html[data-theme="dark"] body {
    ============================================ */
 .nav {
   background: rgba(255, 251, 245, 0.90) !important;
-  backdrop-filter: blur(14px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+  
   border-bottom: 1px solid rgba(26, 20, 16, 0.08) !important;
 }
 
