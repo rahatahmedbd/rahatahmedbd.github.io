@@ -70,6 +70,13 @@ export function Hero() {
               <Button href="#contact" variant="secondary" size="lg">
                 {t(hero.secondaryCta)}
               </Button>
+              <Button href="/rahatverse" variant="gold" size="lg">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                </span>
+                {t({ bn: "রাহাতভার্সে প্রবেশ", en: "Enter RahatVerse" })}
+              </Button>
             </div>
           </Reveal>
 
