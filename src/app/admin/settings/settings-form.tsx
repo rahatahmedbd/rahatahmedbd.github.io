@@ -31,6 +31,11 @@ export function SettingsForm({ currentSettings }: SettingsFormProps) {
   const [logoUrl, setLogoUrl] = useState(currentSettings.logoUrl || "");
   const [faviconUrl, setFaviconUrl] = useState(currentSettings.faviconUrl || "");
   const [copyright, setCopyright] = useState(currentSettings.copyright || "© 2026 Rahat Ahmed. All rights reserved.");
+  
+  // Announcement
+  const [announcementActive, setAnnouncementActive] = useState(currentSettings.announcementActive || false);
+  const [announcementTextEn, setAnnouncementTextEn] = useState(currentSettings.announcementTextEn || "");
+  const [announcementTextBn, setAnnouncementTextBn] = useState(currentSettings.announcementTextBn || "");
 
   // Contact
   const [email, setEmail] = useState(currentSettings.email || "rahatbd20505@gmail.com");
@@ -73,6 +78,9 @@ export function SettingsForm({ currentSettings }: SettingsFormProps) {
       seoTitle,
       seoDescription,
       googleAnalyticsId,
+      announcementActive,
+      announcementTextEn,
+      announcementTextBn,
     };
 
     startTransition(async () => {
@@ -183,6 +191,53 @@ export function SettingsForm({ currentSettings }: SettingsFormProps) {
                   onChange={(e) => setCopyright(e.target.value)}
                   className="w-full h-11 px-4 rounded-full border border-border/10 bg-canvas/30 text-sm focus:border-brand-500 outline-none transition-colors"
                 />
+              </div>
+
+              {/* Announcement Banner */}
+              <div className="border-t border-border/5 pt-4 space-y-4">
+                <p className="text-xs font-bold uppercase tracking-widest text-fg-muted">Announcement Banner</p>
+                <div className="flex items-center gap-2.5 px-1">
+                  <input
+                    id="announcementActive"
+                    type="checkbox"
+                    checked={announcementActive}
+                    onChange={(e) => setAnnouncementActive(e.target.checked)}
+                    className="rounded border-border/20 text-brand-500 focus:ring-brand-500 h-4 w-4 bg-canvas/30"
+                  />
+                  <label htmlFor="announcementActive" className="text-xs text-fg-soft font-semibold cursor-pointer select-none">
+                    Enable Banner Announcement (Top of website)
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-fg-muted" htmlFor="announcementEn">
+                      Announcement English
+                    </label>
+                    <input
+                      id="announcementEn"
+                      type="text"
+                      value={announcementTextEn}
+                      onChange={(e) => setAnnouncementTextEn(e.target.value)}
+                      placeholder="Welcome to our new platform!"
+                      className="w-full h-11 px-4 rounded-full border border-border/10 bg-canvas/30 text-xs focus:border-brand-500 outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-fg-muted" htmlFor="announcementBn">
+                      Announcement Bengali
+                    </label>
+                    <input
+                      id="announcementBn"
+                      type="text"
+                      value={announcementTextBn}
+                      onChange={(e) => setAnnouncementTextBn(e.target.value)}
+                      placeholder="আমাদের নতুন প্ল্যাটফর্মে স্বাগতম!"
+                      className="w-full h-11 px-4 rounded-full border border-border/10 bg-canvas/30 text-xs focus:border-brand-500 outline-none"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </Reveal>

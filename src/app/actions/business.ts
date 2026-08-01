@@ -327,3 +327,87 @@ export async function deleteInvoiceAction(id: string) {
     return { success: false, error: err.message || "Failed to delete invoice" };
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   4. Skills CMS Management Actions
+   ───────────────────────────────────────────────────────────────────────────── */
+
+export async function createSkillAction(input: {
+  name: string;
+  category: string;
+  proficiency: number;
+  sortOrder?: number;
+}) {
+  await requireCmsAdmin();
+  try {
+    const supabase = await getSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("skills")
+      .insert({
+        name: input.name,
+        category: input.category,
+        proficiency: input.proficiency,
+        sort_order: input.sortOrder ?? 0,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    revalidatePath("/admin/skills");
+    revalidatePath("/");
+    return { success: true, data };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to create skill" };
+  }
+}
+
+export async function updateSkillAction(
+  id: string,
+  input: {
+    name: string;
+    category: string;
+    proficiency: number;
+    sortOrder?: number;
+  }
+) {
+  await requireCmsAdmin();
+  try {
+    const supabase = await getSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("skills")
+      .update({
+        name: input.name,
+        category: input.category,
+        proficiency: input.proficiency,
+        sort_order: input.sortOrder ?? 0,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    revalidatePath("/admin/skills");
+    revalidatePath("/");
+    return { success: true, data };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to update skill" };
+  }
+}
+
+export async function deleteSkillAction(id: string) {
+  await requireCmsAdmin();
+  try {
+    const supabase = await getSupabaseServerClient();
+    const { error } = await supabase.from("skills").delete().eq("id", id);
+    if (error) throw error;
+
+    revalidatePath("/admin/skills");
+    revalidatePath("/");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to delete skill" };
+  }
+}

@@ -99,6 +99,11 @@ export function AdminLayoutClient({
       icon: Briefcase,
     },
     {
+      label: t({ bn: "দক্ষতা ও স্কিলস", en: "Skills CMS" }),
+      href: "/admin/skills",
+      icon: Sparkles,
+    },
+    {
       label: t({ bn: "সার্ভিসেস", en: "Services" }),
       href: "/admin/services",
       icon: Sparkles,
