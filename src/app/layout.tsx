@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { LanguageProvider } from "@/components/providers/language-provider";
 import { Navbar } from "@/components/layout/navbar";
@@ -135,6 +136,18 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const headersList = headers();
+  const pathname = headersList.get("x-pathname") || "";
+  
+  const isDashboardOrAuth =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/reset-password") ||
+    pathname.startsWith("/unauthorized") ||
+    pathname.startsWith("/init-super-admin") ||
+    pathname.startsWith("/account");
+
   return (
     <html lang="bn" suppressHydrationWarning>
       <head>
@@ -152,11 +165,11 @@ export default function RootLayout({
         />
         <ThemeProvider>
           <LanguageProvider>
-            <ScrollProgress />
-            <Navbar />
+            {!isDashboardOrAuth && <ScrollProgress />}
+            {!isDashboardOrAuth && <Navbar />}
             <main id="main">{children}</main>
-            <Footer />
-            <BackToTop />
+            {!isDashboardOrAuth && <Footer />}
+            {!isDashboardOrAuth && <BackToTop />}
           </LanguageProvider>
         </ThemeProvider>
       </body>
