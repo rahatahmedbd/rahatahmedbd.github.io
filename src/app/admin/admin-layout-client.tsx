@@ -24,6 +24,7 @@ import {
   Target,
   FileText,
   Compass,
+  Cpu,
 } from "lucide-react";
 import { useLanguage } from "@/components/providers/language-provider";
 import { logoutAction } from "@/app/actions/auth";
@@ -51,6 +52,11 @@ export function AdminLayoutClient({
       label: t({ bn: "ড্যাশবোর্ড", en: "Dashboard" }),
       href: "/admin",
       icon: LayoutDashboard,
+    },
+    {
+      label: t({ bn: "এআই অ্যাসিস্ট্যান্ট", en: "AI Assistant" }),
+      href: "/admin/ai-assistant",
+      icon: Cpu,
     },
     {
       label: t({ bn: "গ্লোবাল সার্চ", en: "Global Search" }),
