@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
+  ShoppingBag,
   Briefcase,
   Sparkles,
   Star,
@@ -46,6 +47,11 @@ export function AdminLayoutClient({
       label: t({ bn: "ড্যাশবোর্ড", en: "Dashboard" }),
       href: "/admin",
       icon: LayoutDashboard,
+    },
+    {
+      label: t({ bn: "ওয়েবসাইট অর্ডার্স", en: "Website Orders" }),
+      href: "/admin/orders",
+      icon: ShoppingBag,
     },
     {
       label: t({ bn: "পোর্টফোলিও CMS", en: "Portfolio CMS" }),
