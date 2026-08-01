@@ -20,6 +20,10 @@ import {
   User,
   Globe,
   Loader2,
+  Users,
+  Target,
+  FileText,
+  Compass,
 } from "lucide-react";
 import { useLanguage } from "@/components/providers/language-provider";
 import { logoutAction } from "@/app/actions/auth";
@@ -49,9 +53,39 @@ export function AdminLayoutClient({
       icon: LayoutDashboard,
     },
     {
+      label: t({ bn: "গ্লোবাল সার্চ", en: "Global Search" }),
+      href: "/admin/search",
+      icon: Compass,
+    },
+    {
+      label: t({ bn: "লিডস (CRM)", en: "Leads CRM" }),
+      href: "/admin/leads",
+      icon: Target,
+    },
+    {
+      label: t({ bn: "ক্লায়েন্ট ডাটাবেস", en: "Client Base" }),
+      href: "/admin/clients",
+      icon: Users,
+    },
+    {
       label: t({ bn: "ওয়েবসাইট অর্ডার্স", en: "Website Orders" }),
       href: "/admin/orders",
       icon: ShoppingBag,
+    },
+    {
+      label: t({ bn: "প্রপোজাল ও কোটস", en: "Quotes & Proposals" }),
+      href: "/admin/quotes",
+      icon: FileText,
+    },
+    {
+      label: t({ bn: "বিলিং ইনভয়েস", en: "Billing Invoices" }),
+      href: "/admin/invoices",
+      icon: FileText,
+    },
+    {
+      label: t({ bn: "এসইও ম্যানেজার", en: "SEO Manager" }),
+      href: "/admin/seo",
+      icon: Globe,
     },
     {
       label: t({ bn: "পোর্টফোলিও CMS", en: "Portfolio CMS" }),
