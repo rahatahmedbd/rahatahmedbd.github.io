@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { LanguageProvider } from "@/components/providers/language-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { ScrollProgress } from "@/components/layout/scroll-progress";
 import { BackToTop } from "@/components/layout/back-to-top";
+import { AnnouncementBanner } from "@/components/layout/announcement-banner";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -130,11 +133,36 @@ const personJsonLd = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const headersList = headers();
+  const pathname = headersList.get("x-pathname") || "";
+  
+  const isDashboardOrAuth =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/reset-password") ||
+    pathname.startsWith("/unauthorized") ||
+    pathname.startsWith("/init-super-admin") ||
+    pathname.startsWith("/account");
+
+  let currentSettings: any = {};
+  try {
+    const supabase = await getSupabaseServerClient();
+    const { data: settingsData } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "general_settings")
+      .maybeSingle();
+    currentSettings = settingsData?.value || {};
+  } catch {
+    // ignore
+  }
+
   return (
     <html lang="bn" suppressHydrationWarning>
       <head>
@@ -152,11 +180,12 @@ export default function RootLayout({
         />
         <ThemeProvider>
           <LanguageProvider>
-            <ScrollProgress />
-            <Navbar />
+            {!isDashboardOrAuth && <AnnouncementBanner settings={currentSettings} />}
+            {!isDashboardOrAuth && <ScrollProgress />}
+            {!isDashboardOrAuth && <Navbar />}
             <main id="main">{children}</main>
-            <Footer />
-            <BackToTop />
+            {!isDashboardOrAuth && <Footer />}
+            {!isDashboardOrAuth && <BackToTop />}
           </LanguageProvider>
         </ThemeProvider>
       </body>
