@@ -70,6 +70,9 @@ export function Hero() {
               <Button href="#contact" variant="secondary" size="lg">
                 {t(hero.secondaryCta)}
               </Button>
+              <Button href="/verse" variant="secondary" size="lg" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10">
+                🎮 Enter RahatVerse 3D
+              </Button>
               <Button href="/rahatverse" variant="gold" size="lg">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70" />
