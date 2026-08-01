@@ -148,7 +148,8 @@ export default async function RootLayout({
     pathname.startsWith("/reset-password") ||
     pathname.startsWith("/unauthorized") ||
     pathname.startsWith("/init-super-admin") ||
-    pathname.startsWith("/account");
+    pathname.startsWith("/account") ||
+    pathname.startsWith("/verse");
 
   let currentSettings: any = {};
   try {

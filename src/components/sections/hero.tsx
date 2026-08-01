@@ -70,6 +70,9 @@ export function Hero() {
               <Button href="#contact" variant="secondary" size="lg">
                 {t(hero.secondaryCta)}
               </Button>
+              <Button href="/verse" variant="secondary" size="lg" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10">
+                🎮 Enter RahatVerse 3D
+              </Button>
             </div>
           </Reveal>
 
