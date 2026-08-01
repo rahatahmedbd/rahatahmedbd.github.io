@@ -28,6 +28,7 @@ export const navLinks: NavLink[] = [
   { href: "#tribute", bn: "শ্রদ্ধাঞ্জলি", en: "Tribute" },
   { href: "#gallery", bn: "গ্যালারি", en: "Gallery" },
   { href: "/order", bn: "অর্ডার ওয়েবসাইট", en: "Order Website" },
+  { href: "/rahatverse", bn: "রাহাতভার্স", en: "RahatVerse" },
 ];
 
 export const socials = [
