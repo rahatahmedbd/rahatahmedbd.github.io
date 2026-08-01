@@ -92,18 +92,19 @@
     const start = parseInt(element.getAttribute('data-count-start'), 10) || DEFAULT_START;
     const originalText = element.textContent;
     
+    // If target is invalid, skip
+    if (isNaN(target)) {
+      console.warn('Counter: Invalid target', element);
+      return;
+    }
+
     // Check if original had "+" suffix
     const hasSuffix = originalText.includes('+');
 
     // If reduced motion, show final value immediately
     if (prefersReducedMotion) {
       element.textContent = formatNumber(target, hasSuffix, originalText);
-      return;
-    }
-
-    // If target is invalid, skip
-    if (isNaN(target)) {
-      console.warn('Counter: Invalid target', element);
+      element.classList.add('is-counted');
       return;
     }
 
