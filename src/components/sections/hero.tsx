@@ -73,6 +73,13 @@ export function Hero() {
               <Button href="/verse" variant="secondary" size="lg" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10">
                 🎮 Enter RahatVerse 3D
               </Button>
+              <Button href="/rahatverse" variant="gold" size="lg">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                </span>
+                {t({ bn: "রাহাতভার্সে প্রবেশ", en: "Enter RahatVerse" })}
+              </Button>
             </div>
           </Reveal>
 

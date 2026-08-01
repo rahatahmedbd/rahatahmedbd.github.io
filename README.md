@@ -19,6 +19,26 @@ Premium, bilingual (বাংলা / English) personal portfolio for **Rahat Ah
 
 ---
 
+## 🌆 RahatVerse — Chapter 2 · The Digital City
+
+An explorable, open-world **3D digital city** built with Three.js — accessible at **`/rahatverse`** (from the navbar or the gold *"Enter RahatVerse"* button on the homepage). This is the foundation of RahatVerse: a living world every future chapter will expand.
+
+**What's inside (foundation only — no buildings yet):**
+
+- **Central Plaza** with a giant holographic logo, a floating digital globe and animated lighting.
+- **Full road network** — radial avenues, ring roads, bridges, walkways, and four parks.
+- **8 reserved districts** (Agency HQ, Portfolio Museum, Website Factory, AI Lab, Service District, Order Center, Client Hub, Innovation Tower) plus a hidden **Secret District** on an island across a bridge — all clearly marked, intentionally not built.
+- **Navigation** — direction signs, floating holo-arrows, district markers, live mini-map and an interactive map terminal.
+- **Living world** — NPC citizens (visitors, developers, designers, robots) that walk, look at you and wave; patrolling drones; decorative flying vehicles; drifting particles.
+- **Premium animated sky** with smooth Morning → Day → Sunset → Night transitions and a time-of-day switcher in the HUD.
+- **Procedural ambient audio** (wind, soft electronic pad, fountain, drones) via Web Audio — no audio files.
+- **Interaction** — screens, billboards, kiosks and collectible crystals; a clean HUD (mini-map, district name, hints).
+- **Performance** — procedural textures (no asset downloads), Three.js frustum culling, capped pixel-ratio & shadows, static geometry.
+
+> WebGL is required. The site falls back to a friendly notice if WebGL is unavailable.
+
+---
+
 ## 🧱 Tech stack
 
 | Concern        | Choice                                            |

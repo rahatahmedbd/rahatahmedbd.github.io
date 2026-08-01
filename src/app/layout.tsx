@@ -149,7 +149,8 @@ export default async function RootLayout({
     pathname.startsWith("/unauthorized") ||
     pathname.startsWith("/init-super-admin") ||
     pathname.startsWith("/account") ||
-    pathname.startsWith("/verse");
+    pathname.startsWith("/verse") ||
+    pathname.startsWith("/rahatverse");
 
   let currentSettings: any = {};
   try {

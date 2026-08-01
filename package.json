@@ -16,6 +16,7 @@
     "@react-three/rapier": "^1.5.0",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.111.0",
+    "@types/three": "^0.169.0",
     "clsx": "^2.1.1",
     "ecctrl": "^1.0.86",
     "lucide-react": "^0.454.0",
@@ -24,7 +25,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "tailwind-merge": "^2.5.4",
-    "three": "^0.185.1",
+    "three": "^0.169.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
