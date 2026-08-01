@@ -150,4 +150,4 @@
 
   console.log(`✓ Reveal initialized — ${revealElements.length} elements`);
 
-})();// Reveal JS — Scroll Reveal Animation
+})();
