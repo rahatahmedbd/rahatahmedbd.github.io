@@ -1,18 +1,9 @@
-/**
- * Cloudinary helpers (Phase 1 readiness — not wired to any UI yet).
- *
- * Client-side delivery only needs the cloud name (public). Server-side
- * uploads / signed transformations need CLOUDINARY_API_KEY/SECRET, which
- * must live only in server environments (.env.local, never the browser).
- */
+import { publicEnv } from "@/config/env";
 
-export const CLOUDINARY_CLOUD_NAME =
-  process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? "";
+export const CLOUDINARY_CLOUD_NAME = publicEnv.cloudinaryCloudName;
+export const CLOUDINARY_UPLOAD_PRESET = publicEnv.cloudinaryUploadPreset;
 
-export const CLOUDINARY_UPLOAD_PRESET =
-  process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? "";
-
-export function isCloudinaryConfigured() {
+export function isCloudinaryConfigured(): boolean {
   return CLOUDINARY_CLOUD_NAME.length > 0;
 }
 
@@ -32,10 +23,7 @@ export function cloudinaryUrl(
   transform: CloudinaryTransform = {}
 ): string {
   if (!isCloudinaryConfigured()) {
-    // Fallback to the local copy in /public/images while Cloudinary is empty.
-    return publicId.startsWith("/")
-      ? publicId
-      : `/images/${publicId}`;
+    return publicId.startsWith("/") ? publicId : `/images/${publicId}`;
   }
 
   const parts: string[] = [];
@@ -49,4 +37,15 @@ export function cloudinaryUrl(
 
   const transformStr = parts.join(",");
   return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${transformStr}/${publicId}`;
+}
+
+/** Build a responsive srcset string for a Cloudinary image. */
+export function cloudinarySrcSet(
+  publicId: string,
+  widths: number[] = [640, 768, 1024, 1280, 1536],
+  transform: CloudinaryTransform = {}
+): string {
+  return widths
+    .map((w) => `${cloudinaryUrl(publicId, { ...transform, width: w })} ${w}w`)
+    .join(", ");
 }

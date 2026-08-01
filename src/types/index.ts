@@ -42,3 +42,5 @@ export interface GalleryItem {
   /** true when the image file is not yet committed (graceful placeholder). */
   missing?: boolean;
 }
+
+export * from "./database";
