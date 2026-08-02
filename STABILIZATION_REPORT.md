@@ -178,12 +178,56 @@ server-side exceptions:
 
 ---
 
-## 7. Remaining items (not done deliberately)
+## 7. Second pass — silent data loss
+
+Two further defects found after the first round, both of the same kind: the
+system reporting success for something that had not happened.
+
+### File uploads were destroying files
+
+When no Cloudinary preset was configured — **and for every non-image file
+regardless of configuration** — the code did this:
+
+```ts
+fileUrl = URL.createObjectURL(file);   // blob:http://…
+```
+
+and then wrote that URL to the database as the file's permanent location. A
+`blob:` URL is scoped to the tab that created it. The moment the tab closed
+the file was unreachable forever, while the admin panel and client dashboard
+both displayed it as a successful upload.
+
+Client contracts, briefs and PDFs took this path **unconditionally**, because
+the Cloudinary branch was gated on `file.type.startsWith("image")`.
+
+Fixed with a shared `lib/cloudinary/upload.ts`:
+- images → `/image/upload`, documents → `/raw/upload`
+- admin uploads use the server signing endpoint that already existed in the
+  repo but was never called by anything
+- it **throws** when uploads cannot work rather than inventing a URL
+- the dashboard hides the upload control and explains the alternative, and
+  shows the real error instead of a generic "Failed to upload"
+
+### The admin dashboard reported invented revenue
+
+```ts
+monthlyRevenue += val * 0.25;   // "Mocking monthly/annual distributions"
+annualRevenue  += val * 0.85;
+```
+
+Fixed numbers with no reference to any date, presented as business metrics.
+Both are now derived from real completion dates. Turning typechecking back on
+paid off immediately here: it caught that the query did not even select
+`created_at` / `updated_at`.
+
+---
+
+## 8. Remaining items (not done deliberately)
 
 1. **Apply migration `0009`** — the order fix is not complete until it runs.
-2. **Cloudinary upload preset** is unset, so non-image uploads fall back to
-   `URL.createObjectURL`, producing a `blob:` URL that is useless server-side.
-   Set `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` or disable file uploads.
+2. **Set `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`** (or `CLOUDINARY_API_KEY` +
+   `CLOUDINARY_API_SECRET` for admin-side uploads). Until then uploads are
+   correctly disabled with a clear message rather than silently losing files.
 3. **Fonts** still load via `<link>` to Google Fonts. Switching to `next/font`
    is a clear win but could not be verified here (no network egress to
    fonts.googleapis.com), so it was reverted rather than shipped blind.
