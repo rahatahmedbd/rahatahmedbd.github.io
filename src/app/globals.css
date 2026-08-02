@@ -220,6 +220,16 @@
     mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
   }
 
+  /* Horizontal rails (category carousel, chip rows) hide their scrollbar
+     but stay fully swipeable / keyboard scrollable. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   .pause-on-hover:hover {
     animation-play-state: paused;
   }

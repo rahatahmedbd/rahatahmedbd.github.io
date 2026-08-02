@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { LanguageProvider } from "@/components/providers/language-provider";
 import { Navbar } from "@/components/layout/navbar";
@@ -7,7 +7,9 @@ import { Footer } from "@/components/layout/footer";
 import { ScrollProgress } from "@/components/layout/scroll-progress";
 import { BackToTop } from "@/components/layout/back-to-top";
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
+import { GateMount } from "@/components/experience/gate-mount";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { EXPERIENCE_COOKIE, isExperienceMode } from "@/lib/experience/mode";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -150,7 +152,15 @@ export default async function RootLayout({
     pathname.startsWith("/init-super-admin") ||
     pathname.startsWith("/account") ||
     pathname.startsWith("/verse") ||
-    pathname.startsWith("/rahatverse");
+    pathname.startsWith("/rahatverse") ||
+    pathname.startsWith("/enter");
+
+  // The welcome gate is shown once, on the first public page a visitor lands
+  // on. The decision happens on the server (cookie) so there is no flash of
+  // the homepage before the gate appears — and no gate at all for returning
+  // visitors, or anywhere inside the app shell.
+  const experienceChoice = cookies().get(EXPERIENCE_COOKIE)?.value;
+  const showGate = !isDashboardOrAuth && !isExperienceMode(experienceChoice);
 
   let currentSettings: any = {};
   try {
@@ -194,6 +204,7 @@ export default async function RootLayout({
             <main id="main">{children}</main>
             {!isDashboardOrAuth && <Footer />}
             {!isDashboardOrAuth && <BackToTop />}
+            {showGate && <GateMount />}
           </LanguageProvider>
         </ThemeProvider>
       </body>
