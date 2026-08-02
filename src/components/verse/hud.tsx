@@ -256,6 +256,14 @@ export function VerseHud({
             <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-white/75">
               {state.infoPanel.body}
             </p>
+            {state.infoPanel.link && (
+              <Link
+                href={state.infoPanel.link}
+                className="mt-6 flex w-full items-center justify-center rounded-xl bg-white text-black py-3 font-semibold transition hover:scale-[1.02]"
+              >
+                Enter {state.infoPanel.title}
+              </Link>
+            )}
           </div>
         </div>
       )}
@@ -284,6 +292,14 @@ export function VerseHud({
                 { name: "Order Center", note: "Chapter 8" },
                 { name: "Client Hub", note: "Chapter 8" },
                 { name: "Innovation Tower", note: "Chapter 9" },
+                { name: "Agency Headquarters", note: "Chapter 3" },
+                { name: "Portfolio Museum", note: "Chapter 5 (Open)" },
+                { name: "Website Factory", note: "Chapter 6" },
+                { name: "AI Laboratory", note: "Chapter 7" },
+                { name: "Service District", note: "Chapter 4" },
+                { name: "Order Center", note: "Chapter 4" },
+                { name: "Client Hub", note: "Chapter 4" },
+                { name: "Innovation Tower", note: "Chapter 7" },
                 { name: "Secret District", note: "??? — find it" },
               ].map((item) => (
                 <li

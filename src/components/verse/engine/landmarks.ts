@@ -13,8 +13,7 @@ export interface InteractPayload {
   accent: number;
   /** optional: opens the map panel instead of a popup */
   openMap?: boolean;
-  /** optional: opens the Agency Headquarters experience */
-  openHq?: boolean;
+  link?: string;
 }
 
 /**

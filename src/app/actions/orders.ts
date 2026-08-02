@@ -108,6 +108,81 @@ export async function submitProjectOrderAction(input: {
 }
 
 /**
+ * Public Consultation & Custom Quote Request Action
+ */
+export async function submitConsultationRequestAction(input: {
+  fullName: string;
+  email: string;
+  phone?: string;
+  companyName?: string;
+  meetingDate?: string;
+  meetingTime?: string;
+  requestType: "consultation" | "meeting" | "message" | "custom_quote";
+  notes: string;
+}) {
+  try {
+    const supabase = await getSupabaseServerClient();
+
+    // 1. Insert into leads CRM table
+    const { data: lead, error: leadErr } = await supabase
+      .from("leads")
+      .insert({
+        name: input.fullName,
+        email: input.email,
+        phone: input.phone || null,
+        company_name: input.companyName || null,
+        status: "new",
+        notes: `[${input.requestType.toUpperCase()}] ${input.notes} ${
+          input.meetingDate ? `| Preferred Meeting: ${input.meetingDate} at ${input.meetingTime}` : ""
+        }`,
+      })
+      .select()
+      .single();
+
+    if (leadErr) {
+      console.warn("Leads table insert warning, falling back to messages:", leadErr.message);
+      // Fallback insert into messages table if leads schema isn't accessible to public RLS
+      await supabase.from("messages").insert({
+        name: input.fullName,
+        email: input.email,
+        phone: input.phone || null,
+        subject: `Live Consultation Request (${input.requestType})`,
+        body: `${input.notes} | Meeting: ${input.meetingDate || "N/A"} ${input.meetingTime || ""}`,
+        is_read: false,
+      });
+    }
+
+    // 2. Notify Super Admin Panel
+    try {
+      const client = isSupabaseAdminAvailable ? getSupabaseAdminClient() : supabase;
+      const { data: admins } = await client
+        .from("profiles")
+        .select("id")
+        .in("role_id", ["super_admin", "admin"])
+        .limit(1);
+
+      if (admins && admins.length > 0) {
+        await client.from("notifications").insert({
+          user_id: admins[0].id,
+          type: "info",
+          title: `New Consultation Request: ${input.fullName}`,
+          body: `${input.fullName} requested a ${input.requestType.replace("_", " ")}.`,
+          link: `/admin/leads`,
+          is_read: false,
+        });
+      }
+    } catch {
+      // ignore
+    }
+
+    revalidatePath("/admin");
+    return { success: true, lead };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to submit consultation request" };
+  }
+}
+
+/**
  * Super Admin: Update order parameters (price, status, delivery date, notes, etc.)
  */
 export async function updateAdminOrderAction(

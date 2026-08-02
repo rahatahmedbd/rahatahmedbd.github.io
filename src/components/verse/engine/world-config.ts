@@ -84,6 +84,7 @@ export interface ReservedZone {
   /** Short info shown on the interactive panel. */
   info: string;
   accent: number;
+  link?: string;
 }
 
 /**
@@ -100,8 +101,9 @@ export const RESERVED: ReservedZone[] = [
   {
     id: "museum", name: "Portfolio Museum", bn: "পোর্টফোলিও জাদুঘর",
     tagline: "Every project, every story, on display", x: 0, z: -150, chapter: 5,
-    info: "All completed projects and achievements will be exhibited here as interactive exhibits. Opening in Chapter 5.",
+    info: "All completed projects and achievements are exhibited here as interactive experiences. The doors are now open.",
     accent: PALETTE.gold,
+    link: "/museum",
   },
   {
     id: "factory", name: "Website Factory", bn: "ওয়েবসাইট কারখানা",
@@ -161,7 +163,7 @@ export interface HudState {
   timePhase: TimePhase;
   welcomeShown: boolean;
   toast: { id: number; title: string; sub?: string } | null;
-  infoPanel: { title: string; body: string; accent: number } | null;
+  infoPanel: { title: string; body: string; accent: number; link?: string } | null;
   mapOpen: boolean;
   hqModalOpen: boolean;
   muted: boolean;
