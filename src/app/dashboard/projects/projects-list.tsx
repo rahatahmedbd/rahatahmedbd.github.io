@@ -1,21 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import {
-  Briefcase,
-  Search,
-  CheckCircle,
-  Clock,
-  DollarSign,
-  Calendar,
-  X,
-  FileText,
-  User,
-  Info,
-  Eye,
+import { useState, useMemo } from "react";
+import { getMissionCode, mapStatusToStageIndex, TIMELINE_STAGES } from "@/components/mission-control/mission-utils";
+import { TimelineReactor } from "@/components/mission-control/timeline-reactor";
+import { HoloWebsite } from "@/components/mission-control/holo-website";
+import { StatsHolo } from "@/components/mission-control/stats-holo";
+import { HistoryMatrix } from "@/components/mission-control/history-matrix";
+import { FileVaultUI } from "@/components/mission-control/file-vault-ui";
+import { ApprovalBay } from "@/components/mission-control/approval-bay";
+import { MissionCompleteCelebration } from "@/components/mission-control/celebration";
+import { 
+  Rocket, Search, X, Orbit, Radio, Shield, Zap, Eye, Activity, 
+  ExternalLink, Cpu, Clock, Database
 } from "lucide-react";
-import { useLanguage } from "@/components/providers/language-provider";
-import { Reveal } from "@/components/ui/reveal";
 
 interface Project {
   id: string;
@@ -43,294 +40,161 @@ interface Project {
   created_at: string;
 }
 
-interface ProjectsListProps {
-  initialProjects: Project[];
-}
-
-export function ProjectsList({ initialProjects }: ProjectsListProps) {
-  const { t, lang } = useLanguage();
+export function ProjectsList({ initialProjects }: { initialProjects: Project[] }) {
   const [projects] = useState<Project[]>(initialProjects);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [selected, setSelected] = useState<Project | null>(initialProjects[0] || null);
+  const [showCelebration, setShowCelebration] = useState(false);
 
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-
-  const filteredProjects = projects.filter((prj) => {
-    const matchesSearch =
-      prj.reference.toLowerCase().includes(search.toLowerCase()) ||
-      (prj.website_type && prj.website_type.toLowerCase().includes(search.toLowerCase()));
-
-    const matchesStatus = filterStatus === "all" || prj.status === filterStatus;
-
+  const filtered = useMemo(()=> projects.filter(p=>{
+    const matchesSearch = p.reference.toLowerCase().includes(search.toLowerCase()) || (p.website_type && p.website_type.toLowerCase().includes(search.toLowerCase()));
+    const matchesStatus = filterStatus==="all" || p.status===filterStatus || (filterStatus==="completed" && p.status.includes("complet"));
     return matchesSearch && matchesStatus;
-  });
+  }),[projects, search, filterStatus]);
 
-  const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
-    return lang === "bn"
-      ? d.toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" })
-      : d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  const currentStageIdx = selected ? mapStatusToStageIndex(selected.status) : 0;
+  const codename = selected ? getMissionCode(projects.indexOf(selected), selected.reference) : "MISSION ALPHA";
+
+  const openMission = (p: Project) => {
+    setSelected(p);
+    if (p.status.toLowerCase().includes("complet")) {
+      setShowCelebration(true);
+    }
+    // smooth scroll to top of control room on mobile
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  // Maps status to timeline stage index (0-8)
-  const getTimelineStage = (status: string): number => {
-    const s = status.toLowerCase();
-    if (s === "pending") return 0; // Project Received
-    if (s === "contacted") return 1; // Requirement Review
-    if (s === "waiting for client" || s === "quote sent") return 2; // Quote Approved
-    if (s === "quote accepted" || s === "project started" || s === "ui/ux design") return 3; // UI/UX Design
-    if (s === "development") return 4; // Development
-    if (s === "testing") return 5; // Testing
-    if (s === "revision") return 6; // Revision
-    if (s === "completed") return 8; // Completed
-    // default/deployment:
-    return 7; // Deployment
-  };
-
-  const stages = [
-    { title: "Project Received", bn: "প্রজেক্ট প্রাপ্ত" },
-    { title: "Requirement Review", bn: "রিকোয়ারমেন্ট রিভিউ" },
-    { title: "Quote Approved", bn: "বাজেট অনুমোদিত" },
-    { title: "UI/UX Design", bn: "ইউআই/ইউএক্স ডিজাইন" },
-    { title: "Development", bn: "ডেভেলপমেন্ট" },
-    { title: "Testing", bn: "টেস্টিং ও নিরীক্ষা" },
-    { title: "Revision", bn: "সংশোধন (Revision)" },
-    { title: "Deployment", bn: "ডেপ্লয়মেন্ট" },
-    { title: "Completed", bn: "প্রজেক্ট সম্পন্ন" },
-  ];
 
   return (
-    <div className="space-y-8 max-w-5xl">
-      {/* Title Header */}
-      <Reveal direction="fade">
-        <div>
-          <h1 className="text-display-sm font-bold tracking-tight">
-            <span className="text-gradient">আমার প্রজেক্ট সমূহ (My Projects)</span>
-          </h1>
-          <p className="text-sm text-fg-soft mt-1">
-            আপনার প্রজেক্টের লাইভ কাজের অগ্রগতি, বিবরণী এবং ডেলিভারি ডিটেইলস এখান থেকে তদারকি করুন।
-          </p>
-        </div>
-      </Reveal>
+    <div className="space-y-6">
+      {showCelebration && selected && <MissionCompleteCelebration missionName={getMissionCode(projects.indexOf(selected), selected.reference)} onClose={()=>setShowCelebration(false)} />}
 
-      {/* Filter & Search */}
-      <Reveal delay={60}>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-fg-muted" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search projects by reference or type..."
-              className="w-full h-12 pl-12 pr-4 rounded-full border border-border/10 bg-surface/30 text-sm focus:border-brand-500 outline-none transition-all"
-            />
+      {/* Hangar Header */}
+      <div className="relative overflow-hidden rounded-[30px] border border-white/[0.08] bg-[linear-gradient(160deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] p-6 backdrop-blur-xl">
+        <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(244,63,94,0.18),transparent_60%)] blur-[18px]" />
+        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+          <div className="flex items-center gap-4">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-rose-500 to-violet-600 text-white shadow-[0_0_24px_rgba(244,63,94,0.4)]"><Rocket className="h-7 w-7" /></div>
+            <div>
+              <h1 className="text-[22px] font-black tracking-tight text-white leading-none">MISSION HANGAR</h1>
+              <p className="mt-1 text-[11px] font-mono tracking-widest text-white/40 uppercase">Every website is a mission • Each opens its own control room</p>
+              <div className="mt-2 flex gap-2">
+                <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-mono text-white/50">{projects.length} VESSELS DOCKED</span>
+                <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold tracking-widest text-emerald-300">{projects.filter(p=>!p.status.includes("complet")).length} ACTIVE</span>
+              </div>
+            </div>
           </div>
 
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="h-12 px-5 rounded-full border border-border/10 bg-surface/30 text-sm focus:border-brand-500 outline-none transition-all text-fg"
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            <div className="relative flex-1 lg:w-[300px]">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+              <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search missions by code or type..." className="h-11 w-full rounded-full border border-white/10 bg-black/40 pl-11 pr-4 text-[13px] text-white placeholder:text-white/25 focus:border-violet-400/40 focus:outline-none" />
+            </div>
+            <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)} className="h-11 rounded-full border border-white/10 bg-black/40 px-4 text-[13px] text-white focus:border-white/20 outline-none">
+              <option value="all">All Systems</option>
+              <option value="pending">Pending / Requirement</option>
+              <option value="development">Development Active</option>
+              <option value="completed">Mission Complete</option>
+            </select>
+          </div>
         </div>
-      </Reveal>
+      </div>
 
-      {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredProjects.length > 0 ? (
-          filteredProjects.map((prj) => {
-            const currentStageIdx = getTimelineStage(prj.status);
-            return (
-              <Reveal key={prj.id} direction="scale">
-                <div className="card-surface p-6 rounded-3xl border border-border/10 bg-surface/20 hover:bg-surface/30 shadow-soft flex flex-col justify-between h-full gap-5">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono font-bold text-fg text-sm">{prj.reference}</span>
-                      <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-brand-500/10 text-brand-500 border border-brand-500/10">
-                        {prj.status}
-                      </span>
+      <div className="grid lg:grid-cols-[360px_1fr] gap-5 items-start">
+        {/* Dock List */}
+        <div className="space-y-3 lg:sticky top-6">
+          <div className="flex items-center justify-between px-1"><span className="text-[11px] font-black tracking-[0.2em] text-white uppercase">Dock Manifest</span><span className="text-[10px] font-mono text-white/30">{filtered.length} found</span></div>
+          <div className="grid gap-3 max-h-[70vh] overflow-y-auto pr-1 thin-scrollbar">
+            {filtered.length>0 ? filtered.map((p,i)=>{
+              const isActive = selected?.id===p.id;
+              const stageIdx = mapStatusToStageIndex(p.status);
+              const pct = Math.round(((stageIdx+1)/TIMELINE_STAGES.length)*100);
+              return (
+                <button key={p.id} onClick={()=>openMission(p)} className={`text-left relative overflow-hidden rounded-[20px] border p-4 transition-all duration-500 ${isActive ? "border-rose-400/40 bg-[radial-gradient(120%_120%_at_0%_0%,rgba(244,63,94,0.18),rgba(99,102,241,0.12))] shadow-[0_0_24px_rgba(244,63,94,0.25)]" : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"}`}>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-10 w-10 place-items-center rounded-xl bg-black/40 border border-white/10 text-white font-black text-[12px]">{pct}%</div>
+                      <div><div className="text-[12px] font-black tracking-wide text-white">{getMissionCode(i, p.reference)}</div><div className="text-[11px] font-bold text-white/70">{p.website_type}</div></div>
                     </div>
-
-                    <div className="space-y-1">
-                      <h3 className="font-bold text-fg text-base">{prj.website_type}</h3>
-                      <p className="text-xs text-fg-soft leading-relaxed line-clamp-2">{prj.project_details || "No description."}</p>
-                    </div>
-
-                    {/* Simple Mini-Progress */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-[10px] text-fg-muted font-bold uppercase tracking-wider">
-                        <span>Progress stage</span>
-                        <span>{stages[currentStageIdx].title}</span>
-                      </div>
-                      <div className="w-full bg-canvas rounded-full h-2 overflow-hidden border border-border/5">
-                        <div
-                          className="bg-brand-500 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${((currentStageIdx + 1) / stages.length) * 100}%` }}
-                        />
-                      </div>
-                    </div>
+                    <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold tracking-widest border ${p.status.includes("complet") ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" : "border-white/10 bg-white/5 text-white/50"}`}>{p.status}</span>
                   </div>
+                  <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/10"><div className="h-full bg-gradient-to-r from-rose-400 to-violet-400 transition-all duration-700" style={{ width: `${pct}%` }} /></div>
+                  <div className="mt-2 flex justify-between text-[10px] font-mono text-white/30"><span>{p.reference}</span><span>{TIMELINE_STAGES[stageIdx].label}</span></div>
+                  {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 h-10 w-1 rounded-full bg-gradient-to-b from-rose-400 to-violet-400 shadow-[0_0_10px_rgba(244,63,94,0.6)]" />}
+                </button>
+              )
+            }) : (
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-[12px] text-white/40">No missions match filters</div>
+            )}
+          </div>
+        </div>
 
-                  <div className="flex items-center justify-between border-t border-border/5 pt-4">
-                    <span className="text-xs text-fg-muted">Price: {prj.final_price ? `$${prj.final_price}` : `$${prj.estimated_cost} (Est)`}</span>
-                    <button
-                      onClick={() => setSelectedProject(prj)}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-brand-500 hover:underline"
-                    >
-                      <Eye className="h-4 w-4" />
-                      View Details
-                    </button>
+        {/* Control Room */}
+        {selected ? (
+          <div className="space-y-5 min-w-0">
+            {/* Control Room Header */}
+            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#0c0e18] p-6">
+              <div className="absolute inset-0 opacity-30"><div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[length:24px_24px]" /></div>
+              <div className="relative flex flex-wrap items-start justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-black font-black text-[14px] shadow-[0_0_24px_rgba(255,255,255,0.3)]"><Orbit className="h-6 w-6" /></div>
+                  <div>
+                    <div className="flex items-center gap-2"><span className="text-[16px] font-black tracking-wide text-white">{codename}</span><span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2 py-0.5 text-[9px] font-bold tracking-widest text-cyan-300">{selected.reference}</span><span className={`rounded-full px-2 py-0.5 text-[9px] font-bold tracking-widest border ${selected.is_priority ? "bg-amber-400 text-black border-amber-400" : "border-white/10 bg-white/5 text-white/50"}`}>{selected.is_priority ? "PRIORITY" : "STANDARD"}</span></div>
+                    <div className="mt-1 text-[13px] font-bold text-white/80">{selected.website_type} • {selected.budget_option || "Custom Budget"}</div>
+                    <div className="mt-1 flex items-center gap-2 text-[10px] font-mono text-white/40"><Clock className="h-3 w-3" /> Launched {new Date(selected.created_at).toLocaleDateString()} • {selected.estimated_delivery || "ETA TBD"}</div>
                   </div>
                 </div>
-              </Reveal>
-            );
-          })
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-bold tracking-widest text-emerald-300"><Radio className="h-3 w-3 inline mr-1" /> Control Room Active</span>
+                  <a href={`/dashboard/files?mission=${selected.id}`} className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[11px] font-bold text-white hover:bg-white/[0.10] flex items-center gap-1"><Database className="h-3.5 w-3.5" /> Vault</a>
+                </div>
+              </div>
+
+              <div className="relative mt-6 grid md:grid-cols-3 gap-3">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"><div className="text-[10px] tracking-widest text-white/40 uppercase flex items-center gap-1"><Cpu className="h-3 w-3" /> Mission Progress</div><div className="mt-2 text-[28px] font-black text-white leading-none">{Math.round(((currentStageIdx+1)/9)*100)}%</div><div className="mt-1 text-[11px] text-violet-300">{TIMELINE_STAGES[currentStageIdx].label}</div></div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"><div className="text-[10px] tracking-widest text-white/40 uppercase flex items-center gap-1"><Shield className="h-3 w-3" /> Budget Secured</div><div className="mt-2 text-[20px] font-black text-white leading-none">{selected.final_price ? `$${selected.final_price}` : `$${selected.estimated_cost || 0}`}</div><div className="mt-1 text-[11px] text-white/50">{selected.final_price ? "Final • Locked" : "Estimated • Encrypted"}</div></div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"><div className="text-[10px] tracking-widest text-white/40 uppercase flex items-center gap-1"><Activity className="h-3 w-3" /> Systems</div><div className="mt-2 flex gap-2"><span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] mt-1" /><span className="text-[13px] font-bold text-white">All systems nominal • Telemetry live</span></div><div className="mt-2 h-1 w-full bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400" style={{ width: `${70+currentStageIdx*4}%` }} /></div></div>
+              </div>
+            </div>
+
+            <StatsHolo project={selected} />
+
+            <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-5">
+              <HoloWebsite status={selected.status} title={`${codename} • Live Build`} />
+              <TimelineReactor status={selected.status} project={selected} />
+            </div>
+
+            <FileVaultUI projects={[selected]} />
+            <ApprovalBay project={selected} />
+            <HistoryMatrix project={selected} />
+
+            {/* Full Specs Deck */}
+            <div className="rounded-[28px] border border-white/10 bg-black/40 p-6 backdrop-blur-xl">
+              <h3 className="text-[13px] font-black tracking-[0.18em] text-white uppercase flex items-center gap-2"><Zap className="h-4 w-4 text-amber-300" /> Full Mission Brief • Declassified</h3>
+              <div className="mt-4 grid md:grid-cols-2 gap-6">
+                <div className="space-y-3 text-[12px] leading-relaxed text-white/60">
+                  <div><span className="text-white/40 uppercase tracking-widest text-[10px]">Project Details</span><p className="mt-1 whitespace-pre-line rounded-xl border border-white/10 bg-white/[0.02] p-3 text-white/70">{selected.project_details || "No additional briefing provided. Standard protocol initiated."}</p></div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3"><div className="text-[10px] text-white/40 uppercase">Website Type</div><div className="mt-1 font-bold text-white">{selected.website_type}</div></div>
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3"><div className="text-[10px] text-white/40 uppercase">Deadline</div><div className="mt-1 font-bold text-white">{selected.deadline_option || selected.estimated_delivery || "—"}</div></div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div><div className="text-[10px] uppercase tracking-widest text-white/40">Required Features</div><div className="mt-2 flex flex-wrap gap-1.5">{(selected.required_features||[]).map((f:string)=><span key={f} className="rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[11px] font-bold text-violet-300">{f}</span>)}</div></div>
+                  <div><div className="text-[10px] uppercase tracking-widest text-white/40">Design Preference</div><div className="mt-2 flex flex-wrap gap-1.5">{(selected.design_preference||[]).map((f:string)=><span key={f} className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-bold text-cyan-300">{f}</span>)}</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
-          <p className="text-sm text-fg-muted italic text-center py-10 card-surface border border-border/10 rounded-3xl bg-surface/10 col-span-full">
-            কোনো প্রজেক্ট পাওয়া যায়নি।
-          </p>
+          <div className="rounded-[28px] border border-white/10 bg-white/[0.02] p-16 text-center backdrop-blur-xl">
+            <Orbit className="mx-auto h-10 w-10 text-white/20" />
+            <div className="mt-4 text-white/60">Select a mission from the dock to enter control room</div>
+          </div>
         )}
       </div>
 
-      {/* Expanded Project Details Modal */}
-      {selectedProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
-          <div onClick={() => setSelectedProject(null)} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-
-          <div className="relative w-full max-w-4xl bg-canvas border border-border/15 p-6 sm:p-8 rounded-3xl shadow-2xl z-10 max-h-[90vh] overflow-y-auto space-y-8">
-            <button
-              onClick={() => setSelectedProject(null)}
-              className="absolute top-5 right-5 p-1.5 text-fg-soft border border-border/10 rounded-full hover:text-fg"
-            >
-              <X className="h-4 w-4" />
-            </button>
-
-            {/* Header */}
-            <div>
-              <div className="flex items-center gap-3">
-                <h3 className="text-xl font-bold text-fg">
-                  {selectedProject.website_type}
-                </h3>
-                <span className="font-mono text-brand-500 text-xs font-semibold px-2.5 py-0.5 rounded border border-border/10">
-                  {selectedProject.reference}
-                </span>
-              </div>
-              <p className="text-xs text-fg-soft mt-1">Submitted on {formatDate(selectedProject.created_at)}</p>
-            </div>
-
-            {/* PROGRESS TIMELINE STAGE */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-fg-muted">Project Progress Timeline</h4>
-              
-              <div className="relative flex flex-col md:flex-row justify-between gap-6 md:gap-2">
-                {stages.map((stage, sIdx) => {
-                  const currentStageIdx = getTimelineStage(selectedProject.status);
-                  const active = sIdx <= currentStageIdx;
-                  return (
-                    <div key={sIdx} className="flex md:flex-col items-center gap-3 md:gap-2 flex-1 relative text-center">
-                      {/* Connection bar - Desktop */}
-                      {sIdx !== stages.length - 1 && (
-                        <div
-                          className={`hidden md:block absolute top-4 left-[50%] right-[-50%] h-0.5 -z-10 ${
-                            sIdx < currentStageIdx ? "bg-brand-500" : "bg-border/10"
-                          }`}
-                        />
-                      )}
-
-                      {/* Dot icon */}
-                      <div
-                        className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold border transition-all ${
-                          active
-                            ? "bg-brand-500 text-white border-brand-500 shadow-soft"
-                            : "bg-canvas text-fg-muted border-border/10"
-                        }`}
-                      >
-                        {active ? <CheckCircle className="h-4 w-4" /> : sIdx + 1}
-                      </div>
-
-                      <div className="text-left md:text-center">
-                        <p className={`text-xs font-bold leading-tight ${active ? "text-fg" : "text-fg-muted"}`}>
-                          {stage.title}
-                        </p>
-                        <p className="text-[10px] text-fg-muted mt-0.5">{stage.bn}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Specifications Details columns */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-border/5 pt-6">
-              {/* Left specifications */}
-              <div className="space-y-4 text-xs">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-fg-muted mb-2">Specifications</h4>
-                
-                <div className="flex justify-between py-1.5 border-b border-border/5">
-                  <span className="text-fg-soft font-medium flex items-center gap-1.5">
-                    <DollarSign className="h-3.5 w-3.5 text-brand-500" />
-                    Estimated Price:
-                  </span>
-                  <span className="font-semibold text-fg">${selectedProject.estimated_cost}</span>
-                </div>
-
-                {selectedProject.final_price && (
-                  <div className="flex justify-between py-1.5 border-b border-border/5">
-                    <span className="text-fg-soft font-medium flex items-center gap-1.5">
-                      <DollarSign className="h-3.5 w-3.5 text-emerald-500" />
-                      Final Price:
-                    </span>
-                    <span className="font-extrabold text-gradient text-sm">${selectedProject.final_price}</span>
-                  </div>
-                )}
-
-                <div className="flex justify-between py-1.5 border-b border-border/5">
-                  <span className="text-fg-soft font-medium flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5 text-brand-500" />
-                    Target Timeline:
-                  </span>
-                  <span className="font-semibold text-fg">{selectedProject.estimated_delivery}</span>
-                </div>
-
-                {selectedProject.final_delivery && (
-                  <div className="flex justify-between py-1.5 border-b border-border/5">
-                    <span className="text-fg-soft font-medium flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5 text-emerald-500" />
-                      Final Delivery:
-                    </span>
-                    <span className="font-bold text-fg">{selectedProject.final_delivery}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Right lists */}
-              <div className="space-y-4 text-xs">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-fg-muted mb-2">Required Features</h4>
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedProject.required_features && selectedProject.required_features.map((f) => (
-                    <span key={f} className="bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold px-2 py-0.5 rounded border border-brand-500/10">
-                      {f}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Note details */}
-            <div className="border-t border-border/5 pt-6 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-fg-muted">Project Brief / Details</h4>
-              <p className="text-xs text-fg-soft leading-relaxed whitespace-pre-line bg-canvas-muted p-4 rounded-2xl border border-border/5">
-                {selectedProject.project_details}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      <style>{`.thin-scrollbar::-webkit-scrollbar{width:4px} .thin-scrollbar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:999px}`}</style>
     </div>
   );
 }

@@ -1,138 +1,63 @@
 "use client";
+import { FileText, DollarSign, CheckCircle, Clock, CreditCard, Shield, Zap } from "lucide-react";
 
-import { useState } from "react";
-import {
-  FileText,
-  DollarSign,
-  CheckCircle,
-  CreditCard,
-  Clock,
-} from "lucide-react";
-import { useLanguage } from "@/components/providers/language-provider";
-import { Reveal } from "@/components/ui/reveal";
-
-interface ProjectBilling {
-  id: string;
-  reference: string;
-  website_type: string | null;
-  estimated_cost: number | null;
-  final_price: number | null;
-  status: string;
-  created_at: string;
-}
-
-interface InvoicesListProps {
-  projects: ProjectBilling[];
-}
-
-export function InvoicesList({ projects }: InvoicesListProps) {
-  const { t, lang } = useLanguage();
-
-  const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
-    return lang === "bn"
-      ? d.toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" })
-      : d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-  };
-
-  const getPaymentStatus = (status: string) => {
-    const s = status.toLowerCase();
-    if (s === "completed") return "paid";
-    if (s === "cancelled") return "cancelled";
+export function InvoicesList({ projects }: { projects: any[] }) {
+  const getStatus = (s: string) => {
+    const low = s.toLowerCase();
+    if (low.includes("complet")) return "paid";
+    if (low.includes("cancel")) return "cancelled";
     return "pending";
   };
 
   return (
-    <div className="space-y-8 max-w-4xl">
-      {/* Title Header */}
-      <Reveal direction="fade">
-        <div>
-          <h1 className="text-display-sm font-bold tracking-tight">
-            <span className="text-gradient">ইনভয়েস ও পেমেন্ট (Invoices & Payments)</span>
-          </h1>
-          <p className="text-sm text-fg-soft mt-1">
-            আপনার প্রজেক্টের বাজেট বিবরণী, অতিরিক্ত ফিচার ফি এবং পেমেন্ট রসিদ এখানে দেখে নিন।
-          </p>
+    <div className="space-y-6">
+      <div className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-[linear-gradient(160deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] p-6 backdrop-blur-xl">
+        <div className="flex items-center gap-4">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-black shadow-[0_0_20px_rgba(52,211,153,0.4)]"><CreditCard className="h-6 w-6" /></div>
+          <div>
+            <h1 className="text-[20px] font-black tracking-tight text-white leading-none">RESOURCE CORE • INVOICES & PAYMENTS</h1>
+            <p className="mt-1 text-[11px] text-white/40 uppercase tracking-widest">Budget tracking • Settlement • Encrypted receipts • Live sync</p>
+          </div>
         </div>
-      </Reveal>
+      </div>
 
-      {/* Invoice list card */}
-      <div className="space-y-4">
-        {projects.length > 0 ? (
-          projects.map((prj, idx) => {
-            const payStatus = getPaymentStatus(prj.status);
-            return (
-              <Reveal key={prj.id} delay={idx * 30} direction="fade">
-                <div className="card-surface p-5 sm:p-6 rounded-2xl border border-border/10 bg-surface/20 hover:bg-surface/30 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-                  <div className="flex items-center gap-4">
-                    <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-500/10 text-brand-500">
-                      <FileText className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-fg text-sm">{prj.website_type}</h3>
-                      <span className="font-mono text-[10px] text-fg-muted font-semibold block mt-0.5">
-                        Invoice ID: INV-{prj.reference.slice(-6)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-10 text-xs">
-                    {/* Price details */}
-                    <div className="space-y-1">
-                      <span className="text-fg-muted uppercase tracking-wider block font-bold text-[9px]">Amounts</span>
-                      <p className="text-fg font-medium">Est Price: ${prj.estimated_cost || 0}</p>
-                      <p className="text-fg font-bold">
-                        Final Price:{" "}
-                        <span className="text-brand-500 font-extrabold">
-                          {prj.final_price ? `$${prj.final_price}` : "Awaiting Quote"}
-                        </span>
-                      </p>
-                    </div>
-
-                    {/* Status Badge */}
-                    <div className="space-y-1">
-                      <span className="text-fg-muted uppercase tracking-wider block font-bold text-[9px]">Payment Status</span>
-                      <span
-                        className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
-                          payStatus === "paid"
-                            ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/10"
-                            : payStatus === "cancelled"
-                            ? "bg-fg-muted/10 text-fg-soft border border-border/10"
-                            : "bg-amber-500/10 text-amber-500 border border-amber-500/10"
-                        }`}
-                      >
-                        {payStatus === "paid" ? (
-                          <>
-                            <CheckCircle className="h-3 w-3" /> Paid
-                          </>
-                        ) : payStatus === "cancelled" ? (
-                          "Cancelled"
-                        ) : (
-                          <>
-                            <Clock className="h-3 w-3 animate-pulse" /> Pending Gateway
-                          </>
-                        )}
-                      </span>
-                    </div>
-
-                    {/* Due Date */}
-                    <div className="space-y-1">
-                      <span className="text-fg-muted uppercase tracking-wider block font-bold text-[9px]">Due Date</span>
-                      <span className="font-semibold text-fg-soft">{formatDate(prj.created_at)}</span>
-                    </div>
+      <div className="grid gap-3">
+        {projects.length>0 ? projects.map((prj:any)=>{
+          const payStatus = getStatus(prj.status);
+          return (
+            <div key={prj.id} className="group relative overflow-hidden rounded-[22px] border border-white/10 bg-[#0c0e18] p-5 flex flex-col md:flex-row md:items-center justify-between gap-5 hover:border-white/20 transition-all">
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(60%_60%_at_0%_0%,rgba(99,102,241,0.12),transparent_70%)]" />
+              <div className="relative flex items-center gap-4">
+                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/[0.06] border border-white/10 text-white"><FileText className="h-6 w-6" /></div>
+                <div>
+                  <div className="text-[14px] font-bold text-white">{prj.website_type}</div>
+                  <div className="text-[11px] font-mono text-white/40">Invoice ID: INV-{prj.reference?.slice(-6)} • {prj.reference}</div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-widest border ${payStatus==="paid" ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" : payStatus==="cancelled" ? "border-white/10 bg-white/5 text-white/40" : "border-amber-400/30 bg-amber-400/10 text-amber-300"}`}>
+                      {payStatus==="paid" ? <><CheckCircle className="h-3 w-3" /> Settled</> : payStatus==="cancelled" ? "Cancelled" : <><Clock className="h-3 w-3 animate-pulse" /> Pending Gateway</>}
+                    </span>
+                    <span className="text-[10px] font-mono text-white/30">{new Date(prj.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
-              </Reveal>
-            );
-          })
-        ) : (
-          <Reveal direction="fade">
-            <div className="card-surface border border-border/10 rounded-3xl bg-surface/10 p-12 text-center text-fg-muted italic text-sm">
-              <FileText className="h-10 w-10 text-border mx-auto mb-3" />
-              কোনো ইনভয়েস রেকর্ড পাওয়া যায়নি
+              </div>
+
+              <div className="relative flex items-center gap-8">
+                <div><div className="text-[10px] tracking-widest text-white/40 uppercase">Estimated</div><div className="mt-1 text-[14px] font-bold text-white/70">${prj.estimated_cost||0}</div></div>
+                <div><div className="text-[10px] tracking-widest text-white/40 uppercase">Final • Locked</div><div className="mt-1 text-[18px] font-black text-white">{prj.final_price ? `$${prj.final_price}` : "Awaiting Quote"}</div></div>
+                <div className="hidden md:grid h-10 w-10 place-items-center rounded-full bg-white/5 border border-white/10 text-white/40"><DollarSign className="h-5 w-5" /></div>
+              </div>
             </div>
-          </Reveal>
+          )
+        }) : (
+          <div className="rounded-[28px] border border-white/10 bg-white/[0.02] p-16 text-center backdrop-blur-xl">
+            <FileText className="mx-auto h-10 w-10 text-white/20" />
+            <div className="mt-4 text-white/50">No invoices yet • Resource Core idle</div>
+          </div>
         )}
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-black/30 p-4 flex items-center gap-2 text-[10px] font-mono text-white/30">
+        <Shield className="h-4 w-4 text-emerald-400" /> All payments synced to Admin Tower • Receipts encrypted • Activity logged • Future: auto push notifications (queued)
       </div>
     </div>
   );

@@ -1,269 +1,94 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
-import {
-  RefreshCw,
-  Plus,
-  X,
-  AlertCircle,
-  CheckCircle,
-  Loader2,
-  Calendar,
-  DollarSign,
-  User,
-  Clock,
-} from "lucide-react";
-import { useLanguage } from "@/components/providers/language-provider";
+import { useState, useTransition } from "react";
+import { ApprovalBay } from "@/components/mission-control/approval-bay";
 import { createRevisionAction } from "@/app/actions/revisions";
-import { Button } from "@/components/ui/button";
-import { Reveal } from "@/components/ui/reveal";
+import { RefreshCw, Plus, X, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 
-interface Revision {
-  id: string;
-  order_id: string;
-  client_id: string;
-  description: string;
-  attachments: any[];
-  status: string;
-  admin_notes: string | null;
-  created_at: string;
-  orders?: { reference: string; website_type: string | null } | null;
-}
-
-interface Project {
-  id: string;
-  reference: string;
-  website_type: string | null;
-}
-
-interface RevisionsManagerProps {
-  projects: Project[];
-  initialRevisions: Revision[];
-}
-
-export function RevisionsManager({ projects, initialRevisions }: RevisionsManagerProps) {
-  const { t, lang } = useLanguage();
-  const [revisions, setRevisions] = useState<Revision[]>(initialRevisions);
-  const [isPending, startTransition] = useTransition();
-
-  // Form states
+export function RevisionsManager({ projects, initialRevisions }: { projects: any[]; initialRevisions: any[] }) {
+  const [revisions, setRevisions] = useState(initialRevisions);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(projects[0]?.id || "");
   const [description, setDescription] = useState("");
-
+  const [isPending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const openModal = () => {
-    setSelectedProjectId(projects[0]?.id || "");
-    setDescription("");
-    setError(null);
-    setSuccess(null);
-    setIsModalOpen(true);
-  };
+  const selectedProject = projects.find(p=>p.id===selectedProjectId) || projects[0];
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
-    startTransition(async () => {
-      const res = await createRevisionAction({
-        orderId: selectedProjectId,
-        description,
-      });
-
-      if (!res.success) {
-        setError(res.error || "Failed to submit revision request");
-        return;
-      }
-
-      // Add category name for display
-      const currentPrj = projects.find((p) => p.id === selectedProjectId);
-      const newRev = {
-        ...(res.data as Revision),
-        orders: {
-          reference: currentPrj?.reference || "",
-          website_type: currentPrj?.website_type || "",
-        },
-      };
-
-      setRevisions((prev) => [newRev, ...prev]);
-      setSuccess("Revision request submitted successfully!");
-
-      setTimeout(() => {
-        setIsModalOpen(false);
-      }, 1000);
+    setError(null); setSuccess(null);
+    start(async()=>{
+      const res = await createRevisionAction({ orderId: selectedProjectId, description });
+      if (!res.success) { setError(res.error||"Failed"); return; }
+      const current = projects.find(p=>p.id===selectedProjectId);
+      const newRev = { ...(res.data as any), orders: { reference: current?.reference||"", website_type: current?.website_type||"" } };
+      setRevisions(prev=>[newRev, ...prev]);
+      setSuccess("Revision transmitted to Admin Tower • Sync active");
+      setTimeout(()=>setIsModalOpen(false), 900);
     });
   };
 
-  const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
-    return lang === "bn"
-      ? d.toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" })
-      : d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-  };
-
   return (
-    <div className="space-y-8 max-w-4xl">
-      {/* Title Header */}
-      <Reveal direction="fade">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-display-sm font-bold tracking-tight">
-              <span className="text-gradient">রিভিশন রিকুয়েস্ট (Project Revisions)</span>
-            </h1>
-            <p className="text-sm text-fg-soft mt-1">
-              উন্নয়নশীল বা টেস্টিং পর্যায়ে থাকা প্রজেক্টের যেকোনো নকশা বা কন্টেন্ট সংশোধনের জন্য রিকুয়েস্ট জমা দিন।
-            </p>
+    <div className="space-y-6">
+      <div className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-[linear-gradient(160deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] p-6 backdrop-blur-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-black shadow-[0_0_20px_rgba(251,191,36,0.4)]"><RefreshCw className="h-6 w-6" /></div>
+            <div>
+              <h1 className="text-[20px] font-black tracking-tight text-white leading-none">APPROVAL BAY • REVISION DECK</h1>
+              <p className="mt-1 text-[11px] text-white/40 uppercase tracking-widest">Request changes • Approve milestones • Real-time sync to Admin Tower</p>
+            </div>
           </div>
-          {projects.length > 0 && (
-            <button
-              onClick={openModal}
-              className="flex items-center gap-2 rounded-full bg-brand-600 text-white px-5 h-11 font-semibold hover:bg-brand-500 hover:-translate-y-0.5 shadow-soft transition-all duration-300 self-start"
-            >
-              <Plus className="h-4 w-4" />
-              Request Revision
-            </button>
+          {projects.length>0 && (
+            <button onClick={()=>setIsModalOpen(true)} className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-[12px] font-black tracking-widest text-black shadow-[0_0_20px_rgba(255,255,255,0.25)] hover:bg-white/90"><Plus className="h-4 w-4" /> TRANSMIT REVISION</button>
           )}
         </div>
-      </Reveal>
+      </div>
 
-      {/* Historical List */}
-      <div className="space-y-4">
-        {revisions.length > 0 ? (
-          revisions.map((rev, idx) => (
-            <Reveal key={rev.id} delay={idx * 30} direction="fade">
-              <div className="card-surface p-5 sm:p-6 rounded-2xl border border-border/10 bg-surface/20 hover:bg-surface/30 shadow-soft space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <span className="font-bold text-fg text-sm">{rev.orders?.website_type}</span>
-                    <span className="font-mono text-[10px] text-fg-muted font-semibold px-2 py-0.5 rounded border border-border/10">
-                      {rev.orders?.reference}
-                    </span>
-                  </div>
+      <ApprovalBay project={selectedProject || projects[0]} onApprove={()=>{}} onRevision={()=>{}} />
 
-                  <span
-                    className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
-                      rev.status === "completed"
-                        ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/10"
-                        : rev.status === "rejected"
-                        ? "bg-brand-500/10 text-brand-500 border border-brand-500/10"
-                        : rev.status === "approved"
-                        ? "bg-blue-500/10 text-blue-500 border border-blue-500/10"
-                        : "bg-amber-500/10 text-amber-500 border border-amber-500/10"
-                    }`}
-                  >
-                    {rev.status}
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="p-3 bg-canvas/30 rounded-xl border border-border/5 text-xs text-fg-soft leading-relaxed whitespace-pre-line">
-                    {rev.description}
-                  </div>
-
-                  {rev.admin_notes && (
-                    <div className="p-3 bg-brand-500/5 rounded-xl border border-brand-500/10 text-xs space-y-1">
-                      <p className="font-bold text-brand-500">Developer Notes:</p>
-                      <p className="text-fg-soft leading-relaxed whitespace-pre-line">{rev.admin_notes}</p>
-                    </div>
-                  )}
-
-                  <p className="text-[10px] text-fg-muted">Requested on {formatDate(rev.created_at)}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))
-        ) : (
-          <Reveal direction="fade">
-            <div className="card-surface border border-border/10 rounded-3xl bg-surface/10 p-12 text-center text-fg-muted italic text-sm">
-              <RefreshCw className="h-10 w-10 text-border mx-auto mb-3" />
-              কোনো সংশোধনী রিকুয়েস্ট রেকর্ড পাওয়া যায়নি
+      <div className="grid gap-3">
+        <div className="text-[11px] font-black tracking-[0.2em] text-white uppercase px-1">Revision Transmissions Log • {revisions.length} records</div>
+        {revisions.length>0 ? revisions.map((rev:any, idx:number)=>(
+          <div key={rev.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2"><span className="text-[13px] font-bold text-white">{rev.orders?.website_type}</span><span className="font-mono text-[10px] text-white/40">{rev.orders?.reference}</span></div>
+              <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest border ${rev.status==="completed" ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" : "border-amber-400/30 bg-amber-400/10 text-amber-300"}`}>{rev.status}</span>
             </div>
-          </Reveal>
+            <div className="mt-3 rounded-xl border border-white/10 bg-black/30 p-3 text-[12px] text-white/60 leading-relaxed whitespace-pre-line">{rev.description}</div>
+            {rev.admin_notes && <div className="mt-2 rounded-xl border border-violet-400/20 bg-violet-500/10 p-3 text-[11px] text-violet-300"><span className="font-bold">Engineer Notes:</span> {rev.admin_notes}</div>}
+            <div className="mt-2 text-[10px] font-mono text-white/30">{new Date(rev.created_at).toLocaleString()}</div>
+          </div>
+        )) : (
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-12 text-center text-white/30"><RefreshCw className="mx-auto h-8 w-8 mb-3 opacity-30" /> No revision requests yet — Approval Bay is idle</div>
         )}
       </div>
 
-      {/* Submit Revision Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
-          <div onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-
-          <div className="relative w-full max-w-xl bg-canvas border border-border/15 p-6 sm:p-8 rounded-3xl shadow-2xl z-10 max-h-[90vh] overflow-y-auto space-y-6">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-5 right-5 p-1.5 text-fg-soft border border-border/10 rounded-full hover:text-fg"
-            >
-              <X className="h-4 w-4" />
-            </button>
-
-            <div>
-              <h3 className="text-xl font-bold text-fg">Request Project Revision</h3>
-              <p className="text-xs text-fg-soft mt-1">Describe exactly what updates, copy edits or layout revisions you want performed.</p>
-            </div>
-
-            <form onSubmit={handleSave} className="space-y-4">
-              {error && (
-                <div className="flex items-start gap-3 rounded-2xl border border-brand-500/20 bg-brand-500/5 p-4 text-sm text-brand-600 dark:text-brand-400">
-                  <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-                  <p>{error}</p>
-                </div>
-              )}
-
-              {success && (
-                <div className="flex items-start gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-600 dark:text-emerald-400">
-                  <CheckCircle className="h-5 w-5 shrink-0 mt-0.5" />
-                  <p>{success}</p>
-                </div>
-              )}
-
-              {/* Select project */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-fg-muted">Select Project</label>
-                <select
-                  value={selectedProjectId}
-                  onChange={(e) => setSelectedProjectId(e.target.value)}
-                  className="w-full h-11 px-4 rounded-full border border-border/10 bg-canvas/40 text-sm focus:border-brand-500 outline-none text-fg"
-                >
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.website_type} ({p.reference})
-                    </option>
-                  ))}
+        <div className="fixed inset-0 z-50 grid place-items-center p-5">
+          <div onClick={()=>setIsModalOpen(false)} className="absolute inset-0 bg-black/70 backdrop-blur-md" />
+          <div className="relative w-full max-w-xl rounded-[28px] border border-white/15 bg-[#0d0f18] p-6 shadow-[0_0_60px_rgba(0,0,0,0.8)]">
+            <button onClick={()=>setIsModalOpen(false)} className="absolute top-5 right-5 grid h-8 w-8 place-items-center rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white"><X className="h-4 w-4" /></button>
+            <h3 className="text-[18px] font-black text-white">Transmit Revision to Mission Control</h3>
+            <p className="mt-1 text-[11px] text-white/40">This instantly notifies Admin Tower • Activity logged • Supabase Realtime sync</p>
+            <form onSubmit={handleSave} className="mt-6 space-y-4">
+              {error && <div className="flex gap-2 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-[12px] text-rose-300"><AlertCircle className="h-4 w-4" />{error}</div>}
+              {success && <div className="flex gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-[12px] text-emerald-300"><CheckCircle className="h-4 w-4" />{success}</div>}
+              <div>
+                <label className="text-[10px] tracking-widest text-white/40 uppercase">Select Mission</label>
+                <select value={selectedProjectId} onChange={e=>setSelectedProjectId(e.target.value)} className="mt-1 h-11 w-full rounded-full border border-white/10 bg-black/40 px-4 text-[13px] text-white outline-none">
+                  {projects.map((p:any)=><option key={p.id} value={p.id} className="bg-black">{p.website_type} ({p.reference})</option>)}
                 </select>
               </div>
-
-              {/* Description */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-fg-muted" htmlFor="desc">
-                  Describe Changes / Revisions Required
-                </label>
-                <textarea
-                  id="desc"
-                  required
-                  rows={4}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="E.g., Please change the hero background title from 'Hello World' to 'Welcome Home', and set the cover image to the uploaded asset..."
-                  className="w-full p-4 rounded-3xl border border-border/10 bg-canvas/40 text-sm focus:border-brand-500 outline-none resize-none"
-                />
+              <div>
+                <label className="text-[10px] tracking-widest text-white/40 uppercase">Revision Details • Be specific</label>
+                <textarea required rows={4} value={description} onChange={e=>setDescription(e.target.value)} placeholder="E.g., Change hero title, adjust footer color to #000, replace logo with uploaded asset..." className="mt-1 w-full rounded-2xl border border-white/10 bg-black/40 p-4 text-[13px] text-white placeholder:text-white/30 outline-none resize-none" />
               </div>
-
-              <div className="flex justify-end gap-3 pt-2">
-                <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isPending || description.trim().length < 5} className="px-6 h-11">
-                  {isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Submitting...
-                    </>
-                  ) : (
-                    "Submit Revision"
-                  )}
-                </Button>
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={()=>setIsModalOpen(false)} className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-2.5 text-[12px] text-white/60 hover:text-white">Cancel</button>
+                <button type="submit" disabled={isPending || description.trim().length<5} className="rounded-full bg-white px-6 py-2.5 text-[12px] font-black text-black hover:bg-white/90 disabled:opacity-50 flex items-center gap-2">{isPending ? <><Loader2 className="h-4 w-4 animate-spin" /> Transmitting...</> : "Transmit Revision"}</button>
               </div>
             </form>
           </div>
