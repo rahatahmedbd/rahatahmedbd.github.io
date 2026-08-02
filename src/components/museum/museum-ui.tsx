@@ -113,7 +113,7 @@ export function MuseumUI({
             </div>
             <div>
               <h3 className="text-lg font-bold text-white">AI Guide</h3>
-              <p className="mt-1 text-sm text-white/70">"You've seen what I can build. Now let's build something for you."</p>
+              <p className="mt-1 text-sm text-white/70">&ldquo;You&rsquo;ve seen what I can build. Now let&rsquo;s build something for you.&rdquo;</p>
               <Link href="/rahatverse" className="mt-4 flex items-center space-x-2 text-sm font-bold text-[#22d3ee] hover:underline">
                 <span>Proceed to Website Factory</span>
                 <ArrowRight className="h-4 w-4" />

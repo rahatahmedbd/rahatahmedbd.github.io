@@ -25,13 +25,34 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/components/providers/language-provider";
 import { BUILDINGS_DATA, BuildingData } from "./data";
+import dynamic from "next/dynamic";
 import { BuildingModal } from "./BuildingModal";
-import { AiConsultant } from "./AiConsultant";
-import { VisualBuilder } from "./VisualBuilder";
-import { PortalsExperience } from "./PortalsExperience";
-import { LiveConsultationRoom } from "./LiveConsultationRoom";
 import { ProjectSummary } from "./ProjectSummary";
 import { MissionLaunchCenter } from "./MissionLaunchCenter";
+
+/** Tab panels are code-split: only the open tab is downloaded. */
+const panelLoader = () => (
+  <div className="grid min-h-[320px] place-items-center rounded-3xl border border-white/10 bg-slate-950/60 text-xs font-mono text-slate-400">
+    Loading…
+  </div>
+);
+
+const AiConsultant = dynamic(
+  () => import("./AiConsultant").then((m) => m.AiConsultant),
+  { loading: panelLoader }
+);
+const VisualBuilder = dynamic(
+  () => import("./VisualBuilder").then((m) => m.VisualBuilder),
+  { loading: panelLoader }
+);
+const PortalsExperience = dynamic(
+  () => import("./PortalsExperience").then((m) => m.PortalsExperience),
+  { loading: panelLoader }
+);
+const LiveConsultationRoom = dynamic(
+  () => import("./LiveConsultationRoom").then((m) => m.LiveConsultationRoom),
+  { loading: panelLoader }
+);
 import { Container, Section, SectionHeading } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/reveal";
 
@@ -145,7 +166,6 @@ export function ServiceDistrictMain() {
             eyebrow={t({ en: "CHAPTER 7 · SERVICE DISTRICT", bn: "অধ্যায় ৭ · সার্ভিস ডিস্ট্রিক্ট" })}
             title={t({
               en: "Interactive Service District & Website Order Journey",
-              enTitle: "Interactive Service District & Website Order Journey",
               bn: "ইন্টারেক্টিভ সার্ভিস ডিস্ট্রিক্ট ও ওয়েবসাইট অর্ডারিং সার্ভিস",
             })}
             subtitle={t({

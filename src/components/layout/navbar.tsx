@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { navLinks, site } from "@/lib/site";
 import { useLanguage } from "@/components/providers/language-provider";
@@ -11,23 +12,20 @@ import { ThemeToggle } from "./theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const sectionIds = [
-  "home",
-  "about",
-  "education",
-  "achievements",
-  "experience",
-  "blood",
-  "tribute",
-  "gallery",
-  "contact",
-];
+/** Mirrors the anchors rendered by the homepage. */
+const sectionIds = ["home", "about", "services", "work", "trust", "contact"];
 
 export function Navbar() {
   const { t } = useLanguage();
   const scrolled = useScrolled(12);
   const active = useActiveSection(sectionIds);
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const onHome = pathname === "/";
+
+  /** Anchors only resolve on the homepage — prefix them elsewhere. */
+  const resolve = (href: string) =>
+    href.startsWith("#") && !onHome ? `/${href}` : href;
 
   // Lock body scroll + close on Escape while the mobile drawer is open.
   useEffect(() => {
@@ -55,7 +53,7 @@ export function Navbar() {
         <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-5 sm:px-6 lg:px-8">
           {/* Brand */}
           <a
-            href="#home"
+            href="/"
             className="group flex items-center gap-3"
             aria-label={`${t(site.name)} — Home`}
           >
@@ -73,11 +71,11 @@ export function Navbar() {
           {/* Desktop links */}
           <ul className="hidden items-center gap-1 lg:flex">
             {navLinks.map((link) => {
-              const isActive = active === link.href.replace("#", "");
+              const isActive = onHome && active === link.href.replace("#", "");
               return (
                 <li key={link.href}>
                   <a
-                    href={link.href}
+                    href={resolve(link.href)}
                     className={cn(
                       "relative rounded-full px-3 py-2 text-sm font-medium transition-colors duration-300",
                       isActive
@@ -105,12 +103,8 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             <LanguageToggle />
             <ThemeToggle />
-            <Button
-              href="#contact"
-              size="sm"
-              className="hidden md:inline-flex"
-            >
-              {t({ bn: "যোগাযোগ", en: "Contact" })}
+            <Button href="/order" size="sm" className="hidden sm:inline-flex">
+              {t({ bn: "অর্ডার করুন", en: "Start a Project" })}
             </Button>
 
             {/* Mobile trigger */}
@@ -151,11 +145,11 @@ export function Navbar() {
           {navLinks.map((link) => (
             <a
               key={link.href}
-              href={link.href}
+              href={resolve(link.href)}
               onClick={() => setOpen(false)}
               className={cn(
                 "flex items-center justify-between rounded-2xl px-4 py-3 text-base font-medium transition-colors",
-                active === link.href.replace("#", "")
+                onHome && active === link.href.replace("#", "")
                   ? "bg-brand-500/10 text-brand-600 dark:text-brand-400"
                   : "text-fg-soft hover:bg-canvas-muted hover:text-fg"
               )}
@@ -169,11 +163,18 @@ export function Navbar() {
             </a>
           ))}
           <a
-            href="#contact"
+            href="/order"
             onClick={() => setOpen(false)}
             className="mt-3 inline-flex h-12 items-center justify-center rounded-full bg-brand-600 px-6 font-semibold text-white shadow-soft"
           >
-            {t({ bn: "যোগাযোগ করুন", en: "Contact Me" })}
+            {t({ bn: "ওয়েবসাইট অর্ডার করুন", en: "Start a Project" })}
+          </a>
+          <a
+            href="/rahatverse"
+            onClick={() => setOpen(false)}
+            className="inline-flex h-11 items-center justify-center rounded-full border border-border/15 px-6 text-sm font-medium text-fg-soft"
+          >
+            {t({ bn: "রাহাতভার্স ঘুরে দেখুন", en: "Explore RahatVerse" })}
           </a>
         </div>
       </div>

@@ -5,16 +5,21 @@ export const metadata = {
   title: "Website Orders | Super Admin",
 };
 
-export default async function AdminOrdersPage() {
-  const supabase = await getSupabaseServerClient();
-  const { data: orders, error } = await supabase
-    .from("orders")
-    .select("*")
-    .order("created_at", { ascending: false });
+export const dynamic = "force-dynamic";
 
-  if (error) {
-    console.error("Failed to load orders:", error);
+export default async function AdminOrdersPage() {
+  let orders: any[] = [];
+
+  try {
+    const supabase = await getSupabaseServerClient();
+    const { data } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+    orders = data ?? [];
+  } catch {
+    // Render an empty panel rather than a 500.
   }
 
-  return <OrdersManager initialOrders={orders || []} />;
+  return <OrdersManager initialOrders={orders} />;
 }

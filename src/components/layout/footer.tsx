@@ -11,7 +11,13 @@ import {
   Heart,
 } from "lucide-react";
 import { footer } from "@/content/contact";
-import { navLinks, site, socials, shantichakraGroup } from "@/lib/site";
+import {
+  navLinks,
+  secondaryLinks,
+  site,
+  socials,
+  shantichakraGroup,
+} from "@/lib/site";
 import { useLanguage } from "@/components/providers/language-provider";
 import { Container } from "@/components/ui/primitives";
 
@@ -63,6 +69,22 @@ export function Footer() {
               {navLinks.map((link) => (
                 <li key={link.href}>
                   <a
+                    href={`/${link.href}`}
+                    className="text-fg-soft transition-colors hover:text-brand-600 dark:hover:text-brand-400"
+                  >
+                    {t(link)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            <h3 className="mt-8 text-sm font-semibold uppercase tracking-[0.14em] text-fg-muted">
+              {t({ bn: "আরও", en: "More" })}
+            </h3>
+            <ul className="mt-4 grid grid-cols-2 gap-2 text-sm">
+              {secondaryLinks.map((link) => (
+                <li key={link.href}>
+                  <a
                     href={link.href}
                     className="text-fg-soft transition-colors hover:text-brand-600 dark:hover:text-brand-400"
                   >
@@ -70,14 +92,6 @@ export function Footer() {
                   </a>
                 </li>
               ))}
-              <li>
-                <a
-                  href="#contact"
-                  className="text-fg-soft transition-colors hover:text-brand-600 dark:hover:text-brand-400"
-                >
-                  {t({ bn: "যোগাযোগ", en: "Contact" })}
-                </a>
-              </li>
             </ul>
           </div>
 

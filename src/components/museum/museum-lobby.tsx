@@ -121,7 +121,7 @@ export function MuseumLobby({ projects, testimonials, onSelect }: { projects: an
             <Text position={[0, 1, 0]} fontSize={0.3} color="#22d3ee">{test.author_name}</Text>
             <Text position={[0, 0.5, 0]} fontSize={0.2} color="#ffffff">{test.author_title || ""}</Text>
             <Text position={[0, -0.5, 0]} fontSize={0.2} color="#ffffff" maxWidth={4} textAlign="center">
-              "{test.content.length > 100 ? test.content.substring(0, 100) + '...' : test.content}"
+              &ldquo;{test.content.length > 100 ? test.content.substring(0, 100) + '\u2026' : test.content}&rdquo;
             </Text>
             <Text position={[0, -1.5, 0]} fontSize={0.3} color="#f59e0b">{"★".repeat(test.rating)}</Text>
           </group>

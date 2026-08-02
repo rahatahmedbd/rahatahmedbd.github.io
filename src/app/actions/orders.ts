@@ -5,9 +5,7 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseAdminAvailable } from "@/config/env";
 
-/**
- * Generate a unique random capitalized alphanumeric reference.
- */
+/** Collision-resistant order reference. */
 function generateOrderReference(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let ref = "ORD-";
@@ -17,10 +15,7 @@ function generateOrderReference(): string {
   return ref;
 }
 
-/**
- * Public/Client Order Submission Action
- */
-export async function submitProjectOrderAction(input: {
+export interface ProjectOrderInput {
   fullName: string;
   companyName?: string;
   email: string;
@@ -35,75 +30,174 @@ export async function submitProjectOrderAction(input: {
   uploadedFiles: { name: string; url: string; mimeType: string; sizeBytes: number }[];
   estimatedCost: number;
   estimatedDelivery: string;
-}) {
+}
+
+export interface ProjectOrderResult {
+  success: boolean;
+  reference?: string;
+  error?: string;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/** Server-side validation. The UI validates too, but never trust the client. */
+function validateOrderInput(input: ProjectOrderInput): string | null {
+  if (!input.fullName?.trim() || input.fullName.trim().length < 2)
+    return "Please enter your full name.";
+  if (!input.email?.trim() || !EMAIL_RE.test(input.email.trim()))
+    return "Please enter a valid email address.";
+  if (!input.phone?.trim() || input.phone.replace(/\D/g, "").length < 6)
+    return "Please enter a valid phone number.";
+  if (!input.websiteType?.trim()) return "Please choose a website type.";
+  return null;
+}
+
+/**
+ * Public / client project order submission.
+ *
+ * Guest submissions are supported (client_id stays null). We deliberately do
+ * NOT chain `.select().single()` onto the insert: the SELECT policy on
+ * `orders` restricts rows to the owning client or an admin, so a guest insert
+ * returns zero rows through RETURNING and PostgREST reports a failure even
+ * though the row was written. We generate the reference here instead and
+ * return it directly.
+ */
+export async function submitProjectOrderAction(
+  input: ProjectOrderInput
+): Promise<ProjectOrderResult> {
+  const validationError = validateOrderInput(input);
+  if (validationError) return { success: false, error: validationError };
+
+  let supabase;
   try {
-    const supabase = await getSupabaseServerClient();
-    const reference = generateOrderReference();
+    supabase = await getSupabaseServerClient();
+  } catch {
+    return {
+      success: false,
+      error:
+        "Ordering is temporarily unavailable. Please email rahatbd20505@gmail.com and we will pick it up right away.",
+    };
+  }
 
-    // Check if there is an authenticated user session to associate client_id
-    const { data: { user } } = await supabase.auth.getUser();
-    const clientId = user?.id || null;
+  let clientId: string | null = null;
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    clientId = user?.id ?? null;
+  } catch {
+    clientId = null;
+  }
 
-    const { data: order, error } = await supabase
-      .from("orders")
-      .insert({
-        reference,
-        client_id: clientId,
-        status: "pending",
-        total_amount: input.estimatedCost,
-        currency: "USD",
-        notes: input.projectDetails,
-        client_info: {
-          fullName: input.fullName,
-          companyName: input.companyName || null,
-          email: input.email,
-          phone: input.phone,
-          country: input.country,
-        },
-        website_type: input.websiteType,
-        required_features: input.requiredFeatures,
-        design_preference: input.designPreference,
-        budget_option: input.budgetOption,
-        deadline_option: input.deadlineOption,
-        project_details: input.projectDetails,
-        uploaded_files: input.uploadedFiles,
-        estimated_cost: input.estimatedCost,
-        estimated_delivery: input.estimatedDelivery,
-      })
-      .select()
-      .single();
+  const estimatedCost = Number.isFinite(input.estimatedCost)
+    ? Math.max(0, Math.round(input.estimatedCost))
+    : 0;
 
-    if (error) throw error;
+  // Retry guards against the (astronomically unlikely) reference collision.
+  let reference = "";
+  let lastError: string | null = null;
 
-    // Trigger an internal system notification for the Super Admin
-    try {
-      const client = isSupabaseAdminAvailable ? getSupabaseAdminClient() : supabase;
-      
-      // Select first admin/super_admin user to associate the notification to
-      const { data: admins } = await client
-        .from("profiles")
-        .select("id")
-        .in("role_id", ["super_admin", "admin"])
-        .limit(1);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    reference = generateOrderReference();
 
-      if (admins && admins.length > 0) {
-        await client.from("notifications").insert({
-          user_id: admins[0].id,
-          type: "info",
-          title: `New Project Request: ${reference}`,
-          body: `${input.fullName} requested a ${input.websiteType} website with budget ${input.budgetOption}.`,
-          link: `/admin/orders?ref=${reference}`,
-          is_read: false,
-        });
-      }
-    } catch (notifErr) {
-      console.error("Failed to generate order notification:", notifErr);
+    const { error } = await supabase.from("orders").insert({
+      reference,
+      client_id: clientId,
+      status: "pending",
+      total_amount: estimatedCost,
+      currency: "USD",
+      notes: input.projectDetails?.slice(0, 5000) || null,
+      client_info: {
+        fullName: input.fullName.trim(),
+        companyName: input.companyName?.trim() || null,
+        email: input.email.trim().toLowerCase(),
+        phone: input.phone.trim(),
+        country: input.country?.trim() || null,
+      },
+      website_type: input.websiteType,
+      required_features: input.requiredFeatures ?? [],
+      design_preference: input.designPreference ?? [],
+      budget_option: input.budgetOption || null,
+      deadline_option: input.deadlineOption || null,
+      project_details: input.projectDetails?.slice(0, 5000) || null,
+      uploaded_files: input.uploadedFiles ?? [],
+      estimated_cost: estimatedCost,
+      estimated_delivery: input.estimatedDelivery || null,
+    });
+
+    if (!error) {
+      lastError = null;
+      break;
     }
 
-    revalidatePath("/admin");
-    return { success: true, reference, order };
-  } catch (err: any) {
-    return { success: false, error: err.message || "Failed to submit project order" };
+    // 23505 = unique violation on `reference` -> retry with a new one.
+    if ((error as { code?: string }).code === "23505") {
+      lastError = error.message;
+      continue;
+    }
+
+    return {
+      success: false,
+      error:
+        "We could not save your request. Please check your details and try again, or email rahatbd20505@gmail.com.",
+    };
+  }
+
+  if (lastError) {
+    return {
+      success: false,
+      error: "We could not save your request. Please try again in a moment.",
+    };
+  }
+
+  // Notify admins. Best-effort only: a notification failure must never turn a
+  // successfully saved order into a failed submission for the visitor.
+  void notifyAdmins(
+    supabase,
+    `New Project Request: ${reference}`,
+    `${input.fullName} requested a ${input.websiteType} website (budget ${
+      input.budgetOption || "unspecified"
+    }).`,
+    `/admin/orders?ref=${reference}`
+  );
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/orders");
+  return { success: true, reference };
+}
+
+/** Best-effort admin notification fan-out. Never throws. */
+async function notifyAdmins(
+  fallbackClient: Awaited<ReturnType<typeof getSupabaseServerClient>>,
+  title: string,
+  body: string,
+  link: string
+) {
+  try {
+    const client = isSupabaseAdminAvailable
+      ? getSupabaseAdminClient()
+      : fallbackClient;
+
+    const { data: admins } = await client
+      .from("profiles")
+      .select("id")
+      .in("role_id", ["super_admin", "admin"])
+      .limit(5);
+
+    if (!admins?.length) return;
+
+    await client.from("notifications").insert(
+      admins.map((a: { id: string }) => ({
+        user_id: a.id,
+        type: "info",
+        title,
+        body,
+        link,
+        is_read: false,
+      }))
+    );
+  } catch {
+    // Intentionally silent.
   }
 }
 
@@ -140,8 +234,7 @@ export async function submitConsultationRequestAction(input: {
       .single();
 
     if (leadErr) {
-      console.warn("Leads table insert warning, falling back to messages:", leadErr.message);
-      // Fallback insert into messages table if leads schema isn't accessible to public RLS
+      // Fallback to messages if the leads table is not reachable under public RLS.
       await supabase.from("messages").insert({
         name: input.fullName,
         email: input.email,
@@ -152,28 +245,12 @@ export async function submitConsultationRequestAction(input: {
       });
     }
 
-    // 2. Notify Super Admin Panel
-    try {
-      const client = isSupabaseAdminAvailable ? getSupabaseAdminClient() : supabase;
-      const { data: admins } = await client
-        .from("profiles")
-        .select("id")
-        .in("role_id", ["super_admin", "admin"])
-        .limit(1);
-
-      if (admins && admins.length > 0) {
-        await client.from("notifications").insert({
-          user_id: admins[0].id,
-          type: "info",
-          title: `New Consultation Request: ${input.fullName}`,
-          body: `${input.fullName} requested a ${input.requestType.replace("_", " ")}.`,
-          link: `/admin/leads`,
-          is_read: false,
-        });
-      }
-    } catch {
-      // ignore
-    }
+    void notifyAdmins(
+      supabase,
+      `New Consultation Request: ${input.fullName}`,
+      `${input.fullName} requested a ${input.requestType.replace("_", " ")}.`,
+      "/admin/leads"
+    );
 
     revalidatePath("/admin");
     return { success: true, lead };

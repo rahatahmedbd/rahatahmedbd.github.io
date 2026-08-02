@@ -208,8 +208,8 @@ export function VerseHud({
               Agency Headquarters
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-white/70">
-              Welcome to the city's command post — Agency Headquarters. Explore 10 interactive
-              rooms, experience Rahat's digital avatar, test live tech stations, and discover
+              Welcome to the city&rsquo;s command post — Agency Headquarters. Explore 10 interactive
+              rooms, experience Rahat&rsquo;s digital avatar, test live tech stations, and discover
               who Rahat is and how he builds world-class web applications.
             </p>
             <div className="mx-auto mt-5 grid max-w-sm grid-cols-2 gap-2 text-left text-xs text-white/70">
