@@ -1,4 +1,5 @@
 import { Hero } from "@/components/sections/hero";
+import { QuickAccess } from "@/components/sections/quick-access";
 import { About } from "@/components/sections/about";
 import { Services } from "@/components/sections/services";
 import { Skills } from "@/components/sections/skills";
@@ -22,6 +23,9 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+
+      {/* FAST LANE — get anyone to what they came for in one tap */}
+      <QuickAccess />
 
       {/* WHO — identity and credibility */}
       <div id="about" className="scroll-mt-20">

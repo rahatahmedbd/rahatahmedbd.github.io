@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
-import { ServiceDistrictMain } from "@/components/service-district/ServiceDistrictMain";
+import { OrderPageClient } from "@/components/order/order-page-client";
 
 export const metadata: Metadata = {
-  title: "Order Website | Interactive Service District Journey",
+  title: "Order a Website | Rahat Ahmed",
   description:
-    "Design and order your custom, modern, high-performance website in our interactive Service District & 3D Visual Builder.",
+    "Order a custom, modern, high-performance website in four short steps. Pick a category, choose a package, get an instant price estimate — or explore the full interactive Service District.",
 };
 
 export default function OrderWebsitePage() {
-  return (
-    <div className="relative min-h-screen py-6 sm:py-12">
-      <ServiceDistrictMain />
-    </div>
-  );
+  return <OrderPageClient />;
 }

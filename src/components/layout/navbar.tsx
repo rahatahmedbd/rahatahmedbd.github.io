@@ -10,6 +10,7 @@ import { useActiveSection } from "@/hooks/use-active-section";
 import { LanguageToggle } from "./language-toggle";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "@/components/ui/button";
+import { ExperienceSwitch } from "@/components/experience/experience-switch";
 import { cn } from "@/lib/utils";
 
 /** Mirrors the anchors rendered by the homepage. */
@@ -101,10 +102,11 @@ export function Navbar() {
 
           {/* Controls */}
           <div className="flex items-center gap-2">
+            <ExperienceSwitch to="verse" className="hidden xl:inline-flex" />
             <LanguageToggle />
             <ThemeToggle />
             <Button href="/order" size="sm" className="hidden sm:inline-flex">
-              {t({ bn: "অর্ডার করুন", en: "Start a Project" })}
+              {t({ bn: "অর্ডার করুন", en: "Order a Website" })}
             </Button>
 
             {/* Mobile trigger */}
@@ -167,14 +169,21 @@ export function Navbar() {
             onClick={() => setOpen(false)}
             className="mt-3 inline-flex h-12 items-center justify-center rounded-full bg-brand-600 px-6 font-semibold text-white shadow-soft"
           >
-            {t({ bn: "ওয়েবসাইট অর্ডার করুন", en: "Start a Project" })}
+            {t({ bn: "ওয়েবসাইট অর্ডার করুন", en: "Order a Website" })}
           </a>
+          <div className="mt-1" onClick={() => setOpen(false)}>
+            <ExperienceSwitch
+              to="verse"
+              className="h-11 w-full justify-center border-border/15 text-sm"
+              label={t({ bn: "রাহাতভার্স (থ্রিডি) ঘুরে দেখুন", en: "Explore RahatVerse (3D)" })}
+            />
+          </div>
           <a
-            href="/rahatverse"
+            href="/enter"
             onClick={() => setOpen(false)}
-            className="inline-flex h-11 items-center justify-center rounded-full border border-border/15 px-6 text-sm font-medium text-fg-soft"
+            className="inline-flex h-10 items-center justify-center rounded-full text-xs font-medium text-fg-muted transition-colors hover:text-fg"
           >
-            {t({ bn: "রাহাতভার্স ঘুরে দেখুন", en: "Explore RahatVerse" })}
+            {t({ bn: "অভিজ্ঞতা বদলান", en: "Change experience" })}
           </a>
         </div>
       </div>
