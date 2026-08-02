@@ -2,8 +2,9 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { Home, Volume2, VolumeX, X, Map as MapIcon, Sparkles } from "lucide-react";
+import { Home, Volume2, VolumeX, X, Map as MapIcon, Sparkles, Building2 } from "lucide-react";
 import type { HudState, TimePhase } from "./engine/world-config";
+import { AgencyHeadquarters } from "./agency-headquarters";
 
 interface HudProps {
   state: HudState;
@@ -13,6 +14,8 @@ interface HudProps {
   onDismissWelcome: () => void;
   onCloseInfo: () => void;
   onCloseMap: () => void;
+  onCloseHq?: () => void;
+  onOpenHq?: () => void;
   onJoystick: (x: number, y: number) => void;
 }
 
@@ -87,6 +90,8 @@ export function VerseHud({
   onDismissWelcome,
   onCloseInfo,
   onCloseMap,
+  onCloseHq,
+  onOpenHq,
   onJoystick,
 }: HudProps) {
   return (
@@ -102,7 +107,7 @@ export function VerseHud({
             Exit RahatVerse
           </Link>
           <span className="px-2 text-[11px] font-medium tracking-widest text-cyan-200/80">
-            RAHATVERSE · CH.2 DIGITAL CITY
+            RAHATVERSE · CH.4 AGENCY HEADQUARTERS
           </span>
         </div>
 
@@ -114,6 +119,16 @@ export function VerseHud({
         </div>
 
         <div className="pointer-events-auto flex items-center gap-1.5">
+          {onOpenHq && (
+            <button
+              onClick={onOpenHq}
+              className="flex items-center gap-1.5 rounded-full border border-brand-500/40 bg-brand-500/20 px-3.5 py-1.5 text-xs font-bold text-brand-200 backdrop-blur-md transition-all hover:bg-brand-500/40 hover:scale-105 shadow-glow"
+            >
+              <Building2 className="h-4 w-4" />
+              <span>Agency HQ</span>
+            </button>
+          )}
+
           {/* time phases */}
           <div className="hidden items-center gap-0.5 rounded-full border border-white/15 bg-black/30 p-1 backdrop-blur-md sm:flex">
             {PHASES.map((p) => (
@@ -154,7 +169,7 @@ export function VerseHud({
           }`}
         >
           <MapIcon className="h-4 w-4" />
-          {state.hint ?? "Drag to look · Click ground to move"}
+          {state.hint ?? "Drag to look · Click ground to move · Click Agency HQ to enter"}
         </div>
       </div>
 
@@ -165,7 +180,7 @@ export function VerseHud({
           <span>WASD / Arrows — move</span>
           <span>Drag — rotate view</span>
           <span>Scroll — zoom</span>
-          <span>Click things — interact</span>
+          <span>Click Agency HQ — enter rooms</span>
         </div>
       </div>
 
@@ -186,29 +201,38 @@ export function VerseHud({
       {state.welcomeShown && (
         <div className="pointer-events-auto absolute inset-0 z-30 flex items-center justify-center bg-gradient-to-b from-black/70 via-black/50 to-black/70 p-4 backdrop-blur-sm">
           <div className="w-full max-w-lg rounded-3xl border border-white/15 bg-black/50 p-6 text-center shadow-lift backdrop-blur-xl sm:p-8">
-            <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-300/40 bg-cyan-500/15 px-4 py-1.5 text-xs font-bold tracking-widest text-cyan-200">
-              RAHATVERSE · CHAPTER 2
+            <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-brand-300/40 bg-brand-500/15 px-4 py-1.5 text-xs font-bold tracking-widest text-brand-200">
+              RAHATVERSE · CHAPTER 4
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-              The Digital City
+              Agency Headquarters
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-white/70">
-              You stepped through the portal into a living city. This is the foundation —
-              districts are marked and reserved for the chapters ahead. Explore freely:
-              eight future districts, a hidden island, holograms, citizens and secrets.
+              Welcome to the city's command post — Agency Headquarters. Explore 10 interactive
+              rooms, experience Rahat's digital avatar, test live tech stations, and discover
+              who Rahat is and how he builds world-class web applications.
             </p>
             <div className="mx-auto mt-5 grid max-w-sm grid-cols-2 gap-2 text-left text-xs text-white/70">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-2">🕹️ WASD / joystick — walk</div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-2">🖱️ Drag — look around</div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-2">👆 Click — interact & move</div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-2">💎 Collect 8 crystals</div>
+              <div className="rounded-xl border border-white/10 bg-white/5 p-2">🏢 Tallest Glass Tower</div>
+              <div className="rounded-xl border border-white/10 bg-white/5 p-2">🤖 AI Avatar Guide</div>
+              <div className="rounded-xl border border-white/10 bg-white/5 p-2">⚡ Interactive Skills Lab</div>
+              <div className="rounded-xl border border-white/10 bg-white/5 p-2">🔮 10 Interactive Rooms</div>
             </div>
             <button
               onClick={onDismissWelcome}
-              className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-brand-600 to-brand-500 px-8 font-semibold text-white shadow-glow transition-transform hover:scale-[1.03]"
+              className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-brand-600 to-pink-500 px-8 font-semibold text-white shadow-glow transition-transform hover:scale-[1.03]"
             >
-              Enter the City
+              Enter RahatVerse
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ---------- Agency Headquarters Modal ---------- */}
+      {state.hqModalOpen && (
+        <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center bg-black/80 p-2 sm:p-6 backdrop-blur-md overflow-y-auto">
+          <div className="w-full max-w-5xl">
+            <AgencyHeadquarters onClose={onCloseHq} />
           </div>
         </div>
       )}
@@ -252,14 +276,14 @@ export function VerseHud({
             <ul className="mt-4 grid max-h-[50vh] grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2">
               {[
                 { name: "Central Plaza", note: "The heart of the city" },
-                { name: "Agency Headquarters", note: "Chapter 3" },
-                { name: "Portfolio Museum", note: "Chapter 3" },
-                { name: "Website Factory", note: "Chapter 5" },
-                { name: "AI Laboratory", note: "Chapter 6" },
-                { name: "Service District", note: "Chapter 4" },
-                { name: "Order Center", note: "Chapter 4" },
-                { name: "Client Hub", note: "Chapter 4" },
-                { name: "Innovation Tower", note: "Chapter 7" },
+                { name: "Agency Headquarters", note: "Chapter 4 · OPEN NOW 🏢" },
+                { name: "Portfolio Museum", note: "Chapter 5" },
+                { name: "Website Factory", note: "Chapter 6" },
+                { name: "AI Laboratory", note: "Chapter 7" },
+                { name: "Service District", note: "Chapter 8" },
+                { name: "Order Center", note: "Chapter 8" },
+                { name: "Client Hub", note: "Chapter 8" },
+                { name: "Innovation Tower", note: "Chapter 9" },
                 { name: "Secret District", note: "??? — find it" },
               ].map((item) => (
                 <li
@@ -267,7 +291,7 @@ export function VerseHud({
                   className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm"
                 >
                   <span className="font-semibold">{item.name}</span>
-                  <span className="text-xs text-white/50">{item.note}</span>
+                  <span className="text-xs text-brand-300 font-bold">{item.note}</span>
                 </li>
               ))}
             </ul>

@@ -1,8 +1,8 @@
-# Rahat Ahmed — Portfolio v3.0
+# Rahat Ahmed — Portfolio v3.0 & RahatVerse Agency Headquarters
 
-Premium, bilingual (বাংলা / English) personal portfolio for **Rahat Ahmed** — student, teacher, blood donor, BNCC cadet & web developer from Sunamganj, Bangladesh.
+Premium, bilingual (বাংলা / English) personal portfolio and interactive web agency platform for **Rahat Ahmed** — student, teacher, blood donor, BNCC cadet & web developer from Sunamganj, Bangladesh.
 
-> **Phase 1 — UI/UX redesign & architecture foundation.** Every section from the original site is preserved verbatim; the design, UX, performance, accessibility, and code structure have been completely rebuilt.
+> **Chapter 4 — Agency Headquarters (About Me Experience).** Completely transforms the traditional "About Me" page into an explorable, 10-room interactive Headquarters experience featuring Rahat's Digital Avatar, AI Process Room, Skills Lab, Journey Timeline, and Tribute Memorial.
 
 ---
 
@@ -11,31 +11,30 @@ Premium, bilingual (বাংলা / English) personal portfolio for **Rahat Ah
 - **Next.js 14 (App Router) + TypeScript + Tailwind CSS**
 - Premium, dark-capable **tech aesthetic** with restrained crimson brand accents
 - Full **Bengali ⇄ English** toggle (persisted) and **dark ⇄ light** theme (no flash)
-- Smooth, performant **scroll-reveal, hover, count-up** animations (respects `prefers-reduced-motion`)
-- Fully **responsive**, mobile-app-feel navigation with accessible drawer
-- **Accessible**: semantic landmarks, keyboard support, ARIA, focus rings, reduced-motion
-- Built for **Core Web Vitals**: static prerender, ~121 kB First Load JS, lazy images
-- Architecture **ready for Vercel + Supabase + Cloudinary** (see [Future phases](#-future-phases))
+- **RahatVerse Chapter 4 — Agency Headquarters**: The tallest landmark skyscraper in RahatVerse with glass facade, animated logo, sky beam, and digital entrance.
+- **10 Interactive HQ Rooms**: Entrance Lobby, About Me Hall, Journey Timeline, Mission & Vision, Skills Laboratory, AI Development Process, Achievement Gallery & Tribute, Personal Philosophy, Q&A Avatar, and Hidden Future Vision.
+- **100% Preservation**: Every piece of personal information, facts, story, achievements, and tribute preserved without summary or simplification.
 
 ---
 
-## 🌆 RahatVerse — Chapter 2 · The Digital City
+## 🎮 RahatVerse — Chapter 4 · Agency Headquarters (About Me Experience)
 
-An explorable, open-world **3D digital city** built with Three.js — accessible at **`/rahatverse`** (from the navbar or the gold *"Enter RahatVerse"* button on the homepage). This is the foundation of RahatVerse: a living world every future chapter will expand.
+The **Agency Headquarters** is the landmark tower of RahatVerse — the digital command post representing Rahat Ahmed. It completely transforms the traditional "About Me" page into an interactive, 10-room 3D and canvas experience.
 
-**What's inside (foundation only — no buildings yet):**
-
-- **Central Plaza** with a giant holographic logo, a floating digital globe and animated lighting.
-- **Full road network** — radial avenues, ring roads, bridges, walkways, and four parks.
-- **8 reserved districts** (Agency HQ, Portfolio Museum, Website Factory, AI Lab, Service District, Order Center, Client Hub, Innovation Tower) plus a hidden **Secret District** on an island across a bridge — all clearly marked, intentionally not built.
-- **Navigation** — direction signs, floating holo-arrows, district markers, live mini-map and an interactive map terminal.
-- **Living world** — NPC citizens (visitors, developers, designers, robots) that walk, look at you and wave; patrolling drones; decorative flying vehicles; drifting particles.
-- **Premium animated sky** with smooth Morning → Day → Sunset → Night transitions and a time-of-day switcher in the HUD.
-- **Procedural ambient audio** (wind, soft electronic pad, fountain, drones) via Web Audio — no audio files.
-- **Interaction** — screens, billboards, kiosks and collectible crystals; a clean HUD (mini-map, district name, hints).
-- **Performance** — procedural textures (no asset downloads), Three.js frustum culling, capped pixel-ratio & shadows, static geometry.
-
-> WebGL is required. The site falls back to a friendly notice if WebGL is unavailable.
+### 🏢 Key Features of Agency Headquarters:
+- **Landmark Architecture**: Tallest 3D glass skyscraper in RahatVerse with glass facades, metallic columns, rotating "RA" logo, and sky light beam.
+- **Entrance Lobby & AI Receptionist**: Reception desk, holographic welcome billboard, and AI guide welcoming every visitor.
+- **Rahat Digital Avatar**: Interactive avatar with voice speech synthesis guide and room navigation.
+- **About Me Hall**: Complete story from Jibdara village to Sunamganj Govt. College (HSC 2nd Year Science), quote, and verified personal facts preserved 100% without summary.
+- **My Journey Timeline**: Interactive timeline from birth in 2006 to Science Fair victories, father's legacy, FS Coaching Center, SSC 2025 GPA 5.00 A+, Shantichakra Blood Society, and web agency.
+- **Mission & Vision Room**: Holographic screens explaining mission, vision, and social empowerment goals.
+- **Skills Laboratory**: Interactive capability stations with live playgrounds for Frontend, Backend & DB, AI Prompt Generator, UI/UX Glassmorphic Design, Performance Lighthouse 100, SEO Auditor, and CI/CD Deployment.
+- **AI Development Process**: 8-stage animated professional AI workflow (Idea → Research → Planning → Design → Development → Testing → Optimization → Deployment).
+- **Achievement Gallery & Honor Hall**: Trophies, medals, and a dedicated **Tribute Memorial to Late Md. Farid Ahmed** (Former UP Chairman for 9 years).
+- **Personal Philosophy Room**: Quiet room detailing work ethics, design standards, quality commitment, and social impact.
+- **Interactive Q&A Station**: Avatar answers visitor questions with voice dialogue.
+- **Hidden Story (My Future Vision)**: Secret room unlocked by exploring 5+ rooms, detailing long-term ambitions for Sunamganj Tech & AI Lab.
+- **Exit Experience**: Smooth transition to Chapter 5 (Portfolio Museum).
 
 ---
 
@@ -48,9 +47,9 @@ An explorable, open-world **3D digital city** built with Three.js — accessible
 | Icons          | lucide-react                                       |
 | Theming        | next-themes                                        |
 | Hosting        | Vercel                                             |
-| Database/Auth  | Supabase (wired for future phases)                |
-| Media/CDN      | Cloudinary (wired for future phases)              |
-| Contact form   | Formspree (Phase 1)                                |
+| Database/Auth  | Supabase (wired)                                  |
+| Media/CDN      | Cloudinary (wired)                                |
+| Contact form   | Formspree / Direct Email                           |
 
 ---
 
@@ -58,7 +57,7 @@ An explorable, open-world **3D digital city** built with Three.js — accessible
 
 ```bash
 # 1. Install dependencies
-npm install
+npm install --legacy-peer-deps
 
 # 2. Configure environment
 cp .env.example .env.local   # then fill in values
@@ -71,89 +70,6 @@ npm run build && npm run start
 ```
 
 Requires **Node ≥ 18.18**.
-
----
-
-## 🔑 Environment variables
-
-Defined in [`.env.example`](./.env.example). Copy to `.env.local` (git-ignored) and on Vercel set them in **Project → Settings → Environment Variables**.
-
-| Variable | Scope | Purpose |
-| --- | --- | --- |
-| `NEXT_PUBLIC_FORMSPREE_ID` | public | Contact form endpoint (Phase 1) |
-| `NEXT_PUBLIC_SUPABASE_URL` | public | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | public | Anon key (enable **RLS** on all tables) |
-| `SUPABASE_SERVICE_ROLE_KEY` | **server only** | Privileged ops (Server Components/Actions) |
-| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | public | Cloudinary cloud name |
-| `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | public | Unsigned upload preset |
-| `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | **server only** | Signed uploads/transformations |
-| `NEXT_PUBLIC_SITE_URL` | public | Canonical site URL |
-
-> ⚠️ Never commit real secrets. `.env.local` is git-ignored. Keep the service-role key and Cloudinary API secret **server-side only**.
-
----
-
-## 📁 Project structure
-
-```
-src/
-├── app/                      # Next.js App Router
-│   ├── layout.tsx            # Root layout: fonts, SEO metadata, providers, JSON-LD
-│   ├── page.tsx              # Home (composes all sections)
-│   ├── globals.css           # Design tokens + base + utilities
-│   ├── robots.ts             # /robots.txt
-│   └── sitemap.ts            # /sitemap.xml
-├── components/
-│   ├── ui/                   # Reusable primitives (Button, Card, Reveal, Chip…)
-│   ├── layout/               # Navbar, Footer, ThemeToggle, LanguageToggle…
-│   ├── sections/             # Hero, About, Education, Achievements, … Contact
-│   └── providers/            # ThemeProvider, LanguageProvider
-├── content/                  # All site copy (bilingual) — CMS-ready data layer
-├── hooks/                    # useInView, useCountUp, useActiveSection, useScrolled
-├── lib/
-│   ├── site.ts               # Site config, nav, socials, Formspree helper
-│   ├── utils.ts              # cn() class merge
-│   ├── supabase/client.ts    # ⚡ Browser Supabase client (readiness)
-│   └── cloudinary.ts         # ⚡ Cloudinary URL builder (readiness)
-└── types/                    # Shared TypeScript types
-public/
-├── images/                   # Photos (profile, gallery, logo…)
-└── favicon/                  # Favicon set + PWA manifest
-```
-
-**All editable text lives in `src/content/*`** — a single, typed, bilingual data layer that a future CMS (Portfolio/Blog) can replace without touching components.
-
----
-
-## ☁️ Deploy to Vercel
-
-1. Push this branch to GitHub.
-2. Import the repo at [vercel.com/new](https://vercel.com/new) (framework auto-detected as Next.js).
-3. Add the environment variables (see above).
-4. Deploy. Every push to `main` redeploys automatically.
-
-> **Custom domain:** Settings → Domains. Update `NEXT_PUBLIC_SITE_URL` to match.
-
----
-
-## 🔭 Future phases (scaffolded, not built)
-
-The structure is intentionally ready for these — **none are implemented yet**:
-
-- **Website Ordering System** · **Client Dashboard** · **Admin Panel**
-- **Authentication** (Supabase Auth — use `lib/supabase`)
-- **Portfolio CMS** & **Blog CMS** (replace `src/content/*` with data from Supabase)
-- **Analytics Dashboard** · **Notifications** · **Payment Integration** · **Email System**
-- **Cloudinary media management** (replace local images in `public/images`)
-
----
-
-## 📝 Phase 1 notes
-
-- **Fonts:** loaded via `<link>` (Inter + Hind Siliguri) so the build is offline-safe and works everywhere. On Vercel you may switch to `next/font/google` for self-hosting.
-- **Contact form:** requires a real Formspree ID in `NEXT_PUBLIC_FORMSPREE_ID`. Until set, the form shows a friendly fallback directing visitors to email.
-- **Gallery:** 7 photos referenced in `src/content/gallery.ts` are not yet supplied — they render an elegant “coming soon” placeholder. Drop the files into `public/images/` and set `missing: false`.
-- **Legacy:** the original static site is preserved under [`_legacy/`](./_legacy) for reference.
 
 ---
 
