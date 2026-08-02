@@ -13,6 +13,7 @@ export interface InteractPayload {
   accent: number;
   /** optional: opens the map panel instead of a popup */
   openMap?: boolean;
+  link?: string;
 }
 
 /**
@@ -340,6 +341,7 @@ export function buildLandmarks(
         title: zone.name,
         body: `${zone.info}\n\nTagline — "${zone.tagline}"`,
         accent: zone.accent,
+        link: zone.link,
       });
 
       plot.position.set(zone.x, 0, zone.z);
