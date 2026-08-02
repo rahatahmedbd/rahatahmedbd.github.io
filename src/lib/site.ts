@@ -27,6 +27,7 @@ export const navLinks: NavLink[] = [
   { href: "#blood", bn: "শান্তিচক্র", en: "Shantichakra", badge: "blood" },
   { href: "#tribute", bn: "শ্রদ্ধাঞ্জলি", en: "Tribute" },
   { href: "#gallery", bn: "গ্যালারি", en: "Gallery" },
+  { href: "/service-district", bn: "সার্ভিস ডিস্ট্রিক্ট", en: "Service District" },
   { href: "/order", bn: "অর্ডার ওয়েবসাইট", en: "Order Website" },
   { href: "/rahatverse", bn: "রাহাতভার্স", en: "RahatVerse" },
 ];
