@@ -11,23 +11,53 @@ import { Tribute } from "@/components/sections/tribute";
 import { Faqs } from "@/components/sections/faqs";
 import { Gallery } from "@/components/sections/gallery";
 import { Contact } from "@/components/sections/contact";
+import { OrderCta } from "@/components/sections/order-cta";
+import { VerseInvite } from "@/components/sections/verse-invite";
 
+/**
+ * The homepage is the whole product: one continuous journey from
+ * "who I am" to "start a project". Anchors map 1:1 to the five nav links.
+ */
 export default function HomePage() {
   return (
     <>
       <Hero />
-      <About />
-      <Services />
-      <Skills />
-      <Education />
-      <Achievements />
-      <Experience />
-      <Testimonials />
-      <Blood />
-      <Tribute />
-      <Faqs />
-      <Gallery />
-      <Contact />
+
+      {/* WHO — identity and credibility */}
+      <div id="about" className="scroll-mt-20">
+        <About />
+        <Education />
+      </div>
+
+      {/* WHAT — services, then the single primary action */}
+      <div id="services" className="scroll-mt-20">
+        <Services />
+        <Skills />
+        <OrderCta />
+      </div>
+
+      {/* PROOF — work, achievements, experience */}
+      <div id="work" className="scroll-mt-20">
+        <Achievements />
+        <Experience />
+        <Gallery />
+      </div>
+
+      {/* TRUST — client results and community */}
+      <div id="trust" className="scroll-mt-20">
+        <Testimonials />
+        <Blood />
+        <Tribute />
+      </div>
+
+      {/* An optional door, never a detour */}
+      <VerseInvite />
+
+      {/* CONTACT */}
+      <div id="contact" className="scroll-mt-20">
+        <Faqs />
+        <Contact />
+      </div>
     </>
   );
 }

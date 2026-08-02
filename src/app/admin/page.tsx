@@ -48,7 +48,9 @@ export default async function AdminDashboardPage() {
     supabase.from("messages").select("*", { count: "exact", head: true }).eq("is_read", false),
     supabase.from("testimonials").select("*", { count: "exact", head: true }),
     supabase.from("activity_logs").select("*, profiles(full_name, email)").order("created_at", { ascending: false }).limit(5),
-    supabase.from("orders").select("final_price, estimated_cost, status, website_type, client_id, client_info"),
+    supabase.from("orders").select(
+      "final_price, estimated_cost, status, website_type, client_id, client_info, created_at, updated_at"
+    ),
   ]);
 
   // BUSINESS ANALYTICS CALCULATIONS
@@ -62,13 +64,22 @@ export default async function AdminDashboardPage() {
   const completedOrders = ordersData?.filter((o) => o.status === "completed") || [];
   const activeOrders = ordersData?.filter((o) => o.status !== "completed" && o.status !== "cancelled") || [];
 
-  // Sum revenues
+  // Revenue from the real completion dates, not invented ratios.
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const yearStart = new Date(now.getFullYear(), 0, 1);
+
   completedOrders.forEach((ord) => {
     const val = Number(ord.final_price || ord.estimated_cost || 0);
     totalRevenue += val;
-    // Mocking monthly/annual distributions
-    monthlyRevenue += val * 0.25;
-    annualRevenue += val * 0.85;
+
+    const completedAt = ord.updated_at || ord.created_at;
+    if (!completedAt) return;
+    const when = new Date(completedAt);
+    if (Number.isNaN(when.getTime())) return;
+
+    if (when >= monthStart) monthlyRevenue += val;
+    if (when >= yearStart) annualRevenue += val;
   });
 
   activeOrders.forEach((ord) => {

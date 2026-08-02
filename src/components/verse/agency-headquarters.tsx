@@ -580,7 +580,7 @@ export function AgencyHeadquarters({
             <div className="flex-1 space-y-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-cyan-300">
-                  RAHAT'S DIGITAL AVATAR
+                  RAHAT&rsquo;S DIGITAL AVATAR
                 </span>
                 <span className="text-[10px] font-mono text-white/50">GUIDE SYSTEM v4.0</span>
               </div>
@@ -682,7 +682,7 @@ export function AgencyHeadquarters({
               {/* Quote Banner */}
               <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-6 text-center space-y-2">
                 <div className="text-amber-300 text-lg font-bold">“{t(about.quote)}”</div>
-                <div className="text-xs text-white/60">— Rahat Ahmed's Driving Philosophy</div>
+                <div className="text-xs text-white/60">— Rahat Ahmed&rsquo;s Driving Philosophy</div>
               </div>
 
               {/* Personal Facts Grid */}

@@ -18,18 +18,24 @@ export const site = {
   defaultLang: "bn" as Lang,
 } as const;
 
+/**
+ * Primary navigation. Deliberately short: the homepage is a single journey,
+ * so nav points at sections, plus one route for the order flow.
+ */
 export const navLinks: NavLink[] = [
-  { href: "#home", bn: "হোম", en: "Home" },
   { href: "#about", bn: "পরিচয়", en: "About" },
-  { href: "#education", bn: "শিক্ষা", en: "Education" },
-  { href: "#achievements", bn: "অর্জন", en: "Achievements" },
-  { href: "#experience", bn: "অভিজ্ঞতা", en: "Experience" },
-  { href: "#blood", bn: "শান্তিচক্র", en: "Shantichakra", badge: "blood" },
-  { href: "#tribute", bn: "শ্রদ্ধাঞ্জলি", en: "Tribute" },
-  { href: "#gallery", bn: "গ্যালারি", en: "Gallery" },
-  { href: "/service-district", bn: "সার্ভিস ডিস্ট্রিক্ট", en: "Service District" },
-  { href: "/order", bn: "অর্ডার ওয়েবসাইট", en: "Order Website" },
-  { href: "/rahatverse", bn: "রাহাতভার্স", en: "RahatVerse" },
+  { href: "#services", bn: "সেবা", en: "Services" },
+  { href: "#work", bn: "কাজ", en: "Work" },
+  { href: "#trust", bn: "বিশ্বাস", en: "Results" },
+  { href: "#contact", bn: "যোগাযোগ", en: "Contact" },
+];
+
+/** Secondary destinations surfaced in the footer, not the main nav. */
+export const secondaryLinks: NavLink[] = [
+  { href: "/order", bn: "ওয়েবসাইট অর্ডার", en: "Order a Website" },
+  { href: "/rahatverse", bn: "রাহাতভার্স", en: "Explore RahatVerse" },
+  { href: "/museum", bn: "পোর্টফোলিও মিউজিয়াম", en: "Portfolio Museum" },
+  { href: "/login", bn: "ক্লায়েন্ট লগইন", en: "Client Login" },
 ];
 
 export const socials = [

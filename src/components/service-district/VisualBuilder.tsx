@@ -26,7 +26,23 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/components/providers/language-provider";
 import { BUILDINGS_DATA, BUILDER_FEATURES, PORTAL_PACKAGES } from "./data";
-import { WebsiteModel3D } from "./WebsiteModel3D";
+import dynamic from "next/dynamic";
+
+/**
+ * three.js + drei is ~250 kB. Load it only when the builder is on screen so
+ * the order journey stays fast on mobile.
+ */
+const WebsiteModel3D = dynamic(
+  () => import("./WebsiteModel3D").then((m) => m.WebsiteModel3D),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="grid min-h-[320px] place-items-center rounded-3xl border border-white/10 bg-slate-950/70 text-xs font-mono text-slate-400">
+        Loading 3D preview…
+      </div>
+    ),
+  }
+);
 
 interface VisualBuilderProps {
   selectedBuildingId: string;

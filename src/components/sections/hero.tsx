@@ -61,24 +61,20 @@ export function Hero() {
             </div>
           </Reveal>
 
+          {/* One primary action. One secondary. Nothing else competes. */}
           <Reveal delay={260}>
-            <div className="flex flex-wrap items-center gap-3">
-              <Button href="#achievements" size="lg">
-                {t(hero.primaryCta)}
+            <div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
+              <Button href="/order" size="lg" className="w-full sm:w-auto">
+                {t({ bn: "ওয়েবসাইট অর্ডার করুন", en: "Start a Website Project" })}
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
-              <Button href="#contact" variant="secondary" size="lg">
-                {t(hero.secondaryCta)}
-              </Button>
-              <Button href="/verse" variant="secondary" size="lg" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10">
-                🎮 Enter RahatVerse 3D
-              </Button>
-              <Button href="/rahatverse" variant="gold" size="lg">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
-                </span>
-                {t({ bn: "রাহাতভার্সে প্রবেশ", en: "Enter RahatVerse" })}
+              <Button
+                href="#work"
+                variant="secondary"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                {t({ bn: "কাজ দেখুন", en: "See My Work" })}
               </Button>
             </div>
           </Reveal>

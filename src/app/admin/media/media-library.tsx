@@ -14,7 +14,7 @@ import {
   FileCode,
 } from "lucide-react";
 import { useLanguage } from "@/components/providers/language-provider";
-import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET, isCloudinaryConfigured } from "@/lib/cloudinary";
+import { uploadFile } from "@/lib/cloudinary/upload";
 import { createFileAssetAction, deleteFileAssetAction } from "@/app/actions/media";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
@@ -65,39 +65,15 @@ export function MediaLibrary({ initialAssets }: MediaLibraryProps) {
     setUploadProgress(10);
 
     try {
-      let finalUrl = "";
-      let finalPath = file.name;
+      setUploadProgress(30);
 
-      if (isCloudinaryConfigured() && CLOUDINARY_UPLOAD_PRESET) {
-        // Enforce actual Cloudinary Upload via API
-        setUploadProgress(30);
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+      // Admin uses server-signed uploads, so it works even without a public
+      // unsigned preset. No mock fallback: a blob: URL would be dead on save.
+      const uploaded = await uploadFile(file, { folder: "media", signed: true });
 
-        const response = await fetch(
-          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to upload to Cloudinary");
-        }
-
-        setUploadProgress(70);
-        const data = await response.json();
-        finalUrl = data.secure_url;
-        finalPath = data.public_id;
-      } else {
-        // Fallback mockup mode when keys are not active in public env yet
-        setUploadProgress(50);
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        finalUrl = URL.createObjectURL(file); // custom temporary URL
-        finalPath = `mock_id_${Math.random().toString(36).slice(2, 9)}`;
-      }
+      setUploadProgress(70);
+      const finalUrl = uploaded.url;
+      const finalPath = uploaded.path;
 
       setUploadProgress(90);
 

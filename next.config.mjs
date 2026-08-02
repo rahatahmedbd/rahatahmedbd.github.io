@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: { ignoreBuildErrors: true },
-  eslint: { ignoreDuringBuilds: true },
+  // Type and lint errors now fail the build — the codebase is clean.
+  typescript: { ignoreBuildErrors: false },
+  eslint: { ignoreDuringBuilds: false },
   reactStrictMode: true,
   poweredByHeader: false,
   images: {
@@ -14,6 +15,14 @@ const nextConfig = {
         hostname: "res.cloudinary.com",
       },
     ],
+  },
+  async redirects() {
+    return [
+      // Legacy / duplicate routes consolidated into the single order journey.
+      { source: "/service-district", destination: "/order", permanent: true },
+      { source: "/services", destination: "/#services", permanent: true },
+      { source: "/verse", destination: "/rahatverse", permanent: true },
+    ];
   },
 };
 

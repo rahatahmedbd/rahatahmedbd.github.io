@@ -19,6 +19,20 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
     return supabaseResponse;
   }
 
+  // Public pages need no session round-trip. Skipping the Supabase call here
+  // removes a network hop from every homepage/order request.
+  const needsSession =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/account") ||
+    pathname === "/login" ||
+    pathname === "/forgot-password";
+
+  if (!needsSession) {
+    supabaseResponse.headers.set("x-pathname", pathname);
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
     publicEnv.supabaseUrl,
     publicEnv.supabaseAnonKey,
@@ -61,7 +75,7 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
       .from("profiles")
       .select("role, role_id, is_active")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     if (!profile || !profile.is_active) {
       // Profile inactive or not found
@@ -108,7 +122,7 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
       .from("profiles")
       .select("role, role_id")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     const isAdmin =
       profile?.role === "admin" ||

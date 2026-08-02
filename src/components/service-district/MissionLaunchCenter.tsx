@@ -36,42 +36,54 @@ export function MissionLaunchCenter({ summaryState }: MissionLaunchCenterProps) 
   const [launched, setIsLaunched] = useState(false);
   const [orderRef, setOrderRef] = useState("");
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const building = BUILDINGS_DATA.find((b) => b.id === summaryState.buildingId) || BUILDINGS_DATA[0];
 
   const handleLaunchProject = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !email || !phone) {
-      alert("Please enter your name, email, and phone number.");
+    setError(null);
+
+    if (!fullName.trim() || !email.trim() || !phone.trim()) {
+      setError("Please enter your name, email and phone number.");
       return;
     }
 
     startTransition(async () => {
-      // Calculate estimated cost number from price range
-      const numericEstCost = parseInt(summaryState.estimatedPriceRange.replace(/[^0-9]/g, "")) || 250;
+      const numericEstCost =
+        parseInt(summaryState.estimatedPriceRange.replace(/[^0-9]/g, ""), 10) || 250;
 
-      const res = await submitProjectOrderAction({
-        fullName,
-        companyName,
-        email,
-        phone,
-        country,
-        websiteType: building.title.en,
-        requiredFeatures: summaryState.features,
-        designPreference: ["Modern", "Futuristic", "Interactive Cyber"],
-        budgetOption: summaryState.estimatedPriceRange,
-        deadlineOption: summaryState.estimatedTimeline,
-        projectDetails: projectDetails || `Order for ${building.title.en} (${summaryState.pagesCount}, Scope: ${summaryState.estimatedScope})`,
-        uploadedFiles: [],
-        estimatedCost: numericEstCost,
-        estimatedDelivery: summaryState.estimatedTimeline,
-      });
+      try {
+        const res = await submitProjectOrderAction({
+          fullName,
+          companyName,
+          email,
+          phone,
+          country,
+          websiteType: building.title.en,
+          requiredFeatures: summaryState.features,
+          designPreference: ["Modern", "Futuristic", "Interactive Cyber"],
+          budgetOption: summaryState.estimatedPriceRange,
+          deadlineOption: summaryState.estimatedTimeline,
+          projectDetails:
+            projectDetails ||
+            `Order for ${building.title.en} (${summaryState.pagesCount}, Scope: ${summaryState.estimatedScope})`,
+          uploadedFiles: [],
+          estimatedCost: numericEstCost,
+          estimatedDelivery: summaryState.estimatedTimeline,
+        });
 
-      if (res.success && res.reference) {
-        setOrderRef(res.reference);
-        setIsLaunched(true);
-      } else {
-        alert(res.error || "Failed to launch project order.");
+        if (res.success && res.reference) {
+          setOrderRef(res.reference);
+          setIsLaunched(true);
+          return;
+        }
+
+        setError(res.error || "We could not submit your request. Please try again.");
+      } catch {
+        setError(
+          "Network problem — your request was not sent. Please check your connection and try again."
+        );
       }
     });
   };
@@ -214,6 +226,16 @@ export function MissionLaunchCenter({ summaryState }: MissionLaunchCenterProps) 
             </div>
           </div>
 
+          {error && (
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-center text-xs font-semibold text-red-300"
+            >
+              {error}
+            </div>
+          )}
+
           {/* Large Prominent Launch Button */}
           <div className="text-center pt-4">
             <button
@@ -224,12 +246,12 @@ export function MissionLaunchCenter({ summaryState }: MissionLaunchCenterProps) 
               {isPending ? (
                 <>
                   <Loader2 className="h-6 w-6 animate-spin" />
-                  <span>Igniting Engine & Storing in Supabase...</span>
+                  <span>Submitting your request…</span>
                 </>
               ) : (
                 <>
                   <Rocket className="h-6 w-6 animate-pulse" />
-                  <span>🚀 Launch My Project</span>
+                  <span>Submit My Project Request</span>
                 </>
               )}
             </button>
@@ -285,7 +307,7 @@ export function MissionLaunchCenter({ summaryState }: MissionLaunchCenterProps) 
               <LayoutDashboard className="h-4 w-4 mr-2" />
               <span>Go to Client Portal</span>
             </Button>
-            <Button href="/" variant="outline" className="w-full sm:w-auto px-6 py-3 h-auto text-xs font-bold">
+            <Button href="/" variant="secondary" className="w-full sm:w-auto px-6 py-3 h-auto text-xs font-bold">
               <span>Return to Home</span>
             </Button>
           </div>

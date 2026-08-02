@@ -8,21 +8,36 @@ export const metadata: Metadata = {
 };
 
 export default async function MuseumPage() {
-  const supabase = await getSupabaseServerClient();
+  // The museum must still render (empty) if Supabase is unreachable —
+  // a data outage should never produce a 500 on a public page.
+  let projects: any[] = [];
+  let categories: any[] = [];
+  let testimonials: any[] = [];
 
-  const [
-    { data: projects },
-    { data: categories },
-    { data: testimonials }
-  ] = await Promise.all([
-    supabase.from("projects").select("*, categories(name)").order("sort_order", { ascending: true }),
-    supabase.from("categories").select("*").order("sort_order", { ascending: true }),
-    supabase.from("testimonials").select("*").eq("status", "approved")
-  ]);
+  try {
+    const supabase = await getSupabaseServerClient();
+    const [p, c, t] = await Promise.all([
+      supabase
+        .from("projects")
+        .select("*, categories(name)")
+        .order("sort_order", { ascending: true }),
+      supabase.from("categories").select("*").order("sort_order", { ascending: true }),
+      supabase.from("testimonials").select("*").eq("status", "approved"),
+    ]);
+    projects = p.data ?? [];
+    categories = c.data ?? [];
+    testimonials = t.data ?? [];
+  } catch {
+    // Render the empty museum shell.
+  }
 
   return (
-    <main className="w-full h-screen overflow-hidden bg-black text-white relative">
-      <MuseumScene projects={projects || []} categories={categories || []} testimonials={testimonials || []} />
+    <main className="relative h-screen w-full overflow-hidden bg-black text-white">
+      <MuseumScene
+        projects={projects}
+        categories={categories}
+        testimonials={testimonials}
+      />
     </main>
   );
 }
