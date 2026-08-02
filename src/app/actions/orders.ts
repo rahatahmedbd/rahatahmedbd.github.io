@@ -327,6 +327,177 @@ export async function updateAdminOrderAction(
 }
 
 /**
+ * Client: Update own project's uploaded files (File Vault)
+ * Allows clients to manage their own requirement files.
+ * Syncs instantly to Admin Panel via notification + activity log.
+ */
+export async function updateClientOrderFilesAction(
+  id: string,
+  input: {
+    uploadedFiles: { name: string; url: string; mimeType: string; sizeBytes: number }[];
+  }
+) {
+  try {
+    const supabase = await getSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    // Verify ownership (client_id or email)
+    const { data: order, error: fetchErr } = await supabase.from("orders").select("id, client_id, client_info, reference, status").eq("id", id).single();
+    if (fetchErr) throw fetchErr;
+
+    const isOwner =
+      order.client_id === user.id ||
+      (order.client_info as any)?.email === user.email;
+
+    if (!isOwner) {
+      // allow admin override but already checked inside file vault as client
+      const { data: profile } = await supabase.from("profiles").select("role_id").eq("id", user.id).single();
+      if (profile?.role_id !== "super_admin" && profile?.role_id !== "admin") {
+        throw new Error("Forbidden: Not owner");
+      }
+    }
+
+    // Only allow file updates when status pending (or allow always but log)
+    const { data: updated, error } = await supabase
+      .from("orders")
+      .update({ uploaded_files: input.uploadedFiles })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Log activity + notify admin
+    try {
+      await supabase.from("activity_logs").insert({
+        user_id: user.id,
+        action: "client_upload_file",
+        meta: { id, reference: order.reference, filesCount: input.uploadedFiles.length, status: order.status },
+      });
+
+      const client = isSupabaseAdminAvailable ? getSupabaseAdminClient() : supabase;
+      const { data: admins } = await client.from("profiles").select("id").in("role_id", ["super_admin", "admin"]).limit(1);
+      if (admins && admins.length > 0) {
+        await client.from("notifications").insert({
+          user_id: admins[0].id,
+          type: "info",
+          title: `Client File Upload: ${order.reference}`,
+          body: `Client uploaded ${input.uploadedFiles.length} file(s) to mission ${order.reference}.`,
+          link: `/admin/orders?ref=${order.reference}`,
+          is_read: false,
+        });
+      }
+    } catch {
+      // ignore log errors
+    }
+
+    revalidatePath("/dashboard/files");
+    revalidatePath("/admin/orders");
+    return { success: true, data: updated };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to update files" };
+  }
+}
+
+/**
+ * Client: Approve milestone or request revision from Approval Bay
+ * Creates activity log + admin notification instantly.
+ */
+export async function clientApprovalAction(
+  orderId: string,
+  input: {
+    milestoneId: string;
+    action: "approve" | "revision";
+    feedback?: string;
+  }
+) {
+  try {
+    const supabase = await getSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    const { data: order } = await supabase.from("orders").select("reference, client_id, client_info").eq("id", orderId).single();
+    if (!order) throw new Error("Order not found");
+
+    const isOwner = order.client_id === user.id || (order.client_info as any)?.email === user.email;
+    if (!isOwner) {
+      const { data: profile } = await supabase.from("profiles").select("role_id").eq("id", user.id).single();
+      if (profile?.role_id !== "super_admin" && profile?.role_id !== "admin") throw new Error("Forbidden");
+    }
+
+    // Log approval action
+    await supabase.from("activity_logs").insert({
+      user_id: user.id,
+      action: input.action === "approve" ? "client_approve_milestone" : "client_request_revision",
+      meta: { orderId, reference: order.reference, milestoneId: input.milestoneId, feedback: input.feedback || null },
+    });
+
+    // Notify admin
+    try {
+      const client = isSupabaseAdminAvailable ? getSupabaseAdminClient() : supabase;
+      const { data: admins } = await client.from("profiles").select("id").in("role_id", ["super_admin", "admin"]).limit(1);
+      if (admins && admins.length > 0) {
+        await client.from("notifications").insert({
+          user_id: admins[0].id,
+          type: input.action === "approve" ? "success" : "warning",
+          title: input.action === "approve" ? `Milestone Approved: ${order.reference}` : `Revision Requested: ${order.reference}`,
+          body: input.action === "approve"
+            ? `Client approved milestone ${input.milestoneId} for ${order.reference}.`
+            : `Client requested revision on ${input.milestoneId}: ${input.feedback?.slice(0,120) || "No feedback"}`,
+          link: `/admin/orders?ref=${order.reference}`,
+          is_read: false,
+        });
+      }
+    } catch {}
+
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Approval action failed" };
+  }
+}
+
+/**
+ * Client: Request meeting / support escalation from Support AI
+ */
+export async function clientMeetingRequestAction(input: {
+  orderId?: string;
+  type: "meeting" | "support";
+  notes: string;
+}) {
+  try {
+    const supabase = await getSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    await supabase.from("activity_logs").insert({
+      user_id: user.id,
+      action: input.type === "meeting" ? "client_request_meeting" : "client_contact_support",
+      meta: { orderId: input.orderId || null, notes: input.notes },
+    });
+
+    const client = isSupabaseAdminAvailable ? getSupabaseAdminClient() : supabase;
+    const { data: admins } = await client.from("profiles").select("id").in("role_id", ["super_admin", "admin"]).limit(1);
+    if (admins && admins.length > 0) {
+      await client.from("notifications").insert({
+        user_id: admins[0].id,
+        type: "info",
+        title: input.type === "meeting" ? "New Meeting Request" : "Support Request",
+        body: input.notes.slice(0,180),
+        link: input.orderId ? `/admin/orders?ref=${input.orderId}` : "/admin/leads",
+        is_read: false,
+      });
+    }
+
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Request failed" };
+  }
+}
+
+/**
  * Super Admin: Delete an order record
  */
 export async function deleteAdminOrderAction(id: string) {

@@ -20,11 +20,12 @@ export default async function ClientDashboardLayout({
     redirect("/login");
   }
 
-  // Fetch unread notifications count for badge
+  // Fetch unread notifications count for badge (user-scoped for security)
   const supabase = await getSupabaseServerClient();
   const { count } = await supabase
     .from("notifications")
     .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
     .eq("is_read", false);
 
   return (

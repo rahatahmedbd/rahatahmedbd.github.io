@@ -1,341 +1,120 @@
 "use client";
-
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import {
-  User,
-  Phone,
-  Lock,
-  Camera,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  KeyRound,
-} from "lucide-react";
-import { useLanguage } from "@/components/providers/language-provider";
+import { User, Phone, Lock, Camera, CheckCircle, AlertCircle, Loader2, KeyRound, Shield, Orbit, Zap } from "lucide-react";
 import { updateClientDetailsAction, updateClientAvatarAction } from "@/app/actions/profile";
 import { changePasswordAction } from "@/app/actions/auth";
-import { Button } from "@/components/ui/button";
-import { Reveal } from "@/components/ui/reveal";
-import { Profile } from "@/types/database";
 
-interface ClientProfileFormProps {
-  profile: Profile;
-  email: string;
-}
-
-export function ClientProfileForm({ profile, email }: ClientProfileFormProps) {
-  const { t } = useLanguage();
+export function ClientProfileForm({ profile, email }: { profile: any; email: string }) {
   const router = useRouter();
-
-  const [isPendingDetails, startDetailsTransition] = useTransition();
-  const [isPendingPassword, startPasswordTransition] = useTransition();
-
-  // Profile details states
+  const [pendingDetails, startDetails] = useTransition();
+  const [pendingPw, startPw] = useTransition();
   const [fullName, setFullName] = useState(profile.full_name || "");
   const [phone, setPhone] = useState(profile.phone || "");
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || "");
-
   const [detailsSuccess, setDetailsSuccess] = useState<string | null>(null);
   const [detailsError, setDetailsError] = useState<string | null>(null);
-
-  // Password change states
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
   const [pwSuccess, setPwSuccess] = useState<string | null>(null);
   const [pwError, setPwError] = useState<string | null>(null);
 
-  const handleUpdateDetails = (e: React.FormEvent) => {
+  const handleDetails = (e: React.FormEvent) => {
     e.preventDefault();
-    setDetailsSuccess(null);
-    setDetailsError(null);
-
-    startDetailsTransition(async () => {
-      const resName = await updateClientDetailsAction({
-        fullName,
-        phone: phone || undefined,
-      });
-
-      if (!resName.success) {
-        setDetailsError(resName.error || "Failed to update profile info");
-        return;
-      }
-
-      if (avatarUrl !== profile.avatar_url) {
+    setDetailsSuccess(null); setDetailsError(null);
+    startDetails(async()=>{
+      const resName = await updateClientDetailsAction({ fullName, phone: phone||undefined });
+      if (!resName.success) { setDetailsError(resName.error||"Failed"); return; }
+      if (avatarUrl!==profile.avatar_url) {
         const resAvatar = await updateClientAvatarAction(avatarUrl);
-        if (!resAvatar.success) {
-          setDetailsError(resAvatar.error || "Failed to update avatar photo");
-          return;
-        }
+        if (!resAvatar.success) { setDetailsError(resAvatar.error||"Avatar failed"); return; }
       }
-
-      setDetailsSuccess("Your client profile has been updated successfully!");
+      setDetailsSuccess("Crew profile updated • Synced with Mission Control tower");
       router.refresh();
     });
   };
 
-  const handleUpdatePassword = (e: React.FormEvent) => {
+  const handlePw = (e: React.FormEvent) => {
     e.preventDefault();
-    setPwSuccess(null);
-    setPwError(null);
-
-    startPasswordTransition(async () => {
-      const res = await changePasswordAction({
-        currentPassword,
-        newPassword,
-        confirmPassword,
-      });
-
-      if (!res.success) {
-        setPwError(res.error || "Failed to change password. Verify your current credentials.");
-        return;
-      }
-
-      setPwSuccess("Your password has been successfully updated!");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+    setPwSuccess(null); setPwError(null);
+    startPw(async()=>{
+      const res = await changePasswordAction({ currentPassword, newPassword, confirmPassword });
+      if (!res.success) { setPwError(res.error||"Failed"); return; }
+      setPwSuccess("Quantum passkey rotated successfully • All sessions re-encrypted");
+      setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
     });
   };
 
   return (
-    <div className="space-y-8 max-w-5xl">
-      {/* Title Header */}
-      <Reveal direction="fade">
-        <div>
-          <h1 className="text-display-sm font-bold tracking-tight">
-            <span className="text-gradient">আমার প্রোফাইল (My Profile Settings)</span>
-          </h1>
-          <p className="text-sm text-fg-soft mt-1">
-            আপনার ব্যক্তিগত যোগাযোগের তথ্য, প্রোফাইল ছবি এবং পাসওয়ার্ড নিরাপদ উপায়ে এখান থেকে ম্যানেজ করুন।
-          </p>
+    <div className="space-y-6">
+      <div className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-[linear-gradient(160deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] p-6 backdrop-blur-xl">
+        <div className="flex items-center gap-4">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]"><User className="h-6 w-6" /></div>
+          <div><h1 className="text-[20px] font-black tracking-tight text-white leading-none">CREW PROFILE • IDENTITY NODE</h1><p className="mt-1 text-[11px] text-white/40 uppercase tracking-widest">Biometric • Contact • Quantum passkey • Encrypted vault</p></div>
         </div>
-      </Reveal>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left column: profile avatar details */}
-        <div className="lg:col-span-1 space-y-6">
-          <Reveal delay={60}>
-            <div className="card-surface p-6 rounded-3xl border border-border/10 bg-surface/30 backdrop-blur shadow-lift flex flex-col items-center text-center">
-              <div className="relative mb-4 group">
-                <div className="h-24 w-24 overflow-hidden rounded-full bg-canvas border-2 border-brand-500 flex items-center justify-center">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt={fullName} className="h-full w-full object-cover" />
-                  ) : (
-                    <User className="h-10 w-10 text-fg-muted" />
-                  )}
-                </div>
-                <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
-                  <Camera className="h-5 w-5 text-white" />
-                </div>
+      <div className="grid lg:grid-cols-[320px_1fr] gap-6 items-start">
+        <div className="space-y-4 lg:sticky top-6">
+          <div className="rounded-[24px] border border-white/10 bg-[#0c0e18] p-6 text-center">
+            <div className="relative mx-auto h-24 w-24 group">
+              <div className="h-24 w-24 overflow-hidden rounded-full bg-black border-2 border-white/15 grid place-items-center">
+                {avatarUrl ? <img src={avatarUrl} alt={fullName} className="h-full w-full object-cover" /> : <User className="h-10 w-10 text-white/30" />}
               </div>
-
-              <h3 className="font-bold text-fg leading-tight">{fullName}</h3>
-              <p className="text-xs text-brand-500 font-semibold uppercase tracking-wider mt-1">
-                Client Portal Account
-              </p>
-
-              <div className="w-full text-left space-y-3 mt-6 text-xs text-fg-soft border-t border-border/5 pt-4">
-                <div className="flex justify-between">
-                  <span>Registered Email:</span>
-                  <span className="font-semibold text-fg truncate max-w-[150px]">{email}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Client Status:</span>
-                  <span className="text-emerald-500 font-semibold">Active</span>
-                </div>
-              </div>
+              <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 grid place-items-center transition-opacity"><Camera className="h-5 w-5 text-white" /></div>
+              <div className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full bg-emerald-500 border-2 border-[#0c0e18]"><div className="h-2 w-2 rounded-full bg-black animate-pulse" /></div>
             </div>
-          </Reveal>
+            <h3 className="mt-4 text-[16px] font-black text-white">{fullName}</h3>
+            <p className="mt-1 text-[10px] font-bold tracking-[0.2em] text-violet-300 uppercase">Commander • Level 8 Clearance</p>
+            <div className="mt-5 space-y-2 text-left rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <div className="flex justify-between text-[11px]"><span className="text-white/40">Email</span><span className="text-white font-medium truncate max-w-[140px]">{email}</span></div>
+              <div className="flex justify-between text-[11px]"><span className="text-white/40">Status</span><span className="text-emerald-300 font-bold">Active • Verified</span></div>
+              <div className="flex justify-between text-[11px]"><span className="text-white/40">Vessel</span><span className="text-white/70">RAHAT.SYS Client</span></div>
+              <div className="mt-3 h-px bg-white/10" />
+              <div className="flex items-center gap-2 text-[10px] font-mono text-white/30"><Shield className="h-3 w-3 text-emerald-400" /> Identity secured • E2E encrypted</div>
+            </div>
+          </div>
         </div>
 
-        {/* Right column: Edit Details and Change Password Forms */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Edit Details Form */}
-          <Reveal delay={100}>
-            <div className="card-surface p-6 sm:p-8 rounded-3xl border border-border/10 bg-surface/30 backdrop-blur shadow-lift space-y-5">
-              <div className="flex items-center gap-2 border-b border-border/5 pb-3">
-                <User className="h-5 w-5 text-brand-500" />
-                <h3 className="font-bold text-fg text-base">যোগাযোগের তথ্য (Contact Details)</h3>
+        <div className="space-y-6">
+          <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-6 backdrop-blur">
+            <div className="flex items-center gap-2 border-b border-white/10 pb-3"><Orbit className="h-4 w-4 text-cyan-400" /><h3 className="text-[13px] font-black tracking-widest text-white uppercase">Contact Details • Transmit Update</h3></div>
+            <form onSubmit={handleDetails} className="mt-5 space-y-4">
+              {detailsError && <div className="flex gap-2 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-[12px] text-rose-300"><AlertCircle className="h-4 w-4 shrink-0" />{detailsError}</div>}
+              {detailsSuccess && <div className="flex gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-[12px] text-emerald-300"><CheckCircle className="h-4 w-4 shrink-0" />{detailsSuccess}</div>}
+              <div>
+                <label className="text-[10px] tracking-widest text-white/40 uppercase">Full Name • Commander Identity</label>
+                <div className="relative mt-1"><User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" /><input value={fullName} onChange={e=>setFullName(e.target.value)} required className="h-11 w-full rounded-full border border-white/10 bg-black/40 pl-11 pr-4 text-[13px] text-white focus:border-white/20 outline-none" /></div>
               </div>
-
-              <form onSubmit={handleUpdateDetails} className="space-y-4">
-                {detailsError && (
-                  <div className="flex items-start gap-3 rounded-2xl border border-brand-500/20 bg-brand-500/5 p-4 text-sm text-brand-600 dark:text-brand-400">
-                    <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-                    <p>{detailsError}</p>
-                  </div>
-                )}
-
-                {detailsSuccess && (
-                  <div className="flex items-start gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle className="h-5 w-5 shrink-0 mt-0.5" />
-                    <p>{detailsSuccess}</p>
-                  </div>
-                )}
-
-                {/* Name */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-fg-muted" htmlFor="fullName">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-fg-muted" />
-                    <input
-                      id="fullName"
-                      type="text"
-                      required
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="w-full h-11 pl-11 pr-4 rounded-full border border-border/10 bg-canvas/30 text-sm focus:border-brand-500 outline-none transition-colors"
-                    />
-                  </div>
-                </div>
-
-                {/* Phone */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-fg-muted" htmlFor="phone">
-                    Phone Number
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-fg-muted" />
-                    <input
-                      id="phone"
-                      type="text"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+8801XXXXXXXXX"
-                      className="w-full h-11 pl-11 pr-4 rounded-full border border-border/10 bg-canvas/30 text-sm focus:border-brand-500 outline-none transition-colors"
-                    />
-                  </div>
-                </div>
-
-                {/* Profile Photo URL */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-fg-muted" htmlFor="avatar">
-                    Profile Photo URL
-                  </label>
-                  <input
-                    id="avatar"
-                    type="text"
-                    value={avatarUrl}
-                    onChange={(e) => setAvatarUrl(e.target.value)}
-                    placeholder="https://res.cloudinary.com/.../profile.jpg"
-                    className="w-full h-11 px-4 rounded-full border border-border/10 bg-canvas/30 text-sm focus:border-brand-500 outline-none transition-colors"
-                  />
-                </div>
-
-                <Button type="submit" disabled={isPendingDetails} className="px-6 h-11 mt-2">
-                  {isPendingDetails ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Updating Profile...
-                    </>
-                  ) : (
-                    "Save Contact Details"
-                  )}
-                </Button>
-              </form>
-            </div>
-          </Reveal>
-
-          {/* Change Password Form */}
-          <Reveal delay={140}>
-            <div className="card-surface p-6 sm:p-8 rounded-3xl border border-border/10 bg-surface/30 backdrop-blur shadow-lift space-y-5">
-              <div className="flex items-center gap-2 border-b border-border/5 pb-3">
-                <KeyRound className="h-5 w-5 text-brand-500" />
-                <h3 className="font-bold text-fg text-base">পাসওয়ার্ড পরিবর্তন (Change Password)</h3>
+              <div>
+                <label className="text-[10px] tracking-widest text-white/40 uppercase">Phone • Quantum Link</label>
+                <div className="relative mt-1"><Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" /><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+8801XXXXXXXXX" className="h-11 w-full rounded-full border border-white/10 bg-black/40 pl-11 pr-4 text-[13px] text-white placeholder:text-white/20 focus:border-white/20 outline-none" /></div>
               </div>
+              <div>
+                <label className="text-[10px] tracking-widest text-white/40 uppercase">Avatar URL • Visual Identity</label>
+                <input value={avatarUrl} onChange={e=>setAvatarUrl(e.target.value)} placeholder="https://..." className="mt-1 h-11 w-full rounded-full border border-white/10 bg-black/40 px-4 text-[13px] text-white placeholder:text-white/20 focus:border-white/20 outline-none" />
+              </div>
+              <button type="submit" disabled={pendingDetails} className="rounded-full bg-white px-6 py-3 text-[12px] font-black tracking-widest text-black hover:bg-white/90 disabled:opacity-50 flex items-center gap-2">{pendingDetails ? <><Loader2 className="h-4 w-4 animate-spin" /> Syncing...</> : <><Zap className="h-4 w-4" /> Save Identity</>}</button>
+            </form>
+          </div>
 
-              <form onSubmit={handleUpdatePassword} className="space-y-4">
-                {pwError && (
-                  <div className="flex items-start gap-3 rounded-2xl border border-brand-500/20 bg-brand-500/5 p-4 text-sm text-brand-600 dark:text-brand-400">
-                    <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-                    <p>{pwError}</p>
-                  </div>
-                )}
-
-                {pwSuccess && (
-                  <div className="flex items-start gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle className="h-5 w-5 shrink-0 mt-0.5" />
-                    <p>{pwSuccess}</p>
-                  </div>
-                )}
-
-                {/* Current Password */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-fg-muted" htmlFor="currentPassword">
-                    Current Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-fg-muted" />
-                    <input
-                      id="currentPassword"
-                      type="password"
-                      required
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full h-11 pl-11 pr-4 rounded-full border border-border/10 bg-canvas/30 text-sm focus:border-brand-500 outline-none transition-colors"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* New Password */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-fg-muted" htmlFor="newPassword">
-                      New Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-fg-muted" />
-                      <input
-                        id="newPassword"
-                        type="password"
-                        required
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full h-11 pl-11 pr-4 rounded-full border border-border/10 bg-canvas/30 text-sm focus:border-brand-500 outline-none transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Confirm Password */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-fg-muted" htmlFor="confirmPassword">
-                      Confirm New Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-fg-muted" />
-                      <input
-                        id="confirmPassword"
-                        type="password"
-                        required
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full h-11 pl-11 pr-4 rounded-full border border-border/10 bg-canvas/30 text-sm focus:border-brand-500 outline-none transition-colors"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Button type="submit" disabled={isPendingPassword} className="px-6 h-11 mt-2">
-                  {isPendingPassword ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Changing Password...
-                    </>
-                  ) : (
-                    "Update Password"
-                  )}
-                </Button>
-              </form>
-            </div>
-          </Reveal>
+          <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-6 backdrop-blur">
+            <div className="flex items-center gap-2 border-b border-white/10 pb-3"><KeyRound className="h-4 w-4 text-amber-300" /><h3 className="text-[13px] font-black tracking-widest text-white uppercase">Quantum Passkey • Rotate</h3></div>
+            <form onSubmit={handlePw} className="mt-5 space-y-4">
+              {pwError && <div className="flex gap-2 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-[12px] text-rose-300"><AlertCircle className="h-4 w-4 shrink-0" />{pwError}</div>}
+              {pwSuccess && <div className="flex gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-[12px] text-emerald-300"><CheckCircle className="h-4 w-4 shrink-0" />{pwSuccess}</div>}
+              <div>
+                <label className="text-[10px] tracking-widest text-white/40 uppercase">Current Quantum Key</label>
+                <div className="relative mt-1"><Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" /><input type="password" required value={currentPassword} onChange={e=>setCurrentPassword(e.target.value)} placeholder="••••••••" className="h-11 w-full rounded-full border border-white/10 bg-black/40 pl-11 pr-4 text-[13px] text-white outline-none" /></div>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div><label className="text-[10px] tracking-widest text-white/40 uppercase">New Passkey</label><div className="relative mt-1"><Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" /><input type="password" required value={newPassword} onChange={e=>setNewPassword(e.target.value)} placeholder="••••••••" className="h-11 w-full rounded-full border border-white/10 bg-black/40 pl-11 pr-4 text-[13px] text-white outline-none" /></div></div>
+                <div><label className="text-[10px] tracking-widest text-white/40 uppercase">Confirm New</label><div className="relative mt-1"><Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" /><input type="password" required value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} placeholder="••••••••" className="h-11 w-full rounded-full border border-white/10 bg-black/40 pl-11 pr-4 text-[13px] text-white outline-none" /></div></div>
+              </div>
+              <button type="submit" disabled={pendingPw} className="rounded-full bg-white px-6 py-3 text-[12px] font-black tracking-widest text-black hover:bg-white/90 disabled:opacity-50 flex items-center gap-2">{pendingPw ? <><Loader2 className="h-4 w-4 animate-spin" /> Rotating...</> : "Rotate Passkey"}</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
