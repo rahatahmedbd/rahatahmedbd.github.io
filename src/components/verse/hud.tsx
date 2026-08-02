@@ -252,14 +252,14 @@ export function VerseHud({
             <ul className="mt-4 grid max-h-[50vh] grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2">
               {[
                 { name: "Central Plaza", note: "The heart of the city" },
-                { name: "Agency Headquarters", note: "Chapter 3" },
-                { name: "Portfolio Museum", note: "Chapter 3" },
-                { name: "Website Factory", note: "Chapter 5" },
-                { name: "AI Laboratory", note: "Chapter 6" },
-                { name: "Service District", note: "Chapter 4" },
-                { name: "Order Center", note: "Chapter 4" },
-                { name: "Client Hub", note: "Chapter 4" },
-                { name: "Innovation Tower", note: "Chapter 7" },
+                { name: "Agency Headquarters", note: "HQ Portal" },
+                { name: "Portfolio Museum", note: "Exhibits" },
+                { name: "Website Factory", note: "Factory Hub" },
+                { name: "AI Laboratory", note: "AI Lab" },
+                { name: "Service District", note: "Chapter 7 · Unlocked!" },
+                { name: "Order Center", note: "Order Portal" },
+                { name: "Client Hub", note: "Client Portal" },
+                { name: "Innovation Tower", note: "Chapter 8" },
                 { name: "Secret District", note: "??? — find it" },
               ].map((item) => (
                 <li

@@ -96,6 +96,34 @@ export function ServicesClient({ dbServices }: ServicesClientProps) {
             </Reveal>
           ))}
         </div>
+
+        {/* Chapter 7 Interactive Service District Banner */}
+        <Reveal delay={250}>
+          <div className="mt-12 rounded-3xl border border-brand-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 p-6 sm:p-8 text-white shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="space-y-2 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 text-xs font-mono font-bold text-cyan-400">
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>CHAPTER 7 · INTERACTIVE EXPERIENCE</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                {t({ en: "Enter the Futuristic Service District", bn: "ইন্টারেক্টিভ সার্ভিস ডিস্ট্রিক্ট ভিজিট করুন" })}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-2xl">
+                {t({
+                  en: "Explore 9 interactive building hubs, consult with our AI advisor, design your website live in our 3D Visual Builder, and launch your project.",
+                  bn: "৯ টি ডিজিটাল সার্ভিস বিল্ডিং হাব ঘুরে দেখুন, ৩ডি ভিজ্যুয়াল বিল্ডারে প্রজেক্ট ডিজাইন করুন এবং নতুন অর্ডার রিলিজ করুন।",
+                })}
+              </p>
+            </div>
+
+            <a
+              href="/service-district"
+              className="shrink-0 rounded-full bg-gradient-to-r from-brand-600 to-cyan-500 hover:from-brand-500 hover:to-cyan-400 text-white font-extrabold px-8 py-3.5 text-xs shadow-xl transition-all hover:scale-105"
+            >
+              {t({ en: "Explore Service District 🚀", bn: "সার্ভিস ডিস্ট্রিক্টে প্রবেশ করুন 🚀" })}
+            </a>
+          </div>
+        </Reveal>
       </Container>
     </Section>
   );
