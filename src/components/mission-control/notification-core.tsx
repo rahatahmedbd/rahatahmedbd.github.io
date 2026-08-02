@@ -73,7 +73,7 @@ export function NotificationCore({ notifications }: { notifications: Notificatio
           <div className="py-16 text-center">
             <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-white/10 bg-white/[0.03]"><Zap className="h-6 w-6 text-white/30" /></div>
             <div className="mt-4 text-[13px] font-bold text-white/60">All clear • No new signals</div>
-            <div className="mt-1 text-[11px] text-white/30">Mission Control is silent. We'll alert you instantly when subsystems update.</div>
+            <div className="mt-1 text-[11px] text-white/30">Mission Control is silent. We&apos;ll alert you instantly when subsystems update.</div>
           </div>
         )}
       </div>

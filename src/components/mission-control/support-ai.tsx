@@ -42,7 +42,7 @@ export function SupportAI() {
               <span className="text-[13px] font-black tracking-[0.18em] text-white">NOVA • AI MISSION GUIDE</span>
               <span className="rounded-full bg-violet-500/20 border border-violet-500/30 px-2 py-0.5 text-[9px] font-bold tracking-widest text-violet-300">AI • GEMINI CORE</span>
             </div>
-            <div className="text-[10px] tracking-widest text-white/40 uppercase">Guides, doesn't replace human • Always online</div>
+            <div className="text-[10px] tracking-widest text-white/40 uppercase">Guides, doesn&apos;t replace human • Always online</div>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1"><Sparkles className="h-3 w-3 text-violet-300" /><span className="text-[10px] font-mono text-white/50">Lat 42ms</span></div>
