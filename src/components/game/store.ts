@@ -3,6 +3,8 @@ import { create } from 'zustand';
 interface GameState {
   showSettings: boolean;
   setShowSettings: (show: boolean) => void;
+  showHqModal: boolean;
+  setShowHqModal: (show: boolean) => void;
   interactionText: string | null;
   setInteractionText: (text: string | null) => void;
   lastCheckpoint: [number, number, number] | null;
@@ -20,6 +22,8 @@ interface GameState {
 export const useGameStore = create<GameState>((set) => ({
   showSettings: false,
   setShowSettings: (show) => set({ showSettings: show }),
+  showHqModal: false,
+  setShowHqModal: (show) => set({ showHqModal: show }),
   interactionText: null,
   setInteractionText: (text) => set({ interactionText: text }),
   lastCheckpoint: null,

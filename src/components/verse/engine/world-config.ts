@@ -1,9 +1,6 @@
 /**
- * RahatVerse — Chapter 2 · The Digital City (World Foundation)
+ * RahatVerse — Chapter 4 · Agency Headquarters (The Command Center)
  * Central configuration: world scale, palette, districts, reserved zones.
- *
- * The city is deliberately kept as a FOUNDATION. Buildings are NOT built here —
- * only clearly marked reserved plots that future chapters will populate.
  */
 
 export const WORLD = {
@@ -91,14 +88,14 @@ export interface ReservedZone {
 }
 
 /**
- * The nine future locations. Their plots exist and are clearly marked, but the
- * buildings are deliberately NOT constructed in this chapter.
+ * The reserved locations of RahatVerse.
+ * Chapter 4 builds Agency Headquarters as the landmark tower of the city.
  */
 export const RESERVED: ReservedZone[] = [
   {
     id: "agency", name: "Agency Headquarters", bn: "এজেন্সি সদরদপ্তর",
-    tagline: "The command centre of RahatVerse", x: -110, z: -110, chapter: 3,
-    info: "Home of Rahat Ahmed — the studio behind every pixel of RahatVerse. Command post arrives in Chapter 3.",
+    tagline: "The command centre of RahatVerse", x: -110, z: -110, chapter: 4,
+    info: "The command post of RahatVerse & Rahat Ahmed's interactive Agency Headquarters. Enter to explore 10 interactive rooms, AI process, and avatar guide.",
     accent: PALETTE.brand,
   },
   {
@@ -110,38 +107,38 @@ export const RESERVED: ReservedZone[] = [
   },
   {
     id: "factory", name: "Website Factory", bn: "ওয়েবসাইট কারখানা",
-    tagline: "Where ideas become websites", x: 110, z: -110, chapter: 5,
-    info: "The production line where client websites are engineered. Assembly begins in a future chapter.",
+    tagline: "Where ideas become websites", x: 110, z: -110, chapter: 6,
+    info: "The production line where client websites are engineered. Assembly begins in Chapter 6.",
     accent: PALETTE.cyan,
   },
   {
     id: "ai", name: "AI Laboratory", bn: "এআই গবেষণাগার",
-    tagline: "The thinking heart of the city", x: 150, z: 0, chapter: 6,
-    info: "Reserved for intelligent assistants and smart automation. Experiments start in a later chapter.",
+    tagline: "The thinking heart of the city", x: 150, z: 0, chapter: 7,
+    info: "Reserved for intelligent assistants and smart automation. Experiments start in Chapter 7.",
     accent: PALETTE.violet,
   },
   {
     id: "service", name: "Service District", bn: "সেবা জেলা",
-    tagline: "Support & solutions for every visitor", x: 110, z: 110, chapter: 4,
-    info: "Hosts customer support, care, and all service touchpoints. Activation planned in Chapter 4.",
+    tagline: "Support & solutions for every visitor", x: 110, z: 110, chapter: 8,
+    info: "Hosts customer support, care, and all service touchpoints. Activation planned in Chapter 8.",
     accent: PALETTE.lime,
   },
   {
     id: "order", name: "Order Center", bn: "অর্ডার কেন্দ্র",
-    tagline: "Start your own website here", x: 0, z: 150, chapter: 4,
-    info: "Future visitors order new websites from this hub. The order portal arrives in Chapter 4.",
+    tagline: "Start your own website here", x: 0, z: 150, chapter: 8,
+    info: "Future visitors order new websites from this hub. The order portal arrives in Chapter 8.",
     accent: PALETTE.brand,
   },
   {
     id: "client", name: "Client Hub", bn: "ক্লায়েন্ট হাব",
-    tagline: "A private lounge for clients", x: -110, z: 110, chapter: 4,
-    info: "A dedicated space where clients track and manage their projects. Reserved for a future chapter.",
+    tagline: "A private lounge for clients", x: -110, z: 110, chapter: 8,
+    info: "A dedicated space where clients track and manage their projects. Reserved for Chapter 8.",
     accent: PALETTE.gold,
   },
   {
     id: "tower", name: "Innovation Tower", bn: "উদ্ভাবন টাওয়ার",
-    tagline: "Reaching toward what's next", x: -150, z: 0, chapter: 7,
-    info: "A future landmark tower for frontier experiments. The spire rises in a later chapter.",
+    tagline: "Reaching toward what's next", x: -150, z: 0, chapter: 9,
+    info: "A future landmark tower for frontier experiments. The spire rises in Chapter 9.",
     accent: PALETTE.cyan,
   },
   {
@@ -168,6 +165,7 @@ export interface HudState {
   toast: { id: number; title: string; sub?: string } | null;
   infoPanel: { title: string; body: string; accent: number; link?: string } | null;
   mapOpen: boolean;
+  hqModalOpen: boolean;
   muted: boolean;
 }
 
@@ -182,6 +180,7 @@ export const initialHudState: HudState = {
   toast: null,
   infoPanel: null,
   mapOpen: false,
+  hqModalOpen: false,
   muted: false,
 };
 

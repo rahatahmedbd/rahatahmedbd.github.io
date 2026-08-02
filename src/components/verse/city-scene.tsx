@@ -114,6 +114,8 @@ export function CityScene() {
         onDismissWelcome={() => setHud((p) => ({ ...p, welcomeShown: false }))}
         onCloseInfo={() => setHud((p) => ({ ...p, infoPanel: null }))}
         onCloseMap={() => setHud((p) => ({ ...p, mapOpen: false }))}
+        onCloseHq={() => setHud((p) => ({ ...p, hqModalOpen: false }))}
+        onOpenHq={() => setHud((p) => ({ ...p, hqModalOpen: true }))}
         onJoystick={(x, y) => engineRef.current?.setJoystick(x, y)}
       />
     </div>

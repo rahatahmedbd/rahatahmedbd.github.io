@@ -284,6 +284,8 @@ export class VerseEngine {
         this.hoverData = null;
         if (iv.openMap) {
           this.opts.callbacks.onHud({ mapOpen: true });
+        } else if (iv.openHq) {
+          this.opts.callbacks.onHud({ hqModalOpen: true });
         } else {
           this.opts.callbacks.onHud({ infoPanel: { title: iv.title, body: iv.body, accent: iv.accent } });
         }

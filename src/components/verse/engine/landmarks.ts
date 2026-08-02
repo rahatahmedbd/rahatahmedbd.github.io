@@ -341,8 +341,123 @@ export function buildLandmarks(
         title: zone.name,
         body: `${zone.info}\n\nTagline — "${zone.tagline}"`,
         accent: zone.accent,
-        link: zone.link,
+        openHq: zone.id === "agency",
       });
+
+      // If zone is Agency Headquarters, construct the physical 3D Landmark Skyscraper (Chapter 4)
+      if (zone.id === "agency") {
+        const hqTower = new THREE.Group();
+
+        // Base podium
+        const podium = new THREE.Mesh(
+          new THREE.BoxGeometry(32, 12, 32),
+          new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2, metalness: 0.8 })
+        );
+        podium.position.y = 6;
+        hqTower.add(podium);
+
+        // Glass Tower Body
+        const glassTower = new THREE.Mesh(
+          new THREE.BoxGeometry(24, 40, 24),
+          new THREE.MeshStandardMaterial({
+            color: PALETTE.brand,
+            emissive: PALETTE.brand,
+            emissiveIntensity: 0.35,
+            transparent: true,
+            opacity: 0.85,
+            roughness: 0.1,
+            metalness: 0.4,
+          })
+        );
+        glassTower.position.y = 32;
+        hqTower.add(glassTower);
+
+        // Corner Columns
+        const colMat = new THREE.MeshStandardMaterial({ color: PALETTE.metalDark, roughness: 0.3, metalness: 0.8 });
+        [[-11.5, -11.5], [11.5, -11.5], [-11.5, 11.5], [11.5, 11.5]].forEach(([cx, cz]) => {
+          const col = new THREE.Mesh(new THREE.BoxGeometry(1.5, 40, 1.5), colMat);
+          col.position.set(cx, 32, cz);
+          hqTower.add(col);
+        });
+
+        // Tower Crown & Spire
+        const crown = new THREE.Mesh(
+          new THREE.BoxGeometry(16, 20, 16),
+          new THREE.MeshStandardMaterial({ color: PALETTE.cyan, emissive: PALETTE.cyan, emissiveIntensity: 0.6, transparent: true, opacity: 0.9 })
+        );
+        crown.position.y = 62;
+        hqTower.add(crown);
+
+        const spire = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.2, 1.2, 24, 12),
+          new THREE.MeshStandardMaterial({ color: PALETTE.cyan, emissive: PALETTE.cyan, emissiveIntensity: 2.0 })
+        );
+        spire.position.y = 84;
+        hqTower.add(spire);
+
+        const skyBeam = new THREE.Mesh(
+          new THREE.CylinderGeometry(1.5, 6, 120, 16, 1, true),
+          new THREE.MeshBasicMaterial({
+            color: PALETTE.brand,
+            transparent: true,
+            opacity: 0.35,
+            blending: THREE.AdditiveBlending,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+          })
+        );
+        skyBeam.position.y = 150;
+        hqTower.add(skyBeam);
+        addDynamic(skyBeam, (t) => {
+          skyBeam.rotation.y = t * 0.5;
+          skyBeam.material.opacity = 0.25 + Math.sin(t * 3.0) * 0.1;
+        });
+
+        // Rotating Hologram Ring
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(12, 0.4, 12, 36),
+          new THREE.MeshStandardMaterial({ color: PALETTE.brand, emissive: PALETTE.brand, emissiveIntensity: 1.8 })
+        );
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = 70;
+        hqTower.add(ring);
+        addDynamic(ring, (t) => {
+          ring.rotation.z = t * 1.2;
+        });
+
+        // Digital Entrance Doorway
+        const doorFrame = new THREE.Mesh(
+          new THREE.BoxGeometry(10, 8, 1),
+          new THREE.MeshStandardMaterial({ color: PALETTE.cyan, emissive: PALETTE.cyan, emissiveIntensity: 1.5 })
+        );
+        doorFrame.position.set(0, 4, 16.2);
+        hqTower.add(doorFrame);
+
+        const doorPortal = new THREE.Mesh(
+          new THREE.PlaneGeometry(8, 6.5),
+          new THREE.MeshBasicMaterial({
+            map: textTexture({
+              text: "AGENCY HEADQUARTERS",
+              sub: "Click to Enter (Chapter 4)",
+              fontSize: 48,
+              color: "#ffffff",
+              subColor: "#f43f5e",
+              bg: "#040914",
+            }),
+          })
+        );
+        doorPortal.position.set(0, 4, 16.8);
+        hqTower.add(doorPortal);
+
+        registerInteractive(doorPortal, {
+          title: "Agency Headquarters",
+          body: "Welcome to Agency Headquarters — Chapter 4. Click to enter the 10 interactive rooms, AI development process, and avatar guide.",
+          accent: PALETTE.brand,
+          openHq: true,
+        });
+
+        plot.add(hqTower);
+      }
 
       plot.position.set(zone.x, 0, zone.z);
       group.add(plot);
