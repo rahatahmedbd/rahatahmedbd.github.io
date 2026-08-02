@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/components/providers/language-provider";
 import { updateAdminOrderAction } from "@/app/actions/orders";
-import { isCloudinaryConfigured, CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_CLOUD_NAME } from "@/lib/cloudinary";
+import { canUploadFromBrowser, uploadFile } from "@/lib/cloudinary/upload";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 
@@ -38,6 +38,8 @@ export function FileManager({ initialProjects }: FileManagerProps) {
   const [projects, setProjects] = useState<ProjectFile[]>(initialProjects);
   const [selectedProjectId, setSelectedProjectId] = useState(projects[0]?.id || "");
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const uploadsEnabled = canUploadFromBrowser();
   const [isPending, startTransition] = useTransition();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,35 +51,16 @@ export function FileManager({ initialProjects }: FileManagerProps) {
     if (!files || !selectedProject) return;
 
     setUploading(true);
+    setUploadError(null);
     const filesArr = Array.from(files);
 
     try {
+      // Real uploads only. Documents go to Cloudinary /raw, images to /image.
+      // Previously non-image files always became blob: URLs — saved to the DB
+      // as if uploaded, but unreachable the moment the tab closed.
       const uploaded = [];
-
       for (const file of filesArr) {
-        let fileUrl = "";
-
-        if (file.type.startsWith("image") && isCloudinaryConfigured() && CLOUDINARY_UPLOAD_PRESET) {
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-            method: "POST",
-            body: formData,
-          });
-          const data = await res.json();
-          fileUrl = data.secure_url;
-        } else {
-          fileUrl = URL.createObjectURL(file);
-        }
-
-        uploaded.push({
-          name: file.name,
-          url: fileUrl,
-          mimeType: file.type,
-          sizeBytes: file.size,
-        });
+        uploaded.push(await uploadFile(file, { folder: "project-files" }));
       }
 
       // Add to current project files
@@ -98,7 +81,9 @@ export function FileManager({ initialProjects }: FileManagerProps) {
         }
       });
     } catch (err) {
-      alert("Failed to upload file");
+      setUploadError(
+        err instanceof Error ? err.message : "Failed to upload file."
+      );
     } finally {
       setUploading(false);
     }
@@ -173,9 +158,26 @@ export function FileManager({ initialProjects }: FileManagerProps) {
                   onChange={handleFileUpload}
                   className="hidden"
                 />
+                {!uploadsEnabled && (
+                  <p className="mb-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-xs text-amber-700 dark:text-amber-300">
+                    File uploads are currently unavailable. Please send your
+                    files by email or WhatsApp and they will be attached to
+                    your project.
+                  </p>
+                )}
+
+                {uploadError && (
+                  <p
+                    role="alert"
+                    className="mb-3 rounded-2xl border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-xs font-semibold text-red-600 dark:text-red-300"
+                  >
+                    {uploadError}
+                  </p>
+                )}
+
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading || isPending}
+                  disabled={uploading || isPending || !uploadsEnabled}
                   className="flex items-center justify-center gap-2 rounded-full bg-brand-600 text-white w-full h-11 font-semibold hover:bg-brand-500 hover:-translate-y-0.5 shadow-soft transition-all duration-300 disabled:opacity-50"
                 >
                   {uploading || isPending ? (
