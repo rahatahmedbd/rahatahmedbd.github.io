@@ -14,7 +14,7 @@ import { Gallery } from "@/components/sections/gallery";
 import { Contact } from "@/components/sections/contact";
 import { OrderCta } from "@/components/sections/order-cta";
 import { VerseInvite } from "@/components/sections/verse-invite";
-import Hero3D from "@/components/sections/hero-3d";
+import Hero3D from "@/components/sections/hero-3d-loader";
 import BlogPreview from "@/components/sections/blog-preview";
 
 /**
