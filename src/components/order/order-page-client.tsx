@@ -26,9 +26,26 @@ const ServiceDistrictMain = dynamic(
 
 type Mode = "quick" | "district";
 
+/** Read the deep-link mode from the URL (e.g. /order?mode=district). */
+function initialMode(): Mode {
+  if (typeof window === "undefined") return "quick";
+  return new URLSearchParams(window.location.search).get("mode") === "district"
+    ? "district"
+    : "quick";
+}
+
 export function OrderPageClient() {
   const { t } = useLanguage();
-  const [mode, setMode] = useState<Mode>("quick");
+  const [mode, setMode] = useState<Mode>(initialMode);
+
+  const switchMode = (next: Mode) => {
+    setMode(next);
+    // Keep the URL shareable — ?mode=district lands straight on the district.
+    const url = new URL(window.location.href);
+    if (next === "district") url.searchParams.set("mode", "district");
+    else url.searchParams.delete("mode");
+    window.history.replaceState(null, "", url.toString());
+  };
 
   return (
     <div className="relative min-h-screen pb-24 pt-28 sm:pt-32">
@@ -76,11 +93,11 @@ export function OrderPageClient() {
 
         {/* Mode switch */}
         <div className="mx-auto mt-9 flex w-fit items-center gap-1 rounded-full border border-border/12 bg-surface/70 p-1 backdrop-blur">
-          <ModeTab active={mode === "quick"} onClick={() => setMode("quick")}>
+          <ModeTab active={mode === "quick"} onClick={() => switchMode("quick")}>
             <Rocket className="h-3.5 w-3.5" />
             {t({ en: "Quick order", bn: "দ্রুত অর্ডার" })}
           </ModeTab>
-          <ModeTab active={mode === "district"} onClick={() => setMode("district")}>
+          <ModeTab active={mode === "district"} onClick={() => switchMode("district")}>
             <Sliders className="h-3.5 w-3.5" />
             {t({ en: "Explore in detail", bn: "বিস্তারিত দেখুন" })}
           </ModeTab>
