@@ -48,6 +48,11 @@ export default function Hero3D() {
         gl={{ antialias: true, alpha: true }}
         dpr={[1, 2]}
         style={{ touchAction: "none" }}
+        fallback={
+          <div className="grid h-full place-items-center px-6 text-center text-sm text-white/65">
+            Interactive preview is unavailable on this device.
+          </div>
+        }
       >
         <Suspense fallback={null}>
           <ambientLight intensity={0.4} />
