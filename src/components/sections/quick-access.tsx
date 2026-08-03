@@ -230,7 +230,7 @@ export function QuickAccess() {
                         "group-hover:scale-110 group-hover:rotate-3"
                       )}
                     >
-                      <Icon className="h-5.5 w-5.5" />
+                      <Icon className="h-[22px] w-[22px]" />
                     </span>
                     <ArrowUpRight className="h-4 w-4 text-fg-muted transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand-500 opacity-0 group-hover:opacity-100" />
                   </div>

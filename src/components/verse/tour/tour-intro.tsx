@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Car, Loader2, Play, Sparkles } from "lucide-react";
+import { Building2, Car, Loader2, Play, Sparkles } from "lucide-react";
 import { useLanguage } from "@/components/providers/language-provider";
 import { DISTRICTS } from "./districts";
+import { writeExperienceMode } from "@/lib/experience/mode";
 import { cn } from "@/lib/utils";
 
 /**
@@ -133,6 +134,18 @@ export function TourIntro({
             bn: "ওয়েবসাইটের একই তথ্য — শুধু উপস্থাপনা ভিন্ন।",
           })}
         </p>
+
+        <a
+          href="/"
+          onClick={() => writeExperienceMode("site")}
+          className="mt-6 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold text-white/55 transition hover:border-white/25 hover:text-white"
+        >
+          <Building2 className="h-3.5 w-3.5" />
+          {t({
+            en: "Open the website instead",
+            bn: "পরিবর্তে ওয়েবসাইট খুলুন",
+          })}
+        </a>
       </div>
     </div>
   );

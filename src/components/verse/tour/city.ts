@@ -11,6 +11,8 @@ export interface CityBuild {
   group: THREE.Group;
   /** Per-district beacon meshes we animate each frame. */
   update: (t: number, activeIndex: number) => void;
+  /** Meshes that can be tapped to select a district (raycast targets). */
+  pickables: THREE.Object3D[];
   dispose: () => void;
 }
 
@@ -396,11 +398,271 @@ function buildLandmark(d: District): { group: THREE.Group; beacon: THREE.Object3
   selRing.position.y = 0.35;
   g.add(selRing);
 
+  // Storefront marquee + doorway — every landmark reads as a destination.
+  // The road runs *inside* the ring, so the front face points toward +Z.
+  const front = Math.max(1, d.width * 0.5) + 0.1;
+  const marquee = new THREE.Mesh(
+    track(new THREE.BoxGeometry(Math.max(8, d.width * 1.5), 1.5, 0.5)),
+    track(new THREE.MeshBasicMaterial({ color: accent }))
+  );
+  marquee.position.set(0, Math.min(d.height, 52) * 0.72, front);
+  body.add(marquee);
+  const door = new THREE.Mesh(
+    track(new THREE.PlaneGeometry(4.4, 6.4)),
+    track(
+      new THREE.MeshBasicMaterial({
+        color: 0x9fc8ff,
+        transparent: true,
+        opacity: 0.22,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      })
+    )
+  );
+  door.position.set(0, 3.2, front + 0.02);
+  body.add(door);
+
+  // Everything in the landmark is tappable — hit-testing walks userData.
+  g.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (mesh.isMesh) mesh.userData.districtId = d.id;
+  });
+
   return { group: g, beacon: halo, ring: selRing };
 }
 
-export function buildCity(): CityBuild {
+/* ── Atmosphere: gradient sky dome + moon ──────────────────────────────── */
+function buildSky(): THREE.Group {
+  const sky = new THREE.Group();
+  const geo = track(new THREE.SphereGeometry(1150, 32, 16));
+  const mat = track(
+    new THREE.ShaderMaterial({
+      side: THREE.BackSide,
+      depthWrite: false,
+      fog: false,
+      uniforms: {
+        topColor: { value: new THREE.Color(0x03050d) },
+        midColor: { value: new THREE.Color(0x0a1430) },
+        horizonColor: { value: new THREE.Color(0x1c2b50) },
+        glowColor: { value: new THREE.Color(0x331f3d) },
+      },
+      vertexShader: /* glsl */ `
+        varying vec3 vWorldPosition;
+        void main() {
+          vec4 wp = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = wp.xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        uniform vec3 topColor;
+        uniform vec3 midColor;
+        uniform vec3 horizonColor;
+        uniform vec3 glowColor;
+        varying vec3 vWorldPosition;
+        void main() {
+          float h = normalize(vWorldPosition).y;
+          vec3 color = mix(horizonColor, midColor, smoothstep(0.0, 0.28, max(h, 0.0)));
+          color = mix(color, topColor, smoothstep(0.22, 0.85, max(h, 0.0)));
+          float band = smoothstep(0.0, 0.05, h) * (1.0 - smoothstep(0.05, 0.16, h));
+          color += glowColor * band * 0.8;
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `,
+    })
+  );
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.renderOrder = -10;
+  sky.add(mesh);
+
+  // Moon + soft halo
+  const moon = glowSprite("rgba(224,232,255,0.95)", 110, 0.55);
+  moon.position.set(520, 460, -640);
+  sky.add(moon);
+  const halo = glowSprite("rgba(180,200,255,0.55)", 280, 0.18);
+  halo.position.copy(moon.position);
+  sky.add(halo);
+
+  return sky;
+}
+
+/* ── Street lamps around the ring road ─────────────────────────────────── */
+function buildStreetLamps(lowPower: boolean): THREE.Group {
+  const g = new THREE.Group();
+  const N = lowPower ? 32 : 48;
+  const poleGeo = track(new THREE.CylinderGeometry(0.32, 0.52, 8.6, 6));
+  const poleMat = track(
+    new THREE.MeshStandardMaterial({ color: 0x1b2944, metalness: 0.75, roughness: 0.4 })
+  );
+  const headGeo = track(new THREE.BoxGeometry(1.9, 0.34, 0.85));
+  const headMat = track(new THREE.MeshBasicMaterial({ color: 0xffd9a3 }));
+  const glowMat = track(
+    new THREE.SpriteMaterial({
+      map: (() => {
+        const c = document.createElement("canvas");
+        c.width = c.height = 64;
+        const g2 = c.getContext("2d")!;
+        const grad = g2.createRadialGradient(32, 32, 2, 32, 32, 32);
+        grad.addColorStop(0, "rgba(255,217,163,0.9)");
+        grad.addColorStop(0.5, "rgba(255,190,120,0.28)");
+        grad.addColorStop(1, "rgba(255,190,120,0)");
+        g2.fillStyle = grad;
+        g2.fillRect(0, 0, 64, 64);
+        const t = new THREE.CanvasTexture(c);
+        t.colorSpace = THREE.SRGBColorSpace;
+        return t;
+      })(),
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })
+  );
+
+  const poles = new THREE.InstancedMesh(poleGeo, poleMat, N);
+  const heads = new THREE.InstancedMesh(headGeo, headMat, N);
+  const q = new THREE.Quaternion();
+  const m = new THREE.Matrix4();
+  const one = new THREE.Vector3(1, 1, 1);
+  const pos = new THREE.Vector3();
+
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2;
+    const side = i % 2 === 0 ? 1 : -1;
+    const r = ROAD_RADIUS + side * 11.5;
+    pos.set(Math.cos(a) * r, 4.3, Math.sin(a) * r);
+    q.setFromEuler(new THREE.Euler(0, 0, side * 0.05));
+    m.compose(pos, q, one);
+    poles.setMatrixAt(i, m);
+
+    pos.set(Math.cos(a) * r + side * 0.5, 8.5, Math.sin(a) * r);
+    q.setFromEuler(new THREE.Euler(0, 0, -side * 0.35));
+    m.compose(pos, q, one);
+    heads.setMatrixAt(i, m);
+
+    // Warm glow pool under every third lamp
+    if (i % 3 === 0) {
+      const gl = new THREE.Sprite(glowMat.clone());
+      gl.position.set(Math.cos(a) * r, 8.2, Math.sin(a) * r);
+      gl.scale.set(26, 26, 1);
+      g.add(gl);
+    }
+  }
+  g.add(poles, heads);
+
+  // A handful of real point lights cast warm pools on the road (desktop only).
+  if (!lowPower) {
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2 + 0.35;
+      const r = ROAD_RADIUS - 5;
+      const light = new THREE.PointLight(0xffc98f, 60, 110, 1.9);
+      light.position.set(Math.cos(a) * r, 9, Math.sin(a) * r);
+      g.add(light);
+    }
+  }
+
+  return g;
+}
+
+/* ── Edge reflectors: pink outside, cyan inside ────────────────────────── */
+function buildReflectors(): THREE.Group {
+  const g = new THREE.Group();
+  const N = 64;
+  const geo = track(new THREE.SphereGeometry(0.3, 6, 6));
+  const pink = track(new THREE.MeshBasicMaterial({ color: 0xf43f5e }));
+  const cyan = track(new THREE.MeshBasicMaterial({ color: 0x22d3ee }));
+  const outer = new THREE.InstancedMesh(geo, pink, N);
+  const inner = new THREE.InstancedMesh(geo, cyan, N);
+  const m = new THREE.Matrix4();
+  const p = new THREE.Vector3();
+  const one = new THREE.Vector3(1, 1, 1);
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2 + 0.05;
+    p.set(Math.cos(a) * (ROAD_RADIUS + 6.7), 0.42, Math.sin(a) * (ROAD_RADIUS + 6.7));
+    m.compose(p, new THREE.Quaternion(), one);
+    outer.setMatrixAt(i, m);
+    p.set(Math.cos(a) * (ROAD_RADIUS - 6.7), 0.42, Math.sin(a) * (ROAD_RADIUS - 6.7));
+    m.compose(p, new THREE.Quaternion(), one);
+    inner.setMatrixAt(i, m);
+  }
+  g.add(outer, inner);
+  return g;
+}
+
+/* ── Trees around the central plaza ────────────────────────────────────── */
+function buildTrees(): THREE.Group {
+  const g = new THREE.Group();
+  const N = 12;
+  const trunkGeo = track(new THREE.CylinderGeometry(0.55, 0.85, 5, 6));
+  const trunkMat = track(new THREE.MeshStandardMaterial({ color: 0x2a1f18, roughness: 0.9 }));
+  const canopyGeo = track(new THREE.SphereGeometry(3.1, 10, 8));
+  const canopyMat = track(
+    new THREE.MeshStandardMaterial({ color: 0x0e2a20, roughness: 0.95 })
+  );
+  const trunks = new THREE.InstancedMesh(trunkGeo, trunkMat, N);
+  const canopies = new THREE.InstancedMesh(canopyGeo, canopyMat, N);
+  const m = new THREE.Matrix4();
+  const q = new THREE.Quaternion();
+  const p = new THREE.Vector3();
+  const s = new THREE.Vector3();
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2 + Math.PI / N;
+    const r = 46;
+    p.set(Math.cos(a) * r, 2.5, Math.sin(a) * r);
+    q.setFromEuler(new THREE.Euler(0, Math.random() * Math.PI, 0));
+    s.set(1, 1 + Math.random() * 0.35, 1);
+    m.compose(p, q, s);
+    trunks.setMatrixAt(i, m);
+    p.set(Math.cos(a) * r, 6.6, Math.sin(a) * r);
+    m.compose(p, q, s);
+    canopies.setMatrixAt(i, m);
+  }
+  g.add(trunks, canopies);
+  return g;
+}
+
+/* ── Ambient dust motes drifting over the plaza ────────────────────────── */
+function buildDust(): { points: THREE.Points; update: (t: number) => void } {
+  const count = 220;
+  const geo = track(new THREE.BufferGeometry());
+  const pos = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const r = 26 + Math.random() * 110;
+    const h = 2 + Math.random() * 46;
+    pos[i * 3] = Math.cos(a) * r;
+    pos[i * 3 + 1] = h;
+    pos[i * 3 + 2] = Math.sin(a) * r;
+  }
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  const points = new THREE.Points(
+    geo,
+    track(
+      new THREE.PointsMaterial({
+        color: 0x8fd8ff,
+        size: 1.15,
+        transparent: true,
+        opacity: 0.3,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        fog: false,
+      })
+    )
+  );
+  const update = (t: number) => {
+    points.rotation.y = t * 0.016;
+    const mat = points.material as THREE.PointsMaterial;
+    mat.opacity = 0.22 + Math.sin(t * 0.7) * 0.08;
+  };
+  return { points, update };
+}
+
+export function buildCity(opts: { lowPower?: boolean } = {}): CityBuild {
+  const { lowPower = false } = opts;
   const group = new THREE.Group();
+
+  /* ── Sky & atmosphere ─────────────────────────────────────────────────── */
+  group.add(buildSky());
 
   /* ── Ground ───────────────────────────────────────────────────────────── */
   const ground = new THREE.Mesh(
@@ -427,6 +689,21 @@ export function buildCity(): CityBuild {
   road.position.y = 0.12;
   road.receiveShadow = true;
   group.add(road);
+
+  // Sidewalk rings — a lighter walkway on both sides of the road
+  for (const [r0, r1, y] of [
+    [ROAD_RADIUS + 7.4, ROAD_RADIUS + 9.8, 0.15],
+    [ROAD_RADIUS - 9.8, ROAD_RADIUS - 7.4, 0.15],
+  ] as const) {
+    const walk = new THREE.Mesh(
+      track(new THREE.RingGeometry(r0, r1, 128)),
+      track(new THREE.MeshStandardMaterial({ color: 0x1d2b48, roughness: 0.92 }))
+    );
+    walk.rotation.x = -Math.PI / 2;
+    walk.position.y = y;
+    walk.receiveShadow = true;
+    group.add(walk);
+  }
 
   for (const r of [ROAD_RADIUS - 6.4, ROAD_RADIUS + 6.4]) {
     const edge = new THREE.Mesh(
@@ -469,6 +746,13 @@ export function buildCity(): CityBuild {
     group.add(spoke);
   }
 
+  /* ── Street furniture ─────────────────────────────────────────────────── */
+  group.add(buildStreetLamps(lowPower));
+  group.add(buildReflectors());
+  group.add(buildTrees());
+  const dust = buildDust();
+  group.add(dust.points);
+
   /* ── Central plaza ────────────────────────────────────────────────────── */
   const plaza = new THREE.Mesh(
     track(new THREE.CylinderGeometry(38, 40, 1.6, 48)),
@@ -485,6 +769,31 @@ export function buildCity(): CityBuild {
   plazaRing.rotation.x = Math.PI / 2;
   plazaRing.position.y = 1.7;
   group.add(plazaRing);
+
+  /* ── Parking bays — where the pod stops at each district ─────────────── */
+  for (const d of DISTRICTS) {
+    const bay = new THREE.Mesh(
+      track(new THREE.CylinderGeometry(5.6, 6.2, 0.42, 24)),
+      track(
+        new THREE.MeshStandardMaterial({
+          color: 0x0d1526,
+          emissive: new THREE.Color(d.accent),
+          emissiveIntensity: 0.4,
+          metalness: 0.5,
+          roughness: 0.5,
+        })
+      )
+    );
+    bay.position.set(d.parkX, 0.3, d.parkZ);
+    group.add(bay);
+    const bayRing = new THREE.Mesh(
+      track(new THREE.TorusGeometry(6.1, 0.22, 6, 32)),
+      track(new THREE.MeshBasicMaterial({ color: d.accent }))
+    );
+    bayRing.rotation.x = Math.PI / 2;
+    bayRing.position.set(d.parkX, 0.55, d.parkZ);
+    group.add(bayRing);
+  }
 
   // Monument at the centre — the "RA" core
   const monument = new THREE.Group();
@@ -529,10 +838,12 @@ export function buildCity(): CityBuild {
 
   /* ── District landmarks ───────────────────────────────────────────────── */
   const beacons: Array<{ beacon: THREE.Object3D; ring: THREE.Mesh; base: number }> = [];
+  const pickables: THREE.Object3D[] = [];
   DISTRICTS.forEach((d) => {
     const { group: lg, beacon, ring } = buildLandmark(d);
     group.add(lg);
     beacons.push({ beacon, ring, base: (ring.material as THREE.MeshBasicMaterial).opacity });
+    pickables.push(lg);
   });
 
   /* ── Ambient skyline (filler city outside the ring) ───────────────────── */
@@ -595,12 +906,14 @@ export function buildCity(): CityBuild {
   starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
   const stars = new THREE.Points(
     starGeo,
-    track(new THREE.PointsMaterial({ color: 0xbfdbfe, size: 2.4, transparent: true, opacity: 0.7, sizeAttenuation: true }))
+    track(new THREE.PointsMaterial({ color: 0xbfdbfe, size: 2.4, transparent: true, opacity: 0.7, sizeAttenuation: true, fog: false }))
   );
   group.add(stars);
 
   /* ── Update ───────────────────────────────────────────────────────────── */
   const update = (t: number, activeIndex: number) => {
+    stars.rotation.y = t * 0.004;
+    dust.update(t);
     coreCrystal.rotation.y = t * 0.35;
     coreCrystal.rotation.x = Math.sin(t * 0.4) * 0.15;
     coreCrystal.position.y = 34 + Math.sin(t * 0.9) * 1.6;
@@ -641,11 +954,11 @@ export function buildCity(): CityBuild {
     disposables.length = 0;
   };
 
-  return { group, update, dispose };
+  return { group, update, pickables, dispose };
 }
 
 /** The self-driving pod the visitor rides. */
-export function buildVehicle(): { group: THREE.Group; update: (t: number, speed: number) => void } {
+export function buildVehicle(): { group: THREE.Group; update: (t: number, speed: number, brake: number) => void } {
   const g = new THREE.Group();
 
   const bodyMat = new THREE.MeshStandardMaterial({
@@ -724,11 +1037,16 @@ export function buildVehicle(): { group: THREE.Group; update: (t: number, speed:
   trail.position.set(-4.6, 2.4, 0);
   g.add(trail);
 
-  const update = (t: number, speed: number) => {
+  // Brake lights — glow hard while the pod slows for a stop
+  const brakeL = glowSprite("rgba(255,80,90,0.95)", 7, 0);
+  brakeL.position.set(-5.1, 2.6, 0.85);
+  g.add(brakeL);
+  const brakeR = glowSprite("rgba(255,80,90,0.95)", 7, 0);
+  brakeR.position.set(-5.1, 2.6, -0.85);
+  g.add(brakeR);
+
+  const update = (t: number, speed: number, brake = 0) => {
     const hover = Math.sin(t * 2.2) * 0.22;
-    g.children.forEach((c) => {
-      if (c === chassis || c === canopy || c === fin) c.position.y += 0;
-    });
     chassis.position.y = 2.6 + hover;
     canopy.position.y = 3.5 + hover;
     fin.position.y = 4 + hover;
@@ -745,6 +1063,11 @@ export function buildVehicle(): { group: THREE.Group; update: (t: number, speed:
     trail.material.opacity = 0.25 + speed * 0.5;
     trail.scale.setScalar(9 + speed * 10);
     beamL.material.opacity = 0.1 + speed * 0.12;
+    const b = THREE.MathUtils.clamp(brake, 0, 1);
+    brakeL.material.opacity = b * (0.75 + Math.sin(t * 14) * 0.12);
+    brakeR.material.opacity = b * (0.75 + Math.sin(t * 14) * 0.12);
+    brakeL.scale.setScalar(5.5 + b * 3);
+    brakeR.scale.setScalar(5.5 + b * 3);
   };
 
   return { group: g, update };

@@ -45,6 +45,16 @@ export function PanelShell({
       )}
       aria-hidden={!open}
     >
+      {/* Backdrop — tap outside the panel to close it (and never leak
+          taps through to the 3D canvas behind). */}
+      {open && (
+        <button
+          type="button"
+          aria-label={t({ en: "Close panel", bn: "প্যানেল বন্ধ করুন" })}
+          onClick={onClose}
+          className="pointer-events-auto absolute inset-0 cursor-default bg-black/20 sm:bg-black/30"
+        />
+      )}
       <section
         role="dialog"
         aria-label={t(district.name)}

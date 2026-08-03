@@ -51,7 +51,7 @@ export default async function RahatVersePage() {
   }
 
   return (
-    <main className="relative h-screen w-full overflow-hidden bg-black text-white">
+    <main className="relative h-[100dvh] w-full overflow-hidden bg-black text-white">
       <CityTour data={data} />
     </main>
   );

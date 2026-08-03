@@ -30,7 +30,7 @@ export function HistoryMatrix({ project }: { project?: any }) {
               <div key={i} className="relative flex gap-4 group">
                 <div className="relative shrink-0">
                   <div className={`grid h-10 w-10 place-items-center rounded-full border bg-[#0d0f18] border-white/10 shadow-[0_0_18px_rgba(255,255,255,0.08)] group-hover:border-white/20 transition-colors ${ev.color}`}>
-                    <Icon className="h-4.5 w-4.5" />
+                    <Icon className="h-5 w-5" />
                   </div>
                   <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-white/10 to-transparent blur-[6px] -z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>

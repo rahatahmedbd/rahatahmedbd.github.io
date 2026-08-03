@@ -308,7 +308,7 @@ export function EntryGate({ defaultOpen = true, standalone = false }: EntryGateP
               { icon: MousePointer2, text: t({ en: "Step-by-step ordering — only what is needed", bn: "ধাপে ধাপে অর্ডার — শুধু প্রয়োজনীয় তথ্য" }) },
               { icon: Zap, text: t({ en: "Light on data · perfect on any phone", bn: "কম ডেটা · যেকোনো ফোনে দুর্দান্ত" }) },
             ]}
-            cta={t({ en: "Continue to Website", bn: "ওয়েবসাইটে যান" })}
+            cta={t({ en: "Explore Website", bn: "ওয়েবসাইট ঘুরে দেখুন" })}
           />
         </div>
 
@@ -465,14 +465,14 @@ function GateCard({
       {/* CTA Button */}
       <span
         className={cn(
-          "relative mt-8 inline-flex h-13 items-center justify-center gap-2.5 rounded-full px-7 text-sm font-bold transition-all duration-300",
+          "relative mt-8 inline-flex h-12 items-center justify-center gap-2.5 rounded-full px-7 text-sm font-bold transition-all duration-300",
           isVerse
             ? "bg-gradient-to-r from-brand-600 via-brand-500 to-brand-600 bg-[length:200%_100%] animate-[shimmer_3s_linear_infinite] text-white shadow-[0_20px_50px_-20px_rgba(244,63,94,0.8)] group-hover:from-brand-500 group-hover:via-brand-400 group-hover:to-brand-500"
             : "bg-white text-slate-900 group-hover:bg-white/90 shadow-[0_20px_50px_-20px_rgba(255,255,255,0.3)]"
         )}
       >
         {cta}
-        <ArrowRight className="h-4.5 w-4.5 transition-transform duration-300 group-hover:translate-x-1" />
+        <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
       </span>
     </button>
   );

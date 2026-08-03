@@ -14,11 +14,13 @@ export function ExperienceSwitch({
   to,
   className,
   label,
+  ariaLabel,
   variant = "pill",
 }: {
   to: ExperienceMode;
   className?: string;
   label?: string;
+  ariaLabel?: string;
   variant?: "pill" | "ghost" | "solid";
 }) {
   const { t } = useLanguage();
@@ -34,11 +36,14 @@ export function ExperienceSwitch({
     (to === "verse"
       ? t({ en: "Enter RahatVerse", bn: "রাহাতভার্সে যান" })
       : t({ en: "Website view", bn: "ওয়েবসাইট ভিউ" }));
+  const accessible = ariaLabel ?? text;
 
   return (
     <button
       type="button"
       onClick={go}
+      aria-label={accessible}
+      title={accessible}
       className={cn(
         "inline-flex items-center gap-2 rounded-full text-xs font-semibold transition-all",
         variant === "pill" &&
@@ -50,7 +55,7 @@ export function ExperienceSwitch({
       )}
     >
       {to === "verse" ? <Rocket className="h-3.5 w-3.5" /> : <Building2 className="h-3.5 w-3.5" />}
-      {text}
+      {text !== "" && <span>{text}</span>}
     </button>
   );
 }
