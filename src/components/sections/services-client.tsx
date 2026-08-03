@@ -276,7 +276,7 @@ export function ServicesClient({ dbServices }: ServicesClientProps) {
               </div>
 
               <a
-                href="/service-district"
+                href="/order?mode=district"
                 className={cn(
                   "shrink-0 relative inline-flex items-center gap-3 rounded-full",
                   "bg-gradient-to-r from-brand-600 via-brand-500 to-cyan-500",
