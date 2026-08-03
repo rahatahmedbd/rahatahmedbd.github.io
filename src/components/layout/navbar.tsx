@@ -102,7 +102,18 @@ export function Navbar() {
 
           {/* Controls */}
           <div className="flex items-center gap-2">
-            <ExperienceSwitch to="verse" className="hidden xl:inline-flex" />
+            {/* The verse door is always visible — never trap anyone on one side. */}
+            <ExperienceSwitch
+              to="verse"
+              className="hidden xl:inline-flex"
+              ariaLabel={t({ en: "Enter RahatVerse", bn: "রাহাতভার্সে যান" })}
+            />
+            <ExperienceSwitch
+              to="verse"
+              label=""
+              ariaLabel={t({ en: "Enter RahatVerse", bn: "রাহাতভার্সে যান" })}
+              className="h-9 w-9 justify-center border-border/15 bg-surface/60 px-0 lg:hidden"
+            />
             <LanguageToggle />
             <ThemeToggle />
             <Button href="/order" size="sm" className="hidden sm:inline-flex">

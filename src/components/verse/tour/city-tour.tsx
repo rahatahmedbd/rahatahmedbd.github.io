@@ -30,17 +30,24 @@ export function CityTour({ data }: { data: VerseData }) {
   const audioRef = useRef<VerseAudio | null>(null);
   /** Guards the auto-open so re-renders don't reopen a panel the user closed. */
   const lastArrivalRef = useRef<string>("");
+  /** Live refs mirroring state — the engine closure needs fresh values. */
+  const indexRef = useRef(0);
+  const phaseRef = useRef<TourPhase>("cruising");
 
   const [supported, setSupported] = useState(true);
   const [ready, setReady] = useState(false);
   const [boarded, setBoarded] = useState(false);
 
   const [index, setIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState<TourPhase>("cruising");
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [orderRef, setOrderRef] = useState<string | null>(null);
+  /** Seconds until the pod drives itself to the next stop (null = idle). */
+  const [autoCount, setAutoCount] = useState<number | null>(null);
+  const autoTimerRef = useRef<number | null>(null);
 
   const district = DISTRICTS[index] ?? DISTRICTS[0];
 
@@ -81,11 +88,20 @@ export function CityTour({ data }: { data: VerseData }) {
         callbacks: {
           onReady: () => setReady(true),
           onState: (patch) => {
-            if (patch.index !== undefined) setIndex(patch.index);
-            if (patch.phase !== undefined) setPhase(patch.phase);
+            if (patch.index !== undefined) {
+              indexRef.current = patch.index;
+              setIndex(patch.index);
+            }
+            if (patch.phase !== undefined) {
+              phaseRef.current = patch.phase;
+              setPhase(patch.phase);
+            }
             if (patch.paused !== undefined) setPaused(patch.paused);
+            if (patch.progress !== undefined) setProgress(patch.progress);
           },
           onArrive: (id, i) => {
+            indexRef.current = i;
+            phaseRef.current = "stopped";
             setIndex(i);
             setPhase("stopped");
             // Let the camera settle before the hologram opens.
@@ -98,6 +114,16 @@ export function CityTour({ data }: { data: VerseData }) {
           onDepart: () => {
             lastArrivalRef.current = "";
             setPanelOpen(false);
+          },
+          onSelect: (id) => {
+            // Tapped a building: open its panel if we are parked there,
+            // otherwise let the pod drive over.
+            const parked = DISTRICTS[indexRef.current];
+            if (id === parked.id && phaseRef.current === "stopped") {
+              setPanelOpen(true);
+            } else {
+              engineRef.current?.goTo(id);
+            }
           },
         },
       });
@@ -121,6 +147,7 @@ export function CityTour({ data }: { data: VerseData }) {
       audioRef.current?.dispose();
       audioRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* ── controls ───────────────────────────────────────────────────────── */
@@ -139,6 +166,37 @@ export function CityTour({ data }: { data: VerseData }) {
     }
   }, []);
 
+  /** Stop the auto-drive countdown (any interaction cancels it). */
+  const stopAuto = useCallback(() => {
+    if (autoTimerRef.current !== null) {
+      window.clearInterval(autoTimerRef.current);
+      autoTimerRef.current = null;
+    }
+    setAutoCount(null);
+  }, []);
+
+  /** After the panel closes, drive on to the next stop automatically. */
+  const startAuto = useCallback(() => {
+    stopAuto();
+    setAutoCount(12);
+    let remaining = 12;
+    autoTimerRef.current = window.setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        if (autoTimerRef.current !== null) {
+          window.clearInterval(autoTimerRef.current);
+          autoTimerRef.current = null;
+        }
+        setAutoCount(null);
+        setPanelOpen(false);
+        lastArrivalRef.current = "";
+        engineRef.current?.next();
+        return;
+      }
+      setAutoCount(remaining);
+    }, 1000);
+  }, [stopAuto]);
+
   const togglePause = useCallback(() => {
     engineRef.current?.togglePaused();
   }, []);
@@ -152,28 +210,53 @@ export function CityTour({ data }: { data: VerseData }) {
   }, []);
 
   const next = useCallback(() => {
+    stopAuto();
     setPanelOpen(false);
     lastArrivalRef.current = "";
     engineRef.current?.next();
-  }, []);
+  }, [stopAuto]);
 
-  const goTo = useCallback((id: DistrictId) => {
-    setPanelOpen(false);
-    lastArrivalRef.current = "";
-    engineRef.current?.goTo(id);
-  }, []);
+  const goTo = useCallback(
+    (id: DistrictId) => {
+      stopAuto();
+      setPanelOpen(false);
+      lastArrivalRef.current = "";
+      engineRef.current?.goTo(id);
+    },
+    [stopAuto]
+  );
 
-  const jumpTo = useCallback((id: DistrictId) => {
-    setPanelOpen(false);
-    lastArrivalRef.current = "";
-    engineRef.current?.jumpTo(id);
-  }, []);
+  const jumpTo = useCallback(
+    (id: DistrictId) => {
+      stopAuto();
+      setPanelOpen(false);
+      lastArrivalRef.current = "";
+      engineRef.current?.jumpTo(id);
+    },
+    [stopAuto]
+  );
 
-  const openPanel = useCallback(() => setPanelOpen(true), []);
+  const openPanel = useCallback(() => {
+    stopAuto();
+    setPanelOpen(true);
+  }, [stopAuto]);
+
   const closePanel = useCallback(() => {
     lastArrivalRef.current = "";
     setPanelOpen(false);
-  }, []);
+    // The tour continues automatically once the visitor is done reading.
+    if (!paused && phase === "stopped") startAuto();
+  }, [paused, phase, startAuto]);
+
+  const zoomIn = useCallback(() => engineRef.current?.zoomBy(1.3), []);
+  const zoomOut = useCallback(() => engineRef.current?.zoomBy(1 / 1.3), []);
+
+  /* Pausing or resuming resets the auto-drive state. */
+  useEffect(() => {
+    if (paused) stopAuto();
+    else if (phase === "stopped" && !panelOpen && boarded) startAuto();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paused]);
 
   /* Keyboard shortcuts once the tour is under way. */
   useEffect(() => {
@@ -198,6 +281,12 @@ export function CityTour({ data }: { data: VerseData }) {
       } else if (e.key === "m" || e.key === "M") {
         e.preventDefault();
         toggleMute();
+      } else if (e.key === "+" || e.key === "=") {
+        e.preventDefault();
+        zoomIn();
+      } else if (e.key === "-" || e.key === "_") {
+        e.preventDefault();
+        zoomOut();
       } else if ((e.key === "i" || e.key === "I") && !panelOpen) {
         e.preventDefault();
         openPanel();
@@ -205,7 +294,17 @@ export function CityTour({ data }: { data: VerseData }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [boarded, next, togglePause, toggleMute, openPanel, panelOpen]);
+  }, [boarded, next, togglePause, toggleMute, openPanel, panelOpen, zoomIn, zoomOut]);
+
+  /* Cleanup the auto timer on unmount. */
+  useEffect(() => {
+    return () => {
+      if (autoTimerRef.current !== null) {
+        window.clearInterval(autoTimerRef.current);
+        autoTimerRef.current = null;
+      }
+    };
+  }, []);
 
   /* ── WebGL fallback ─────────────────────────────────────────────────── */
 
@@ -250,7 +349,7 @@ export function CityTour({ data }: { data: VerseData }) {
   /* ── the city ───────────────────────────────────────────────────────── */
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-[#04070f] text-white">
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-[#04070f] text-white">
       {/* 3D canvas */}
       <div ref={mountRef} className="absolute inset-0" aria-hidden />
 
@@ -262,15 +361,20 @@ export function CityTour({ data }: { data: VerseData }) {
           <TourHud
             index={index}
             phase={phase}
+            progress={progress}
             paused={paused}
             muted={muted}
             panelOpen={panelOpen}
+            autoCount={autoCount}
             onTogglePause={togglePause}
             onToggleMute={toggleMute}
             onNext={next}
             onGoTo={goTo}
             onJumpTo={jumpTo}
             onOpenPanel={openPanel}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
+            onCancelAuto={stopAuto}
           />
 
           <PanelShell

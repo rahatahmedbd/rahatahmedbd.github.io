@@ -22,8 +22,24 @@ import {
   Sparkles,
   Youtube,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useLanguage } from "@/components/providers/language-provider";
-import { OrderFlow } from "@/components/order/order-flow";
+
+/**
+ * The order flow is heavy — load it only when the Website Store panel opens,
+ * so the 3D city stays light for everyone else.
+ */
+const OrderFlow = dynamic(
+  () => import("@/components/order/order-flow").then((m) => m.OrderFlow),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-40 items-center justify-center text-sm text-white/40">
+        Loading the store…
+      </div>
+    ),
+  }
+);
 import { about } from "@/content/about";
 import { achievements } from "@/content/achievements";
 import { blood } from "@/content/blood";

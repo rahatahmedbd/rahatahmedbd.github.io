@@ -19,6 +19,7 @@ import {
   shantichakraGroup,
 } from "@/lib/site";
 import { useLanguage } from "@/components/providers/language-provider";
+import { ExperienceSwitch } from "@/components/experience/experience-switch";
 import { Container } from "@/components/ui/primitives";
 
 const socialIcons: Record<string, typeof Facebook> = {
@@ -156,6 +157,37 @@ export function Footer() {
               className="mt-3 inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/[0.06] px-4 py-2 text-xs font-semibold text-brand-600 transition-colors hover:bg-brand-500/10 dark:text-brand-400"
             >
               🩸 {t(footer.bloodLink)}
+            </a>
+          </div>
+        </div>
+
+        {/* Two experiences, one story — switch any time */}
+        <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-3xl border border-border/10 bg-surface/70 px-6 py-5 sm:flex-row">
+          <div className="text-center sm:text-left">
+            <p className="text-sm font-semibold">
+              {t({
+                bn: "একই তথ্য — দুই রকম অভিজ্ঞতা",
+                en: "Same story — two experiences",
+              })}
+            </p>
+            <p className="mt-0.5 text-xs text-fg-muted">
+              {t({
+                bn: "ওয়েবসাইট আর রাহাতভার্সে সবকিছু একই, শুধু উপস্থাপনা আলাদা।",
+                en: "The website and RahatVerse share everything — only the presentation differs.",
+              })}
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center justify-center gap-2">
+            <ExperienceSwitch
+              to="verse"
+              variant="solid"
+              label={t({ bn: "রাহাতভার্সে ঢুকুন", en: "Enter RahatVerse" })}
+            />
+            <a
+              href="/enter"
+              className="inline-flex h-10 items-center gap-2 rounded-full border border-border/15 bg-surface/60 px-5 text-xs font-semibold text-fg-soft transition-all hover:border-brand-500/40 hover:text-fg"
+            >
+              {t({ bn: "অভিজ্ঞতা বদলান", en: "Change experience" })}
             </a>
           </div>
         </div>

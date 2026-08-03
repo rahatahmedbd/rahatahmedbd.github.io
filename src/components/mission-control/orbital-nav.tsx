@@ -58,7 +58,7 @@ export function OrbitalNav({ unread = 0, missionCount = 0 }: { unread?: number; 
         )}
         <div className={`relative grid h-9 w-9 place-items-center rounded-xl border text-[14px] transition-all duration-500
           ${active ? "bg-white/10 border-white/15 text-white shadow-inner" : "bg-white/[0.03] border-white/[0.06] text-white/60 group-hover:text-white"}`}>
-          <Icon className="h-4.5 w-4.5" />
+          <Icon className="h-5 w-5" />
           {item.badge && item.badge>0 ? (
             <span className="absolute -top-1 -right-1 grid h-4 min-w-4 place-items-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white shadow-[0_0_8px_rgba(244,63,94,0.6)]">{item.badge}</span>
           ) : null}
