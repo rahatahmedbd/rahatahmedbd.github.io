@@ -82,12 +82,13 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
       return NextResponse.redirect(new URL("/unauthorized", request.url));
     }
 
-    // Admin routes protection
+    // Admin routes protection - in sync with DB is_admin() which includes manager
     if (pathname.startsWith("/admin")) {
       const isAdmin =
         profile.role === "admin" ||
         profile.role_id === "super_admin" ||
-        profile.role_id === "admin";
+        profile.role_id === "admin" ||
+        profile.role_id === "manager";
       if (!isAdmin) {
         return NextResponse.redirect(new URL("/unauthorized", request.url));
       }
@@ -127,7 +128,8 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
     const isAdmin =
       profile?.role === "admin" ||
       profile?.role_id === "super_admin" ||
-      profile?.role_id === "admin";
+      profile?.role_id === "admin" ||
+      profile?.role_id === "manager";
 
     if (isAdmin) {
       return NextResponse.redirect(new URL("/admin", request.url));

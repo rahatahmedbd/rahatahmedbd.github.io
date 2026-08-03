@@ -23,7 +23,8 @@ export default async function AdminLayout({
   const isAdmin =
     profile.role === "admin" ||
     profile.role_id === "super_admin" ||
-    profile.role_id === "admin";
+    profile.role_id === "admin" ||
+    profile.role_id === "manager";
 
   if (!isAdmin) {
     redirect("/unauthorized");
