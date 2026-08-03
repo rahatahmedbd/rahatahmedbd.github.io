@@ -7,7 +7,6 @@ import { Footer } from "@/components/layout/footer";
 import { ScrollProgress } from "@/components/layout/scroll-progress";
 import { BackToTop } from "@/components/layout/back-to-top";
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
-import AIChatbot from "@/components/ai-chatbot";
 import { GateMount } from "@/components/experience/gate-mount";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { EXPERIENCE_COOKIE, isExperienceMode } from "@/lib/experience/mode";
@@ -207,7 +206,6 @@ export default async function RootLayout({
             {showGate && <GateMount />}
           </LanguageProvider>
         </ThemeProvider>
-        <AIChatbot />
       </body>
     </html>
   );

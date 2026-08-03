@@ -14,8 +14,6 @@ import { Gallery } from "@/components/sections/gallery";
 import { Contact } from "@/components/sections/contact";
 import { OrderCta } from "@/components/sections/order-cta";
 import { VerseInvite } from "@/components/sections/verse-invite";
-import Hero3D from "@/components/sections/hero-3d-loader";
-import BlogPreview from "@/components/sections/blog-preview";
 
 /**
  * The homepage is the whole product: one continuous journey from
@@ -28,17 +26,6 @@ export default function HomePage() {
 
       {/* FAST LANE — get anyone to what they came for in one tap */}
       <QuickAccess />
-
-      {/* INTERACTIVE 3D ANIMATION — one finger rotate / two finger zoom */}
-      <section id="interactive" className="scroll-mt-20 py-10 sm:py-14">
-        <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-8">
-          <div className="mb-6 flex items-center gap-3">
-            <span className="h-1.5 w-8 rounded-full bg-gradient-to-r from-brand-500 to-amber-400" />
-            <h2 className="text-sm font-extrabold uppercase tracking-widest text-fg-muted">Interactive 3D</h2>
-          </div>
-          <Hero3D />
-        </div>
-      </section>
 
       {/* WHO — identity and credibility */}
       <div id="about" className="scroll-mt-20">
@@ -69,9 +56,6 @@ export default function HomePage() {
 
       {/* An optional door, never a detour */}
       <VerseInvite />
-
-      {/* BLOG / CONTENT */}
-      <BlogPreview />
 
       {/* CONTACT */}
       <div id="contact" className="scroll-mt-20">
