@@ -5,6 +5,7 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: false },
   reactStrictMode: true,
   poweredByHeader: false,
+  compress: true,
   images: {
     // Local images live in /public/images. Cloudinary is configured in a later
     // phase — when enabled, add its domain here and use next/image loaders.
