@@ -93,7 +93,9 @@ export const FUTURE_FLAGS = {
 } as const;
 
 export function logFutureArchitecture() {
+  // No console output in production - keeps logs clean.
+  // In development, feature flags are available via FUTURE_FLAGS for debugging.
   if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
-    console.log("[Mission Control v8] Future expansion hooks ready:", FUTURE_FLAGS);
+    // Intentionally silent to keep console clean - use FUTURE_FLAGS directly when debugging
   }
 }

@@ -1,31 +1,109 @@
 "use client";
 import { useState, useTransition, useRef } from "react";
-import { Upload, Download, Trash2, FileText, Image as ImageIcon, Shield, HardDrive, Lock, Eye, Zap } from "lucide-react";
+import { Upload, Download, Trash2, FileText, Image as ImageIcon, Shield, HardDrive, Lock, Eye, Zap, AlertTriangle } from "lucide-react";
 import { updateClientOrderFilesAction } from "@/app/actions/orders";
+import { uploadFile, canUploadFromBrowser } from "@/lib/cloudinary/upload";
 
 export function FileVaultUI({ projects }: { projects: any[] }) {
   const [selectedId, setSelectedId] = useState(projects[0]?.id || "");
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
   const selected = projects.find(p=>p.id===selectedId);
   const [localProjects, setLocalProjects] = useState(projects);
 
   const current = localProjects.find(p=>p.id===selectedId) || selected;
+  const canUpload = canUploadFromBrowser();
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || !current) return;
+    setUploadError(null);
     setUploading(true);
-    const arr = Array.from(files).map(f=>({ name: f.name, url: URL.createObjectURL(f), mimeType: f.type, sizeBytes: f.size }));
-    const updated = [...(current.uploaded_files||[]), ...arr];
-    start(async()=>{
-      const res = await updateClientOrderFilesAction(current.id, { uploadedFiles: updated } as any);
-      if (res.success) {
-        setLocalProjects(prev=>prev.map(p=>p.id===current.id ? { ...p, uploaded_files: updated } : p));
+
+    try {
+      // Upload each file to Cloudinary permanently - no blob: URLs
+      const uploadedFiles: { name: string; url: string; mimeType: string; sizeBytes: number }[] = [];
+
+      for (const file of Array.from(files)) {
+        try {
+          // Try unsigned first (public preset), fallback to signed client endpoint
+          let uploaded;
+          if (canUpload) {
+            uploaded = await uploadFile(file, { folder: `client_uploads/${current.id}` });
+          } else {
+            // Signed upload via client endpoint
+            const signRes = await fetch("/api/uploads/sign-client", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ folder: `client_uploads/${current.id}` }),
+            });
+            if (!signRes.ok) {
+              const errData = await signRes.json().catch(() => ({}));
+              throw new Error(errData.error || "File uploads are not configured. Please send files via email/WhatsApp.");
+            }
+            const { signature, timestamp, apiKey, cloudName } = await signRes.json();
+            const kind = file.type.startsWith("image/") ? "image" : "raw";
+            const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/${kind}/upload`;
+            const fd = new FormData();
+            fd.append("file", file);
+            fd.append("folder", `client_uploads/${current.id}`);
+            fd.append("signature", signature);
+            fd.append("timestamp", String(timestamp));
+            fd.append("api_key", apiKey);
+
+            const res = await fetch(endpoint, { method: "POST", body: fd });
+            if (!res.ok) {
+              const detail = await res.json().catch(() => null);
+              throw new Error(detail?.error?.message || `Upload failed for "${file.name}"`);
+            }
+            const data = await res.json();
+            uploaded = {
+              name: file.name,
+              url: data.secure_url,
+              path: data.public_id,
+              mimeType: file.type,
+              sizeBytes: file.size,
+            };
+          }
+
+          uploadedFiles.push({
+            name: uploaded.name,
+            url: uploaded.url,
+            mimeType: uploaded.mimeType,
+            sizeBytes: uploaded.sizeBytes,
+          });
+        } catch (err: any) {
+          setUploadError(err.message || `Failed to upload ${file.name}`);
+          // Continue with other files but stop if config error
+          if (err.message?.includes("not configured") || err.message?.includes("not available")) {
+            break;
+          }
+        }
       }
+
+      if (uploadedFiles.length === 0) {
+        setUploading(false);
+        return;
+      }
+
+      const updated = [...(current.uploaded_files||[]), ...uploadedFiles];
+      start(async()=>{
+        const res = await updateClientOrderFilesAction(current.id, { uploadedFiles: updated } as any);
+        if (res.success) {
+          setLocalProjects(prev=>prev.map(p=>p.id===current.id ? { ...p, uploaded_files: updated } : p));
+        } else {
+          setUploadError(res.error || "Failed to save uploaded files");
+        }
+        setUploading(false);
+      });
+    } catch (err: any) {
+      setUploadError(err.message || "Upload failed");
       setUploading(false);
-    });
+    } finally {
+      if (inputRef.current) inputRef.current.value = "";
+    }
   };
 
   const handleDelete = (idx: number) => {
@@ -68,6 +146,17 @@ export function FileVaultUI({ projects }: { projects: any[] }) {
             <button disabled={uploading||pending} onClick={()=>inputRef.current?.click()} className="flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-[12px] font-black tracking-widest text-black shadow-[0_0_20px_rgba(255,255,255,0.25)] hover:bg-white/90 transition-colors disabled:opacity-50">
               <Upload className="h-4 w-4" /> {uploading||pending ? "ENCRYPTING..." : "UPLOAD TO VAULT"}
             </button>
+            {uploadError && (
+              <div className="flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-[11px] text-rose-300">
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <span>{uploadError}</span>
+              </div>
+            )}
+            {!canUpload && (
+              <div className="rounded-xl border border-amber-400/20 bg-amber-400/10 p-3 text-[10px] leading-relaxed text-amber-200/80">
+                Uploads use signed server channel. If this fails, please send files via email: rahatbd20505@gmail.com
+              </div>
+            )}
 
             <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
               <div className="text-[10px] tracking-widest text-white/40 uppercase">Storage Metrics</div>
