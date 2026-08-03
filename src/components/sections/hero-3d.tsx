@@ -43,7 +43,12 @@ function OrbitRing() {
 export default function Hero3D() {
   return (
     <div className="relative h-[420px] w-full overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-brand-900/20 bg-gradient-to-b from-[#0a0a12] to-[#0f0f1a]">
-      <Canvas camera={{ position: [0, 0, 6], fov: 45 }} gl={{ antialias: true, alpha: true }} dpr={[1, 2]}>
+      <Canvas
+        camera={{ position: [0, 0, 6], fov: 45 }}
+        gl={{ antialias: true, alpha: true }}
+        dpr={[1, 2]}
+        style={{ touchAction: "none" }}
+      >
         <Suspense fallback={null}>
           <ambientLight intensity={0.4} />
           <directionalLight position={[5, 5, 5]} intensity={2} color="#fff" />
@@ -62,7 +67,6 @@ export default function Hero3D() {
             rotateSpeed={0.8}
             minDistance={3}
             maxDistance={12}
-            touchAction="none"
           />
         </Suspense>
       </Canvas>
