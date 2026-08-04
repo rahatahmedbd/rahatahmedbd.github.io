@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { Button } from "@/components/ui/button";
 
 interface DistrictPanelProps {
   title: string;
   icon: string;
   description: string;
-  stats?: Array<{ label: string; value: string }>;
+  stats?: ReadonlyArray<{ label: string; value: string }>;
   onContinue: () => void;
   onExplore: () => void;
   onClose: () => void;
@@ -34,7 +34,9 @@ export function DistrictPanel({
               <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
             </div>
           </div>
-          <button onClick={onClose} className="text-3xl text-white/50 hover:text-white">×</button>
+          <button onClick={onClose} className="text-3xl text-white/50 hover:text-white">
+            ×
+          </button>
         </div>
 
         {/* Content */}

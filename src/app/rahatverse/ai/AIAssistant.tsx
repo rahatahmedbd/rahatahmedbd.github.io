@@ -1,49 +1,61 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useEffect, useRef, useState } from "react";
+import { portfolioProfile, websiteTypes } from "@/data/platform";
+import { Button } from "@/components/ui/button";
 
 interface Message {
-  type: 'assistant' | 'user';
+  type: "assistant" | "user";
   text: string;
 }
 
 export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
+  const responseTimeouts = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+
+  useEffect(() => {
+    const pendingTimeouts = responseTimeouts.current;
+    return () => {
+      pendingTimeouts.forEach((timeoutId) => clearTimeout(timeoutId));
+    };
+  }, []);
   const [messages, setMessages] = useState<Message[]>([
-    { type: 'assistant', text: "Hello! I'm Rahat's AI Assistant. How can I help you today?" }
+    { type: "assistant", text: "Hello! I'm Rahat's AI Assistant. How can I help you today?" },
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
 
   const quickReplies = [
     "Tell me about Rahat",
     "Show me the Website Store",
     "Start a guided tour",
-    "How do I order a website?"
+    "How do I order a website?",
   ];
 
   const handleSend = (text: string) => {
     if (!text.trim()) return;
 
-    setMessages(prev => [...prev, { type: 'user', text }]);
+    setMessages((prev) => [...prev, { type: "user", text }]);
 
     let response = "Thank you! I'll remember that for future improvements.";
 
     const lower = text.toLowerCase();
 
-    if (lower.includes('about') || lower.includes('rahat')) {
-      response = "Rahat Ahmed is a student, teacher, blood donor, BNCC cadet, and web developer from Sunamganj. Would you like to visit the About Me district?";
-    } else if (lower.includes('order') || lower.includes('website')) {
-      response = "You can order a premium website starting from ৳8,000. Would you like me to take you to the Website Store?";
-    } else if (lower.includes('tour')) {
-      response = "Perfect! Starting the guided tour. You can pause or switch modes using the controls at the bottom.";
+    if (lower.includes("about") || lower.includes("rahat")) {
+      response = `${portfolioProfile.name} is a ${portfolioProfile.roles.toLowerCase()} from ${portfolioProfile.location}. Would you like to visit the About Me district?`;
+    } else if (lower.includes("order") || lower.includes("website")) {
+      response = `You can order a premium website starting from ৳${websiteTypes[0].startingPrice.toLocaleString("en-US")}. Would you like me to take you to the Website Store?`;
+    } else if (lower.includes("tour")) {
+      response =
+        "Perfect! Starting the guided tour. You can pause or switch modes using the controls at the bottom.";
     }
 
-    setTimeout(() => {
-      setMessages(prev => [...prev, { type: 'assistant', text: response }]);
+    const responseTimeout = setTimeout(() => {
+      responseTimeouts.current.delete(responseTimeout);
+      setMessages((prev) => [...prev, { type: "assistant", text: response }]);
     }, 600);
+    responseTimeouts.current.add(responseTimeout);
 
-    setInput('');
+    setInput("");
   };
 
   return (
@@ -65,13 +77,23 @@ export function AIAssistant() {
                 <div className="text-xs text-[#22d3ee]">Online • Ready to help</div>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-xl text-white/50 hover:text-white">×</button>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-xl text-white/50 hover:text-white"
+            >
+              ×
+            </button>
           </div>
 
           <div className="max-h-80 overflow-y-auto p-5 space-y-4 text-sm">
             {messages.map((msg, index) => (
-              <div key={index} className={msg.type === 'assistant' ? 'flex justify-start' : 'flex justify-end'}>
-                <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${msg.type === 'assistant' ? 'bg-white/10' : 'bg-[#22d3ee] text-black'}`}>
+              <div
+                key={index}
+                className={msg.type === "assistant" ? "flex justify-start" : "flex justify-end"}
+              >
+                <div
+                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${msg.type === "assistant" ? "bg-white/10" : "bg-[#22d3ee] text-black"}`}
+                >
                   {msg.text}
                 </div>
               </div>
@@ -95,11 +117,13 @@ export function AIAssistant() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend(input)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend(input)}
               placeholder="Ask me anything..."
               className="flex-1 rounded-full border border-white/20 bg-transparent px-4 py-2 text-sm placeholder:text-white/40 focus:outline-none focus:border-[#22d3ee]"
             />
-            <Button onClick={() => handleSend(input)} size="sm" className="rounded-full px-5">Send</Button>
+            <Button onClick={() => handleSend(input)} size="sm" className="rounded-full px-5">
+              Send
+            </Button>
           </div>
         </div>
       )}

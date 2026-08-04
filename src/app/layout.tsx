@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
+import { portfolioProfile, skills, socialLinks } from "@/data/platform";
 import { site, siteKeywords } from "@/constants/site";
 import { SiteShell } from "@/layouts/site-shell";
 
@@ -76,8 +77,8 @@ export const viewport: Viewport = {
 const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
-  name: "Rahat Ahmed",
-  alternateName: "রাহাত আহমেদ",
+  name: portfolioProfile.name,
+  alternateName: portfolioProfile.alternateName,
   url: site.url,
   image: `${site.url}assets/images/profile.jpg`,
   birthDate: "2006-06-21",
@@ -87,8 +88,8 @@ const personJsonLd = {
   },
   nationality: "Bangladeshi",
   gender: "Male",
-  email: site.email,
-  telephone: site.telephone,
+  email: portfolioProfile.email,
+  telephone: portfolioProfile.telephone,
   address: {
     "@type": "PostalAddress",
     addressLocality: "Sunamganj",
@@ -125,19 +126,8 @@ const personJsonLd = {
       name: "Jibdara Government Primary School",
     },
   ],
-  sameAs: [
-    "https://www.facebook.com/rahat.ahmed.948943",
-    "https://www.tiktok.com/@rahatvives",
-    "https://www.youtube.com/@RahatAhmedOfficial0",
-    "https://www.instagram.com/rahatahm6d/",
-  ],
-  knowsAbout: [
-    "Web Development",
-    "Teaching",
-    "Blood Donation",
-    "Community Service",
-    "Content Creation",
-  ],
+  sameAs: socialLinks.map((link) => link.href),
+  knowsAbout: [...skills],
   knowsLanguage: ["Bengali", "English"],
 };
 

@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+import type { TourMode } from "@/types/platform";
 
 interface ControlsProps {
   isPlaying: boolean;
   onPauseResume: () => void;
   onRestart: () => void;
-  onModeSwitch: (mode: 'auto' | 'explore') => void;
-  currentMode: 'auto' | 'explore';
+  onModeSwitch: (mode: TourMode) => void;
+  currentMode: TourMode;
 }
 
 export function Controls({
@@ -19,13 +19,13 @@ export function Controls({
   currentMode,
 }: ControlsProps) {
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-wrap gap-3 justify-center">
+    <div className="fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 flex-wrap justify-center gap-3">
       <Button
         onClick={onPauseResume}
         variant="outline"
-        className="border-white/30 text-white hover:bg-white/10 px-6"
+        className="border-white/30 px-6 text-white hover:bg-white/10"
       >
-        {isPlaying ? 'Pause Tour' : 'Resume Tour'}
+        {isPlaying ? "Pause Tour" : "Resume Tour"}
       </Button>
 
       <Button
@@ -37,11 +37,11 @@ export function Controls({
       </Button>
 
       <Button
-        onClick={() => onModeSwitch(currentMode === 'auto' ? 'explore' : 'auto')}
+        onClick={() => onModeSwitch(currentMode === "explore" ? "auto" : "explore")}
         variant="outline"
         className="border-white/30 text-white hover:bg-white/10"
       >
-        {currentMode === 'auto' ? 'Explore Mode' : 'Auto Tour'}
+        {currentMode === "explore" ? "Auto Tour" : "Explore Mode"}
       </Button>
     </div>
   );
