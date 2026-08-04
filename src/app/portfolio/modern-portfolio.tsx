@@ -3,6 +3,16 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  Award,
+  Droplet,
+  GraduationCap,
+  Shield,
+  Sparkles,
+  Trophy,
+} from "lucide-react";
 import {
   achievementItems,
   bloodDonation,
@@ -18,6 +28,45 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { SectionTitle } from "@/components/ui/section-title";
+
+/**
+ * Profile image source.
+ * Points to the local placeholder for now. Will be swapped to a Cloudinary URL
+ * once the final profile photo is uploaded (no structural changes needed —
+ * just update this constant).
+ */
+const PROFILE_IMAGE_SRC = "/assets/images/profile.jpg";
+const PROFILE_IMAGE_ALT = `${portfolioProfile.name} — ${portfolioProfile.roles}`;
+
+/* ------------------------------------------------------------------ */
+/* Motion variants for hero entrance animations                       */
+/* ------------------------------------------------------------------ */
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+  },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 18 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
+
+const statFloatVariants = (delay: number) =>
+  ({
+    hidden: { opacity: 0, y: 24, scale: 0.92 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { delay, duration: 0.55, ease: [0.16, 1, 0.3, 1] as const },
+    },
+  }) as const;
 
 // Modern Premium Portfolio Redesign - Phase 04
 export default function ModernPortfolio() {
@@ -90,61 +139,186 @@ export default function ModernPortfolio() {
         </Container>
       </nav>
 
-      {/* HERO SECTION - Premium Modern Design */}
-      <section className="relative pt-20 pb-24 overflow-hidden border-b border-[var(--color-border)]">
-        <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-[length:4px_4px] opacity-30"></div>
+      {/* HERO SECTION — Redesigned Phase 17: premium split layout */}
+      <section className="relative overflow-hidden border-b border-[var(--color-border)] pt-16 pb-20 md:pt-24 md:pb-28">
+        {/* Decorative background */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,12,46,0.08),transparent_55%),radial-gradient(circle_at_bottom_left,rgba(26,60,90,0.06),transparent_50%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-[length:4px_4px] opacity-25"
+        />
 
-        <Container>
-          <div className="max-w-4xl mx-auto text-center pt-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--color-brand-primary)]/10 text-[var(--color-brand-primary)] text-sm font-medium mb-6">
-              <span>🌟</span>
-              <span>{portfolioProfile.roles}</span>
-            </div>
-
-            <h1 className="text-6xl md:text-7xl font-semibold tracking-[-3.5px] leading-[0.95] mb-6">
-              {portfolioProfile.name}
-            </h1>
-
-            <p className="text-2xl md:text-3xl text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-10 tracking-tight">
-              {portfolioProfile.headline}
-            </p>
-
-            {/* Quick Stats */}
-            <div className="flex flex-wrap justify-center gap-4 mb-10">
-              <div className="flex items-center gap-2 px-5 py-2 rounded-full bg-[var(--color-surface)] border">
-                <span className="text-xl">🎓</span>
-                <span className="font-medium">{portfolioProfile.currentEducation}</span>
-              </div>
-              <div className="flex items-center gap-2 px-5 py-2 rounded-full bg-[var(--color-surface)] border">
-                <span className="text-xl">🩸</span>
-                <span className="font-medium">
-                  {portfolioProfile.bloodGroup} Blood Donor ({portfolioProfile.bloodDonations})
+        <Container className="relative">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16"
+          >
+            {/* ---------------- LEFT: TEXT CONTENT ---------------- */}
+            <div className="order-2 text-center lg:order-1 lg:text-left">
+              <motion.div variants={fadeUp} className="mb-6 flex justify-center lg:justify-start">
+                <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-brand-primary)]/15 bg-[var(--color-brand-primary)]/8 px-3 py-1.5 text-sm font-medium text-[var(--color-brand-primary)]">
+                  <Sparkles className="h-4 w-4" aria-hidden="true" />
+                  {portfolioProfile.roles}
                 </span>
-              </div>
-              <div className="flex items-center gap-2 px-5 py-2 rounded-full bg-[var(--color-surface)] border">
-                <span className="text-xl">🎖️</span>
-                <span className="font-medium">BNCC Cadet</span>
-              </div>
+              </motion.div>
+
+              <motion.h1
+                variants={fadeUp}
+                className="text-5xl font-semibold leading-[1.02] tracking-[-0.03em] text-[var(--color-text-primary)] sm:text-6xl md:text-7xl"
+              >
+                {portfolioProfile.name}
+              </motion.h1>
+
+              <motion.p
+                variants={fadeUp}
+                className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-[var(--color-text-secondary)] sm:text-xl md:text-2xl lg:mx-0"
+              >
+                {portfolioProfile.headline}
+              </motion.p>
+
+              {/* Primary CTAs */}
+              <motion.div
+                variants={fadeUp}
+                className="mt-9 flex flex-col items-stretch gap-4 sm:flex-row sm:justify-center lg:justify-start"
+              >
+                <Link href="/order" className="sm:w-auto">
+                  <Button
+                    size="lg"
+                    className="w-full px-8 text-base transition-transform duration-200 ease-out hover:scale-[1.03] hover:shadow-[var(--shadow-xl)] sm:text-lg"
+                  >
+                    Order a Website
+                    <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                  </Button>
+                </Link>
+                <a href="#achievements" className="sm:w-auto">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full px-8 text-base transition-transform duration-200 ease-out hover:scale-[1.03] hover:shadow-[var(--shadow-lg)] sm:text-lg"
+                  >
+                    <Trophy className="h-5 w-5" aria-hidden="true" />
+                    View Achievements
+                  </Button>
+                </a>
+              </motion.div>
+
+              <motion.p
+                variants={fadeUp}
+                className="mt-7 text-sm text-[var(--color-text-tertiary)]"
+              >
+                Scroll to explore my journey ↓
+              </motion.p>
             </div>
 
-            {/* Primary CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/order">
-                <Button size="lg" className="px-10 text-lg">
-                  Order a Website →
-                </Button>
-              </Link>
-              <a href="#achievements">
-                <Button variant="outline" size="lg" className="px-10 text-lg">
-                  View Achievements
-                </Button>
-              </a>
-            </div>
+            {/* ---------------- RIGHT: PROFILE IMAGE + FLOATING BADGES ---------------- */}
+            <div className="relative order-1 mx-auto w-full max-w-md lg:order-2 lg:max-w-none">
+              {/* Glow ring */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-[var(--color-brand-primary)]/30 via-[var(--color-brand-accent)]/20 to-[var(--color-brand-secondary)]/30 blur-2xl"
+              />
 
-            <div className="mt-8 text-sm text-[var(--color-text-tertiary)]">
-              Scroll to explore my journey ↓
+              {/* Image container with gradient border */}
+              <motion.div
+                variants={fadeUp}
+                className="relative aspect-[4/5] w-full overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-[var(--color-brand-primary)] via-[var(--color-brand-primary-light)] to-[var(--color-brand-secondary)] p-[2px] shadow-[var(--shadow-2xl)]"
+              >
+                <div className="relative h-full w-full overflow-hidden rounded-[1.65rem] bg-[var(--color-bg-secondary)]">
+                  {/* Placeholder slot — swap PROFILE_IMAGE_SRC constant above for Cloudinary URL */}
+                  <Image
+                    src={PROFILE_IMAGE_SRC}
+                    alt={PROFILE_IMAGE_ALT}
+                    fill
+                    sizes="(max-width: 1023px) 90vw, 420px"
+                    priority
+                    className="object-cover"
+                  />
+                  {/* Subtle overlay for premium feel */}
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"
+                  />
+                </div>
+              </motion.div>
+
+              {/* ---------- Floating stat cards ---------- */}
+
+              {/* Card 1: Education — top-left on desktop, top on mobile */}
+              <motion.div
+                variants={statFloatVariants(0.55)}
+                className="absolute -left-2 top-6 w-44 sm:-left-6 sm:w-52"
+              >
+                <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/95 p-3 shadow-[var(--shadow-lg)] backdrop-blur-md">
+                  <div className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <GraduationCap className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">
+                      Education
+                    </div>
+                    <div className="truncate text-sm font-semibold text-[var(--color-text-primary)]">
+                      {portfolioProfile.currentEducation}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Card 2: Blood Donor — middle-right */}
+              <motion.div
+                variants={statFloatVariants(0.7)}
+                className="absolute -right-2 top-[38%] w-48 sm:-right-6 sm:w-56"
+              >
+                <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/95 p-3 shadow-[var(--shadow-lg)] backdrop-blur-md">
+                  <div className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-red-50 text-red-600">
+                    <Droplet className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">
+                      Blood Donor
+                    </div>
+                    <div className="truncate text-sm font-semibold text-[var(--color-text-primary)]">
+                      {portfolioProfile.bloodGroup} • {portfolioProfile.bloodDonations}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Card 3: BNCC Cadet — bottom-left */}
+              <motion.div
+                variants={statFloatVariants(0.85)}
+                className="absolute -bottom-4 left-4 w-44 sm:-bottom-6 sm:left-6 sm:w-52"
+              >
+                <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/95 p-3 shadow-[var(--shadow-lg)] backdrop-blur-md">
+                  <div className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                    <Shield className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">
+                      Cadet
+                    </div>
+                    <div className="truncate text-sm font-semibold text-[var(--color-text-primary)]">
+                      BNCC Cadet
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Decorative mini badge — top-right corner of image */}
+              <motion.div
+                variants={statFloatVariants(1.0)}
+                className="absolute -top-3 right-6 flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)]/95 px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] shadow-[var(--shadow-md)] backdrop-blur-md sm:right-10"
+              >
+                <Award className="h-3.5 w-3.5 text-[var(--color-brand-accent)]" aria-hidden="true" />
+                Available for work
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </Container>
       </section>
 
