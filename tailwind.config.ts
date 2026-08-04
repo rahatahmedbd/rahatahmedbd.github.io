@@ -66,9 +66,12 @@ const config: Config = {
         bengali: ["var(--font-bengali)", "var(--font-inter)", "sans-serif"],
       },
       fontSize: {
-        "display-2xl": ["clamp(3rem, 7vw, 5.5rem)", { lineHeight: "1.02", letterSpacing: "-0.03em", fontWeight: "700" }],
-        "display-xl": ["clamp(2.5rem, 5.5vw, 4rem)", { lineHeight: "1.05", letterSpacing: "-0.025em", fontWeight: "700" }],
-        "display-lg": ["clamp(2rem, 4vw, 3rem)", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
+        /* Fluid display type — the minimums keep small phones unclipped,
+           the middle vw values drive the desktop scale. */
+        "display-2xl": ["clamp(2.5rem, 10vw, 5.5rem)", { lineHeight: "1.02", letterSpacing: "-0.03em", fontWeight: "700" }],
+        "display-xl": ["clamp(2.25rem, 8.5vw, 4rem)", { lineHeight: "1.05", letterSpacing: "-0.025em", fontWeight: "700" }],
+        "display-lg": ["clamp(1.875rem, 6.5vw, 3rem)", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
+        "display-md": ["clamp(1.625rem, 5vw, 2.375rem)", { lineHeight: "1.12", letterSpacing: "-0.015em", fontWeight: "700" }],
       },
       borderRadius: {
         "4xl": "2rem",

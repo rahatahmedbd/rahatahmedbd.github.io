@@ -48,9 +48,11 @@ export function Hero() {
   ];
 
   return (
+    /* pt-* matches the old fixed-navbar clearance (112px incl. the 64px bar)
+       now that the navbar sits in normal flow as a sticky header. */
     <section
       id="home"
-      className="relative overflow-hidden pt-28 sm:pt-36 lg:pt-40 pb-20 sm:pb-28"
+      className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24 lg:pt-24"
     >
       {/* Enhanced Ambient Background - Premium Atmospheric Depth */}
       <div className="pointer-events-none absolute inset-0 -z-10">
@@ -167,7 +169,7 @@ export function Hero() {
                 <Sparkles className="h-3.5 w-3.5 text-cyan-400" />
                 {t({ bn: "২ মিনিটে বিনামূল্যে এস্টিমেট", en: "Free estimate in 2 minutes" })}
               </span>
-              <span className="inline-flex items-center gap-1.5 hidden sm:inline-flex">
+              <span className="hidden sm:inline-flex sm:items-center sm:gap-1.5">
                 <MousePointer2 className="h-3.5 w-3.5 text-violet-400" />
                 {t({ bn: "কোডিং দক্ষতা দরকার নেই", en: "No coding skills needed" })}
               </span>
@@ -249,7 +251,7 @@ export function Hero() {
                 <div
                   key={p.value}
                   className={cn(
-                    "relative flex flex-col items-center gap-1.5 px-4 py-6 text-center sm:flex-row sm:justify-center sm:gap-4 sm:py-7 transition-all duration-500 hover:bg-surface/80 hover:shadow-inner",
+                    "relative flex flex-col items-center gap-1.5 px-2 py-5 text-center sm:flex-row sm:justify-center sm:gap-4 sm:px-4 sm:py-7 transition-all duration-500 hover:bg-surface/80 hover:shadow-inner",
                     i > 0 && "before:absolute before:inset-y-0 before:left-0 before:w-px before:bg-border/10"
                   )}
                 >

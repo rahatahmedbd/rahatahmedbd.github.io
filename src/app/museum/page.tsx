@@ -31,8 +31,10 @@ export default async function MuseumPage() {
     // Render the empty museum shell.
   }
 
+  /* 100dvh (not h-screen/100vh): on mobile browsers with chrome chrome bars,
+     100vh is taller than the visible viewport and clips the museum's UI. */
   return (
-    <main className="relative h-screen w-full overflow-hidden bg-black text-white">
+    <main className="relative h-[100dvh] w-full overflow-hidden bg-black text-white">
       <MuseumScene
         projects={projects}
         categories={categories}

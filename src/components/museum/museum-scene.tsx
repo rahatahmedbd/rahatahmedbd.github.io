@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState, useMemo } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Html, ContactShadows, useProgress } from "@react-three/drei";
+import { Html, ContactShadows, OrbitControls, useProgress } from "@react-three/drei";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { MuseumUI } from "./museum-ui";
@@ -29,9 +29,23 @@ function StudioEnvironment() {
   return null;
 }
 
+/** Portrait phones see the same composition as widescreen desktops —
+ *  the camera steps back and the FOV opens as the aspect ratio narrows. */
+function CameraRig() {
+  const { camera, size } = useThree();
+  useEffect(() => {
+    const aspect = size.width / size.height;
+    const perspective = camera as THREE.PerspectiveCamera;
+    perspective.fov = aspect < 0.7 ? 62 : aspect < 1 ? 54 : 45;
+    perspective.position.set(0, aspect < 0.7 ? 7 : 5, aspect < 0.7 ? 19 : aspect < 1 ? 17 : 15);
+    perspective.updateProjectionMatrix();
+  }, [camera, size]);
+  return null;
+}
+
 function MuseumFallback() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-[#050a14] px-6 text-center text-white">
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-5 bg-[#050a14] px-6 text-center text-white">
       <div className="text-4xl">🏛️</div>
       <div>
         <h1 className="text-2xl font-bold tracking-tight">
@@ -100,18 +114,34 @@ export function MuseumScene({ projects, categories, testimonials }: { projects: 
 
   return (
     <>
-      <MuseumUI 
-        view={view} 
-        project={activeProject} 
+      <MuseumUI
+        view={view}
+        project={activeProject}
         onBack={handleBackToLobby}
-        projectsCount={projects.length}
+        projects={projects}
+        onSelect={handleSelectProject}
       />
-      
+
       <Canvas
+        /* FOV widens on narrow screens so the exhibit never feels cropped;
+           DPR is capped at 1.75 — 3× phone panels overheat the GPU with AA on. */
         camera={{ position: [0, 5, 15], fov: 45 }}
-        gl={{ antialias: true, alpha: false, toneMapping: THREE.ACESFilmicToneMapping }}
-        dpr={[1, 2]}
+        gl={{ antialias: true, alpha: false, toneMapping: THREE.ACESFilmicToneMapping, powerPreference: "high-performance" }}
+        dpr={[1, 1.75]}
       >
+        <CameraRig />
+        {/* Touch: one finger orbits, two fingers pinch-zoom. Pan is off —
+            the lobby must stay centred on every screen size. */}
+        <OrbitControls
+          enablePan={false}
+          enableDamping
+          dampingFactor={0.08}
+          minDistance={10}
+          maxDistance={26}
+          minPolarAngle={0.35}
+          maxPolarAngle={Math.PI / 2.05}
+          makeDefault
+        />
         <color attach="background" args={["#050a14"]} />
         <fog attach="fog" args={["#050a14", 10, 50]} />
         <ambientLight intensity={0.4} />

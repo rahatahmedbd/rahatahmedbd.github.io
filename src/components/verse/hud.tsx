@@ -97,35 +97,37 @@ export function VerseHud({
   return (
     <div className="pointer-events-none absolute inset-0 z-20 font-sans text-white">
       {/* ---------- Top bar ---------- */}
-      <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3 sm:p-4">
+      <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3 sm:gap-3 sm:p-4">
         <div className="pointer-events-auto flex flex-col gap-1">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-4 py-2 text-sm font-semibold backdrop-blur-md transition-colors hover:border-white/40 hover:bg-black/50"
+            aria-label="Exit RahatVerse"
+            className="inline-flex h-10 items-center gap-2 rounded-full border border-white/20 bg-black/30 px-3 text-sm font-semibold backdrop-blur-md transition-colors hover:border-white/40 hover:bg-black/50 sm:px-4"
           >
             <Home className="h-4 w-4" />
-            Exit RahatVerse
+            <span className="hidden sm:inline">Exit RahatVerse</span>
           </Link>
-          <span className="px-2 text-[11px] font-medium tracking-widest text-cyan-200/80">
+          <span className="hidden px-2 text-[11px] font-medium tracking-widest text-cyan-200/80 sm:inline">
             RAHATVERSE · CH.4 AGENCY HEADQUARTERS
           </span>
         </div>
 
         {/* district chip */}
-        <div className="rounded-2xl border border-white/15 bg-black/30 px-4 py-1.5 text-center backdrop-blur-md">
-          <div className="text-[10px] uppercase tracking-widest text-white/50">District</div>
-          <div className="text-sm font-bold sm:text-base">{state.district}</div>
-          <div className="text-[11px] text-white/60">{state.districtBn}</div>
+        <div className="rounded-2xl border border-white/15 bg-black/30 px-3 py-1 text-center backdrop-blur-md sm:px-4 sm:py-1.5">
+          <div className="text-[9px] uppercase tracking-widest text-white/50 sm:text-[10px]">District</div>
+          <div className="text-xs font-bold sm:text-base">{state.district}</div>
+          <div className="hidden text-[11px] text-white/60 sm:block">{state.districtBn}</div>
         </div>
 
         <div className="pointer-events-auto flex items-center gap-1.5">
           {onOpenHq && (
             <button
               onClick={onOpenHq}
-              className="flex items-center gap-1.5 rounded-full border border-brand-500/40 bg-brand-500/20 px-3.5 py-1.5 text-xs font-bold text-brand-200 backdrop-blur-md transition-all hover:bg-brand-500/40 hover:scale-105 shadow-glow"
+              aria-label="Open Agency HQ"
+              className="flex h-10 items-center gap-1.5 rounded-full border border-brand-500/40 bg-brand-500/20 px-3 text-xs font-bold text-brand-200 shadow-glow backdrop-blur-md transition-all hover:scale-105 hover:bg-brand-500/40 sm:px-3.5"
             >
               <Building2 className="h-4 w-4" />
-              <span>Agency HQ</span>
+              <span className="hidden sm:inline">Agency HQ</span>
             </button>
           )}
 
@@ -152,7 +154,7 @@ export function VerseHud({
           >
             {state.muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
           </button>
-          <div className="flex items-center gap-1.5 rounded-full border border-amber-300/30 bg-black/30 px-3 py-2 text-sm font-bold text-amber-200 backdrop-blur-md">
+          <div className="flex h-10 items-center gap-1.5 rounded-full border border-amber-300/30 bg-black/30 px-2.5 text-xs font-bold text-amber-200 backdrop-blur-md sm:px-3 sm:text-sm">
             <Sparkles className="h-4 w-4 text-amber-300" />
             {state.collectibles.found}/{state.collectibles.total}
           </div>
@@ -160,21 +162,21 @@ export function VerseHud({
       </div>
 
       {/* ---------- Interaction hint ---------- */}
-      <div className="absolute bottom-28 left-1/2 -translate-x-1/2 sm:bottom-6">
+      <div className="absolute bottom-32 left-1/2 w-max max-w-[calc(100vw-1.5rem)] -translate-x-1/2 sm:bottom-6">
         <div
-          className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-md transition-all duration-300 ${
+          className={`flex items-center gap-2 rounded-2xl border px-4 py-2 text-center text-xs font-medium backdrop-blur-md transition-all duration-300 sm:rounded-full sm:text-sm ${
             state.hint
               ? "border-cyan-300/40 bg-cyan-500/20 text-cyan-50 opacity-100"
               : "border-white/10 bg-black/20 text-white/40 opacity-60"
           }`}
         >
-          <MapIcon className="h-4 w-4" />
-          {state.hint ?? "Drag to look · Click ground to move · Click Agency HQ to enter"}
+          <MapIcon className="h-4 w-4 shrink-0" />
+          {state.hint ?? "Drag to look · Tap ground to move · Tap Agency HQ to enter"}
         </div>
       </div>
 
       {/* ---------- Bottom-left: joystick + hints ---------- */}
-      <div className="absolute bottom-4 left-4 flex items-end gap-3">
+      <div className="absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 flex items-end gap-3">
         <Joystick onJoystick={onJoystick} />
         <div className="hidden flex-col gap-1 text-[11px] leading-tight text-white/50 md:flex">
           <span>WASD / Arrows — move</span>
@@ -185,8 +187,8 @@ export function VerseHud({
       </div>
 
       {/* ---------- Bottom-right: minimap ---------- */}
-      <div className="absolute bottom-4 right-4">
-        <canvas ref={minimapRef} width={180} height={180} className="h-40 w-40 sm:h-44 sm:w-44" />
+      <div className="absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4">
+        <canvas ref={minimapRef} width={180} height={180} className="h-28 w-28 sm:h-44 sm:w-44" />
       </div>
 
       {/* ---------- Toast ---------- */}

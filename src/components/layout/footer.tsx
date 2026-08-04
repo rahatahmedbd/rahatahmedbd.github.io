@@ -34,7 +34,7 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-10 border-t border-border/10 bg-canvas-subtle/60">
+    <footer className="relative mt-10 border-t border-border/10 bg-canvas-subtle/60 pb-[env(safe-area-inset-bottom)]">
       <Container className="py-14">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}

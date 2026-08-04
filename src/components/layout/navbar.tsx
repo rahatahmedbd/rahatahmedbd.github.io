@@ -41,11 +41,16 @@ export function Navbar() {
     };
   }, [open]);
 
+  /* Sticky, not fixed: when the announcement banner is active it scrolls
+     away naturally and the bar docks to the top — whereas a fixed bar with
+     top-0 used to overlay and hide the banner entirely. */
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
+    <header className="sticky inset-x-0 top-0 z-50">
       <div
         className={cn(
-          "transition-all duration-500 ease-premium",
+          /* z-10 keeps the brand + menu toggle above the drawer backdrop,
+             so the ✕ close button stays visible and tappable. */
+          "relative z-10 transition-all duration-500 ease-premium",
           scrolled
             ? "glass border-b border-border/10 shadow-soft"
             : "border-b border-transparent bg-transparent"
@@ -112,7 +117,7 @@ export function Navbar() {
               to="verse"
               label=""
               ariaLabel={t({ en: "Enter RahatVerse", bn: "রাহাতভার্সে যান" })}
-              className="h-9 w-9 justify-center border-border/15 bg-surface/60 px-0 lg:hidden"
+              className="h-10 w-10 justify-center border-border/15 bg-surface/60 px-0 lg:hidden"
             />
             <LanguageToggle />
             <ThemeToggle />
@@ -120,13 +125,13 @@ export function Navbar() {
               {t({ bn: "অর্ডার করুন", en: "Order a Website" })}
             </Button>
 
-            {/* Mobile trigger */}
+            {/* Mobile trigger — 40px+ tap target */}
             <button
               type="button"
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/15 bg-surface/60 text-fg-soft transition-colors hover:text-fg lg:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/15 bg-surface/60 text-fg-soft transition-colors hover:text-fg lg:hidden"
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -151,7 +156,9 @@ export function Navbar() {
         />
         <div
           className={cn(
-            "absolute right-0 top-0 flex h-full w-[82%] max-w-sm flex-col gap-2 border-l border-border/10 bg-canvas p-6 pt-24 shadow-lift transition-transform duration-500 ease-premium",
+            /* dvh (not h-full) keeps the drawer full-height on mobile Safari,
+               and overscroll-contain stops the page behind from rubber-banding. */
+            "absolute right-0 top-0 flex h-[100dvh] w-[min(86%,24rem)] flex-col gap-2 overflow-y-auto overscroll-contain border-l border-border/10 bg-canvas p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-24 shadow-lift transition-transform duration-500 ease-premium",
             open ? "translate-x-0" : "translate-x-full"
           )}
         >
