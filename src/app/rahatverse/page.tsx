@@ -12,6 +12,8 @@ import { Controls } from './ui/Controls';
 import { CameraController } from './camera/CameraController';
 import { SmartDistricts } from './districts/SmartDistricts';
 import { AIAssistant } from './ai/AIAssistant';
+import { SmartGuideControls } from './ui/SmartGuideControls';
+import { DayNightToggle } from './ui/DayNightToggle';
 import { LivingWorld } from './world/LivingWorld';
 import { SettingsPanel } from './settings/SettingsPanel';
 
@@ -20,10 +22,10 @@ import { SettingsPanel } from './settings/SettingsPanel';
 export default function RahatVerseExperience() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentStop, setCurrentStop] = useState<{ id: string; name: string; description: string } | null>(null);
-  const [currentMode, setCurrentMode] = useState<'auto' | 'explore'>('auto');
+  const [currentMode, setCurrentMode] = useState<'auto' | 'explore' | 'guide'>('auto');
   const [currentPosition] = useState<[number, number, number]>([0, 3, 0]);
   const [miniMapCollapsed, setMiniMapCollapsed] = useState(false);
-  const [timeOfDay] = useState<'morning' | 'day' | 'evening' | 'night'>('day');
+  const [timeOfDay, setTimeOfDay] = useState<'morning' | 'day' | 'evening' | 'night'>('day');
   const [weather] = useState<'sunny' | 'cloudy' | 'rain'>('sunny');
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -63,9 +65,12 @@ export default function RahatVerseExperience() {
     window.location.reload();
   };
 
-  const handleModeSwitch = (mode: 'auto' | 'explore') => {
+  const handleModeSwitch = (mode: 'auto' | 'explore' | 'guide') => {
     setCurrentMode(mode);
     if (mode === 'explore') setIsPlaying(false);
+    if (mode === 'guide') {
+      setIsPlaying(true);
+    }
   };
 
   return (
@@ -157,7 +162,13 @@ export default function RahatVerseExperience() {
         onPauseResume={handlePauseResume}
         onRestart={handleRestart}
         onModeSwitch={handleModeSwitch}
-        currentMode={currentMode}
+        currentMode={currentMode as 'auto' | 'explore'}
+      />
+
+      {/* Smart Guide Controls */}
+      <SmartGuideControls 
+        mode={currentMode} 
+        onModeChange={handleModeSwitch} 
       />
 
       {/* Info Panel */}
@@ -183,6 +194,12 @@ export default function RahatVerseExperience() {
 
       {/* AI Assistant */}
       <AIAssistant />
+
+      {/* Day/Night Toggle */}
+      <DayNightToggle 
+        timeOfDay={timeOfDay} 
+        onChange={setTimeOfDay} 
+      />
 
       {/* Settings Button */}
       <button

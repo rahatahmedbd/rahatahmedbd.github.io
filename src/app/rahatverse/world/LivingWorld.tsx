@@ -10,72 +10,77 @@ interface LivingWorldProps {
 }
 
 export function LivingWorld({ timeOfDay, weather }: LivingWorldProps) {
-  const cloudsRef = useRef<THREE.Group>(null!);
   const treesRef = useRef<THREE.Group>(null!);
+  const cloudsRef = useRef<THREE.Group>(null!);
 
-  // Gentle tree movement
   useFrame((state) => {
+    // Gentle tree swaying
     if (treesRef.current) {
       treesRef.current.children.forEach((tree, i) => {
-        tree.rotation.z = Math.sin(state.clock.elapsedTime * 0.8 + i) * 0.03;
+        tree.rotation.z = Math.sin(state.clock.elapsedTime * 0.7 + i) * 0.025;
       });
     }
 
     // Cloud movement
     if (cloudsRef.current) {
-      cloudsRef.current.position.x = Math.sin(state.clock.elapsedTime * 0.05) * 8;
+      cloudsRef.current.position.x = Math.sin(state.clock.elapsedTime * 0.04) * 12;
     }
   });
 
+  const lightIntensity = {
+    morning: 0.9,
+    day: 1.3,
+    evening: 0.7,
+    night: 0.4,
+  }[timeOfDay];
+
   return (
     <group>
-      {/* Dynamic Sky Color (simulated via ambient light) */}
-      <ambientLight intensity={timeOfDay === 'night' ? 0.3 : timeOfDay === 'evening' ? 0.45 : 0.6} />
+      <ambientLight intensity={lightIntensity} />
 
       {/* Moving Clouds */}
       <group ref={cloudsRef}>
-        <mesh position={[-60, 80, -40]}>
-          <sphereGeometry args={[12]} />
-          <meshLambertMaterial color="#475569" transparent opacity={0.6} />
+        <mesh position={[-50, 90, -60]}>
+          <sphereGeometry args={[14]} />
+          <meshLambertMaterial color="#475569" transparent opacity={0.55} />
         </mesh>
-        <mesh position={[40, 75, -55]}>
-          <sphereGeometry args={[9]} />
+        <mesh position={[55, 85, -70]}>
+          <sphereGeometry args={[10]} />
           <meshLambertMaterial color="#475569" transparent opacity={0.5} />
         </mesh>
       </group>
 
-      {/* Gentle Moving Trees */}
+      {/* Animated Trees */}
       <group ref={treesRef}>
-        {[1, 2, 3, 4].map((i) => (
-          <group key={i} position={[-80 + i * 50, 0, -30 + (i % 2) * 60]}>
+        {[-70, -20, 30, 75].map((x, index) => (
+          <group key={index} position={[x, 0, -25]}>
             <mesh position={[0, 3, 0]}>
               <cylinderGeometry args={[0.6, 0.8, 6]} />
               <meshLambertMaterial color="#334155" />
             </mesh>
-            <mesh position={[0, 8, 0]}>
-              <sphereGeometry args={[3.5]} />
+            <mesh position={[0, 8.5, 0]}>
+              <sphereGeometry args={[3.8]} />
               <meshLambertMaterial color="#166534" />
             </mesh>
           </group>
         ))}
       </group>
 
-      {/* Digital Billboard (Animated) */}
-      <group position={[0, 45, -80]}>
+      {/* Animated Billboard */}
+      <group position={[0, 48, -85]}>
         <mesh>
-          <boxGeometry args={[18, 8, 1]} />
-          <meshLambertMaterial color="#1e40af" emissive="#1e3a8a" emissiveIntensity={0.3} />
+          <boxGeometry args={[20, 7, 1.2]} />
+          <meshLambertMaterial color="#1e40af" emissive="#1e3a8a" emissiveIntensity={0.35} />
         </mesh>
-        {/* Simple text representation */}
-        <mesh position={[0, 0, 0.6]}>
-          <planeGeometry args={[14, 5]} />
-          <meshLambertMaterial color="#bae6fd" transparent opacity={0.9} />
+        <mesh position={[0, 0, 0.7]}>
+          <planeGeometry args={[16, 4.5]} />
+          <meshLambertMaterial color="#bae6fd" transparent opacity={0.85} />
         </mesh>
       </group>
 
-      {/* Subtle Fog Effect */}
+      {/* Subtle Fog */}
       {weather === 'cloudy' && (
-        <fog attach="fog" args={['#0f172a', 80, 220]} />
+        <fog attach="fog" args={['#0f172a', 70, 240]} />
       )}
     </group>
   );
