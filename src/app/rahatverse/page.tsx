@@ -23,11 +23,16 @@ export default function RahatVerseExperience() {
   const [currentMode, setCurrentMode] = useState<'auto' | 'explore'>('auto');
   const [currentPosition] = useState<[number, number, number]>([0, 3, 0]);
   const [miniMapCollapsed, setMiniMapCollapsed] = useState(false);
-  const [timeOfDay, setTimeOfDay] = useState<'morning' | 'day' | 'evening' | 'night'>('day');
-  const [weather, setWeather] = useState<'sunny' | 'cloudy' | 'rain'>('sunny');
+  const [timeOfDay] = useState<'morning' | 'day' | 'evening' | 'night'>('day');
+  const [weather] = useState<'sunny' | 'cloudy' | 'rain'>('sunny');
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [worldSettings, setWorldSettings] = useState({
-    graphics: 'medium' as const,
+  const [worldSettings, setWorldSettings] = useState<{
+    graphics: 'low' | 'medium' | 'high';
+    sound: boolean;
+    music: boolean;
+    motion: boolean;
+  }>({
+    graphics: 'medium',
     sound: true,
     music: false,
     motion: true,
@@ -128,6 +133,9 @@ export default function RahatVerseExperience() {
             enabled={currentMode === 'auto'}
           />
 
+          {/* Living World (must be inside Canvas) */}
+          <LivingWorld timeOfDay={timeOfDay} weather={weather} />
+
           <Stars radius={450} depth={90} count={1500} factor={3.5} fade speed={0.25} />
           <OrbitControls 
             enablePan 
@@ -159,9 +167,6 @@ export default function RahatVerseExperience() {
             isCollapsed={miniMapCollapsed}
             onToggle={() => setMiniMapCollapsed(!miniMapCollapsed)}
           />
-
-          {/* Living World */}
-          <LivingWorld timeOfDay={timeOfDay} weather={weather} />
 
           {/* Smart Interactive Districts */}
           <SmartDistricts />

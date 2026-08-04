@@ -27,13 +27,6 @@ export function LivingWorld({ timeOfDay, weather }: LivingWorldProps) {
     }
   });
 
-  const skyColor = {
-    morning: '#1e3a8a',
-    day: '#0a0c12',
-    evening: '#431407',
-    night: '#020617',
-  }[timeOfDay];
-
   return (
     <group>
       {/* Dynamic Sky Color (simulated via ambient light) */}
