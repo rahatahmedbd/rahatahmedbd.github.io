@@ -1,0 +1,46 @@
+{
+  "name": "rahat-ahmed-portfolio",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Rahat Ahmed's portfolio — a production-ready Next.js foundation.",
+  "engines": {
+    "node": ">=20.9.0",
+    "npm": ">=10.0.0"
+  },
+  "packageManager": "npm@10.9.8",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit",
+    "typecheck": "npm run type-check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "validate:env": "node scripts/validate-env.mjs",
+    "validate": "npm run validate:env && npm run lint && npm run type-check && npm run build"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.0",
+    "cloudinary": "^2.10.0",
+    "next": "^16.3.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "server-only": "^0.0.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.11",
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "^16.3.0",
+    "eslint-config-prettier": "^10.1.8",
+    "postcss": "^8.5.6",
+    "prettier": "^3.9.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.3"
+  }
+}
