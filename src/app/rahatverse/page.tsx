@@ -10,6 +10,7 @@ import { InfoPanel } from './ui/InfoPanel';
 import { MiniMap } from './ui/MiniMap';
 import { Controls } from './ui/Controls';
 import { CameraController } from './camera/CameraController';
+import { SmartDistricts } from './districts/SmartDistricts';
 
 // RahatVerse - Phase 10: Camera, Controls & Interaction
 
@@ -139,13 +140,16 @@ export default function RahatVerseExperience() {
       {/* Info Panel */}
       <InfoPanel stop={currentStop} onClose={handleClosePanel} />
 
-      {/* Mini Map */}
-      <MiniMap 
-        currentPosition={currentPosition} 
-        currentDistrict={currentStop?.name || 'Website Store'}
-        isCollapsed={miniMapCollapsed}
-        onToggle={() => setMiniMapCollapsed(!miniMapCollapsed)}
-      />
+          {/* Mini Map */}
+          <MiniMap 
+            currentPosition={currentPosition} 
+            currentDistrict={currentStop?.name || 'Website Store'}
+            isCollapsed={miniMapCollapsed}
+            onToggle={() => setMiniMapCollapsed(!miniMapCollapsed)}
+          />
+
+          {/* Smart Interactive Districts */}
+          <SmartDistricts />
 
       {/* Status Indicator */}
       <div className="fixed top-24 right-6 z-50 text-xs bg-black/60 px-4 py-2 rounded-full border border-white/10">
