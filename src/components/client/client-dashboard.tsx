@@ -277,7 +277,11 @@ export function ClientDashboard() {
                   </div>
                 ))}
               </div>
+              <label className="sr-only" htmlFor="client-message">
+                Project message
+              </label>
               <Textarea
+                id="client-message"
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
                 placeholder="Write a project message…"
@@ -298,7 +302,9 @@ export function ClientDashboard() {
         <h2 className="text-2xl font-semibold">Downloads</h2>
         <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {files.length === 0 && (
-            <p className="text-sm text-[var(--color-text-tertiary)]">No files have been shared yet.</p>
+            <p className="text-sm text-[var(--color-text-tertiary)]">
+              No files have been shared yet.
+            </p>
           )}
           {files.map((file) => (
             <a
@@ -310,7 +316,8 @@ export function ClientDashboard() {
             >
               <div className="font-medium">{file.label || file.file_name}</div>
               <div className="mt-1 text-sm text-[var(--color-text-tertiary)]">
-                {file.mime_type ?? "file"} · {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : ""}
+                {file.mime_type ?? "file"} ·{" "}
+                {file.file_size ? `${Math.round(file.file_size / 1024)} KB` : ""}
               </div>
             </a>
           ))}

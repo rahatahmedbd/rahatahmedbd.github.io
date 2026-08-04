@@ -3,6 +3,10 @@
 
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
 
 # Sitemap location
 Sitemap: https://rahatahmedbd.github.io/sitemap.xml

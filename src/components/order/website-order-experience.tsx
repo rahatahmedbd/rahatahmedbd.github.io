@@ -438,58 +438,73 @@ export default function WebsiteOrderExperience() {
 
             <form onSubmit={handleContactSubmit} className="space-y-6">
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Full Name *</label>
+                <label htmlFor="order-name" className="text-sm font-medium mb-1.5 block">
+                  Full Name *
+                </label>
                 <Input
+                  id="order-name"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
                   required
                   placeholder="Your full name"
+                  autoComplete="name"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="text-sm font-medium mb-1.5 block">Email Address *</label>
+                  <label htmlFor="order-email" className="text-sm font-medium mb-1.5 block">
+                    Email Address *
+                  </label>
                   <Input
+                    id="order-email"
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
                     required
                     placeholder="you@example.com"
+                    autoComplete="email"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1.5 block">Phone Number *</label>
+                  <label htmlFor="order-phone" className="text-sm font-medium mb-1.5 block">
+                    Phone Number *
+                  </label>
                   <Input
+                    id="order-phone"
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
                     required
                     placeholder="+880 1XXXXXXXXX"
+                    autoComplete="tel"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1.5 block">
+                <label htmlFor="order-business" className="text-sm font-medium mb-1.5 block">
                   Business / Organization Name
                 </label>
                 <Input
+                  id="order-business"
                   name="businessName"
                   value={formData.businessName}
                   onChange={handleInputChange}
                   placeholder="Optional"
+                  autoComplete="organization"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1.5 block">
+                <label htmlFor="order-message" className="text-sm font-medium mb-1.5 block">
                   Project Details / Message
                 </label>
                 <Textarea
+                  id="order-message"
                   name="message"
                   value={formData.message}
                   onChange={handleInputChange}

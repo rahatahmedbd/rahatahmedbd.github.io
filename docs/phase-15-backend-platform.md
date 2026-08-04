@@ -66,17 +66,17 @@ RLS is enabled on all platform tables. Public order insert is constrained; clien
 
 ## Backend API map
 
-| Route | Purpose | Auth |
-| --- | --- | --- |
-| `POST /api/orders` | Store website order | Public, rate-limited; links user if logged in |
-| `GET /api/client/orders` | Client order history | Authenticated |
-| `GET /api/client/files` | Client downloads | Authenticated |
-| `GET/POST /api/client/messages` | Client messages | Authenticated |
-| `GET/PATCH /api/admin/orders` | Admin order management | Admin |
-| `GET/PUT /api/admin/content` | Admin content management | Admin |
-| `GET/POST /api/admin/media` | Cloudinary upload/media list | Admin |
-| `GET /api/admin/analytics` | Analytics dashboard data | Admin |
-| `GET /api/health` | Configuration health flags | Public, no secrets |
+| Route                           | Purpose                      | Auth                                          |
+| ------------------------------- | ---------------------------- | --------------------------------------------- |
+| `POST /api/orders`              | Store website order          | Public, rate-limited; links user if logged in |
+| `GET /api/client/orders`        | Client order history         | Authenticated                                 |
+| `GET /api/client/files`         | Client downloads             | Authenticated                                 |
+| `GET/POST /api/client/messages` | Client messages              | Authenticated                                 |
+| `GET/PATCH /api/admin/orders`   | Admin order management       | Admin                                         |
+| `GET/PUT /api/admin/content`    | Admin content management     | Admin                                         |
+| `GET/POST /api/admin/media`     | Cloudinary upload/media list | Admin                                         |
+| `GET /api/admin/analytics`      | Analytics dashboard data     | Admin                                         |
+| `GET /api/health`               | Configuration health flags   | Public, no secrets                            |
 
 ## Notification architecture
 

@@ -131,6 +131,20 @@ const personJsonLd = {
   knowsLanguage: ["Bengali", "English"],
 };
 
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Rahat Ahmed Portfolio",
+  alternateName: "রাহাত আহমেদ পোর্টফোলিও",
+  url: site.url,
+  description: site.description,
+  inLanguage: ["bn", "en"],
+  publisher: {
+    "@type": "Person",
+    name: portfolioProfile.name,
+  },
+};
+
 type RootLayoutProps = Readonly<{
   children: ReactNode;
 }>;
@@ -158,6 +172,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         <SiteShell>{children}</SiteShell>
       </body>

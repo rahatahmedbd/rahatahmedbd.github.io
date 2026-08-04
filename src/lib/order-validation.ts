@@ -56,7 +56,13 @@ export const orderStatusSchema = z.enum([
   "cancelled",
 ]);
 
-export const paymentStatusSchema = z.enum(["not_started", "pending", "partial", "paid", "refunded"]);
+export const paymentStatusSchema = z.enum([
+  "not_started",
+  "pending",
+  "partial",
+  "paid",
+  "refunded",
+]);
 
 export const orderUpdateSchema = z.object({
   id: z.string().uuid(),

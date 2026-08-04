@@ -56,7 +56,15 @@ interface MediaAsset {
   created_at: string;
 }
 
-const resources = ["portfolio", "services", "pricing", "gallery", "achievements", "education", "contact"];
+const resources = [
+  "portfolio",
+  "services",
+  "pricing",
+  "gallery",
+  "achievements",
+  "education",
+  "contact",
+];
 const orderStatuses = [
   "new",
   "confirmed",
@@ -174,7 +182,8 @@ export function AdminDashboard() {
   const updateOrderStatus = async (order: AdminOrder, nextStatus: string) => {
     try {
       const headers = await authHeaders();
-      const progressPercent = nextStatus === "completed" ? 100 : Math.max(order.progress_percent, 10);
+      const progressPercent =
+        nextStatus === "completed" ? 100 : Math.max(order.progress_percent, 10);
       await fetch("/api/admin/orders", {
         method: "PATCH",
         headers: { ...headers, "Content-Type": "application/json" },
@@ -261,7 +270,9 @@ export function AdminDashboard() {
           <h2 className="text-2xl font-semibold">Website Orders</h2>
           <div className="mt-5 space-y-4">
             {orders.length === 0 && (
-              <p className="text-sm text-[var(--color-text-tertiary)]">No backend orders found yet.</p>
+              <p className="text-sm text-[var(--color-text-tertiary)]">
+                No backend orders found yet.
+              </p>
             )}
             {orders.map((order) => (
               <div key={order.id} className="rounded-2xl border border-[var(--color-border)] p-4">
@@ -325,9 +336,27 @@ export function AdminDashboard() {
             ))}
           </div>
           <div className="mt-5 space-y-3">
-            <Input value={contentKey} onChange={(event) => setContentKey(event.target.value)} />
-            <Input value={contentTitle} onChange={(event) => setContentTitle(event.target.value)} />
+            <label className="sr-only" htmlFor="content-key">
+              Content key
+            </label>
+            <Input
+              id="content-key"
+              value={contentKey}
+              onChange={(event) => setContentKey(event.target.value)}
+            />
+            <label className="sr-only" htmlFor="content-title">
+              Content title
+            </label>
+            <Input
+              id="content-title"
+              value={contentTitle}
+              onChange={(event) => setContentTitle(event.target.value)}
+            />
+            <label className="sr-only" htmlFor="content-json">
+              Content JSON data
+            </label>
             <Textarea
+              id="content-json"
               value={contentJson}
               onChange={(event) => setContentJson(event.target.value)}
               rows={8}
@@ -362,7 +391,14 @@ export function AdminDashboard() {
             the server so API secrets never reach the browser.
           </p>
           <div className="mt-5 space-y-4">
-            <Input type="file" onChange={(event) => setMediaFile(event.target.files?.[0] ?? null)} />
+            <label className="sr-only" htmlFor="media-file">
+              Media file to upload
+            </label>
+            <Input
+              id="media-file"
+              type="file"
+              onChange={(event) => setMediaFile(event.target.files?.[0] ?? null)}
+            />
             <Button onClick={uploadMedia} disabled={!mediaFile}>
               Upload media
             </Button>

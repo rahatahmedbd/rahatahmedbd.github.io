@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 // Premium Futuristic Vehicle for RahatVerse
 // Lightweight and optimized for mobile

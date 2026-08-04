@@ -17,7 +17,9 @@ export async function GET(request: NextRequest) {
     const supabase = createSupabaseAdminClient();
     const { data, error } = await supabase
       .from("media_assets")
-      .select("id, public_id, url, secure_url, resource_type, format, bytes, width, height, folder, alt_text, created_at")
+      .select(
+        "id, public_id, url, secure_url, resource_type, format, bytes, width, height, folder, alt_text, created_at",
+      )
       .order("created_at", { ascending: false })
       .limit(100);
 

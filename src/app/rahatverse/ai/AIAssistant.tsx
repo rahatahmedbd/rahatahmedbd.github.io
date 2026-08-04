@@ -61,10 +61,14 @@ export function AIAssistant() {
   return (
     <>
       <button
+        type="button"
         onClick={() => setIsOpen(true)}
+        aria-label="Open Rahat AI assistant"
         className="fixed bottom-24 right-6 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-[#22d3ee] text-black shadow-xl hover:bg-[#67e8f9] transition-all"
       >
-        <span className="text-3xl">🤖</span>
+        <span className="text-3xl" aria-hidden="true">
+          🤖
+        </span>
       </button>
 
       {isOpen && (
@@ -78,7 +82,9 @@ export function AIAssistant() {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setIsOpen(false)}
+              aria-label="Close AI assistant"
               className="text-xl text-white/50 hover:text-white"
             >
               ×
