@@ -48,7 +48,7 @@ export function OrderPageClient() {
   };
 
   return (
-    <div className="relative min-h-screen pb-24 pt-28 sm:pt-32">
+    <div className="relative min-h-screen pb-24 pt-14 sm:pt-16">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-radial-fade opacity-70" />
         <div className="absolute -left-24 top-20 h-72 w-72 rounded-full bg-brand-600/15 blur-[130px]" />

@@ -442,8 +442,10 @@ export function AgencyHeadquarters({
 
   return (
     <div
+      /* Fullscreen must size to the *dynamic* viewport (mobile browser bars)
+         and become a flex column so the room view scrolls internally. */
       className={`relative w-full rounded-3xl border border-white/15 bg-[#09111e] text-white shadow-2xl transition-all duration-300 overflow-hidden ${
-        isFullscreen ? "fixed inset-0 z-50 rounded-none h-screen" : "min-h-[750px]"
+        isFullscreen ? "fixed inset-0 z-50 flex flex-col rounded-none h-[100dvh]" : "min-h-0 lg:min-h-[750px]"
       }`}
     >
       {/* Dynamic Background FX */}
@@ -453,7 +455,7 @@ export function AgencyHeadquarters({
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-20 pointer-events-none" />
 
       {/* Header Bar */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 bg-black/40 px-6 py-4 backdrop-blur-md">
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-black/40 px-4 py-3 backdrop-blur-md sm:gap-4 sm:px-6 sm:py-4">
         <div className="flex items-center gap-3">
           <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-600 to-pink-500 font-extrabold text-white shadow-glow">
             RA
@@ -461,7 +463,7 @@ export function AgencyHeadquarters({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-lg font-black tracking-tight text-white">
+              <span className="text-sm font-black tracking-tight text-white sm:text-lg">
                 AGENCY HEADQUARTERS
               </span>
               <span className="rounded-full bg-brand-500/20 px-2.5 py-0.5 text-[10px] font-bold text-brand-400 border border-brand-500/30">
@@ -504,12 +506,18 @@ export function AgencyHeadquarters({
         </div>
       </div>
 
-      {/* Main Layout: Sidebar Nav + Avatar Box + Room View */}
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[280px_1fr] min-h-[660px]">
+      {/* Main Layout: Sidebar Nav + Avatar Box + Room View
+          Mobile: the room list becomes a swipeable rail above the content
+          (9 stacked buttons used to push the actual room out of view). */}
+      <div
+        className={`relative z-10 grid grid-cols-1 lg:grid-cols-[280px_1fr] ${
+          isFullscreen ? "min-h-0 flex-1 grid-rows-[auto_1fr]" : "lg:min-h-[660px]"
+        }`}
+      >
         {/* Sidebar Navigation */}
-        <aside className="border-r border-white/10 bg-black/30 p-4 flex flex-col justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="px-3 text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">
+        <aside className="border-b border-white/10 bg-black/30 p-3 sm:p-4 lg:border-b-0 lg:border-r flex flex-col justify-between gap-4">
+          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar lg:flex-col lg:overflow-visible lg:pb-0">
+            <div className="hidden px-3 text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2 lg:block">
               Headquarters Rooms
             </div>
             {roomsList.map((rm) => {
@@ -520,7 +528,7 @@ export function AgencyHeadquarters({
                 <button
                   key={rm.id}
                   onClick={() => handleRoomChange(rm.id)}
-                  className={`w-full flex items-center justify-between gap-3 rounded-2xl px-3.5 py-2.5 text-xs font-semibold transition-all ${
+                  className={`flex shrink-0 items-center justify-between gap-3 rounded-2xl px-3.5 py-2.5 text-xs font-semibold transition-all lg:w-full ${
                     isActive
                       ? `bg-gradient-to-r ${rm.accent} text-white shadow-glow scale-[1.02]`
                       : "text-white/70 hover:bg-white/10 hover:text-white"
@@ -528,7 +536,7 @@ export function AgencyHeadquarters({
                 >
                   <div className="flex items-center gap-2.5">
                     <Icon className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{t(rm.title)}</span>
+                    <span className="whitespace-nowrap lg:whitespace-normal lg:truncate">{t(rm.title)}</span>
                   </div>
                   {isVisited && !isActive && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
                 </button>
@@ -562,8 +570,13 @@ export function AgencyHeadquarters({
           </div>
         </aside>
 
-        {/* Content Area */}
-        <main className="p-6 overflow-y-auto max-h-[82vh] space-y-6">
+        {/* Content Area — page scroll carries it on mobile; internal scroll
+            only in fullscreen or on desktop's fixed-height frame. */}
+        <main
+          className={`space-y-6 p-4 sm:p-6 ${
+            isFullscreen ? "min-h-0 overflow-y-auto" : "lg:max-h-[82vh] lg:overflow-y-auto"
+          }`}
+        >
           {/* Avatar Guidance Box */}
           <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-black/50 to-purple-950/30 p-4 shadow-lift backdrop-blur-md">
             {/* Avatar Visual */}

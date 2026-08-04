@@ -188,7 +188,7 @@ export function TourHud({
 
       {/* ── Bottom controls ─────────────────────────────────────────────── */}
       {!panelOpen && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2.5 p-4 pb-6">
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2.5 p-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
           {phase === "stopped" && (
             <button
               type="button"

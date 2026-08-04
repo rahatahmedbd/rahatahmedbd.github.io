@@ -25,7 +25,8 @@ export function LanguageToggle({ className }: { className?: string }) {
             onClick={() => setLang(code)}
             aria-pressed={active}
             className={cn(
-              "h-8 min-w-[2.25rem] rounded-full px-2 text-xs font-semibold transition-all duration-300",
+              /* 36px+ tap height — comfortable on touch screens */
+              "h-9 min-w-[2.5rem] rounded-full px-2.5 text-xs font-semibold transition-all duration-300",
               active
                 ? "bg-brand-600 text-white shadow-soft"
                 : "text-fg-muted hover:text-fg"

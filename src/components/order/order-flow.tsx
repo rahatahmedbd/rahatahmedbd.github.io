@@ -275,8 +275,8 @@ export function OrderFlow({
   /* ── Flow ────────────────────────────────────────────────────────────── */
   return (
     <div ref={topRef} className={cn("flex flex-col gap-6", className)}>
-      {/* Stepper */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+      {/* Stepper — swipeable on phones, scrollbar hidden for a clean look */}
+      <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1">
         {STEPS.map((s, i) => {
           const done = i < step;
           const active = i === step;

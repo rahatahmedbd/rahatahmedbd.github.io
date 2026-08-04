@@ -60,7 +60,8 @@ export function PanelShell({
         aria-label={t(district.name)}
         className={cn(
           "pointer-events-auto relative flex w-full flex-col overflow-hidden border-white/10 bg-[#060b18]/95 text-white shadow-[0_-20px_60px_-20px_rgba(0,0,0,0.9)] backdrop-blur-2xl transition-all duration-500 ease-premium",
-          "max-h-[82vh] rounded-t-[28px] border-t",
+          /* dvh: 82vh under mobile browser chrome can hide panel actions. */
+          "max-h-[82dvh] rounded-t-[28px] border-t",
           "sm:max-h-none sm:h-full sm:max-w-[520px] sm:rounded-none sm:rounded-l-[28px] sm:border-l sm:border-t-0 sm:shadow-[-20px_0_60px_-20px_rgba(0,0,0,0.9)]",
           open
             ? "translate-y-0 opacity-100 sm:translate-x-0"
@@ -132,7 +133,7 @@ export function PanelShell({
         </div>
 
         {footer && (
-          <footer className="relative border-t border-white/8 bg-black/30 px-5 py-3.5 sm:px-6">
+          <footer className="relative border-t border-white/8 bg-black/30 px-5 py-3.5 pb-[calc(0.875rem+env(safe-area-inset-bottom))] sm:px-6">
             {footer}
           </footer>
         )}

@@ -124,8 +124,8 @@ export function OrbitalNav({ unread = 0, missionCount = 0 }: { unread?: number; 
         </div>
       </aside>
 
-      {/* Mobile Bottom Orbital Dock */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 p-3">
+      {/* Mobile Bottom Orbital Dock — floats above the iOS home indicator */}
+      <div className="md:hidden fixed bottom-[env(safe-area-inset-bottom)] inset-x-0 z-50 p-3">
         <div className="relative flex items-center justify-between gap-1 rounded-[24px] border border-white/10 bg-[#0a0d15]/90 p-2 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)]">
           {nav.slice(0,5).map(item=>{
             const active = pathname===item.href;
