@@ -113,14 +113,49 @@ const config: Config = {
           "0%,100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-8px)" },
         },
+        ripple: {
+          "0%": { transform: "scale(0)", opacity: "0.6" },
+          "100%": { transform: "scale(1)", opacity: "0" },
+        },
+        "toast-in": {
+          "0%": { opacity: "0", transform: "translateY(-12px) scale(0.97)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        "toast-bar": {
+          "0%": { transform: "scaleX(1)" },
+          "100%": { transform: "scaleX(0)" },
+        },
+        "slide-up-fade": {
+          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "pop-in": {
+          "0%": { opacity: "0", transform: "scale(0.6)" },
+          "60%": { opacity: "1", transform: "scale(1.08)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        confetti: {
+          "0%": { opacity: "1", transform: "translate3d(0,0,0) rotate(0deg)" },
+          "100%": {
+            opacity: "0",
+            transform: "translate3d(var(--dx), var(--dy), 0) rotate(var(--rot))",
+          },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.7s cubic-bezier(0.16,1,0.3,1) both",
         "fade-in": "fade-in 0.7s ease both",
         "scale-in": "scale-in 0.7s cubic-bezier(0.16,1,0.3,1) both",
         marquee: "marquee 40s linear infinite",
+        "marquee-slow": "marquee 60s linear infinite",
         shimmer: "shimmer 2s infinite",
         float: "float 6s ease-in-out infinite",
+        ripple: "ripple 600ms ease-out forwards",
+        "slide-up-fade": "slide-up-fade 0.45s cubic-bezier(0.16,1,0.3,1) both",
+        "pop-in": "pop-in 0.5s cubic-bezier(0.16,1,0.3,1) both",
+      },
+      transitionDuration: {
+        "400": "400ms",
       },
       transitionTimingFunction: {
         premium: "cubic-bezier(0.16, 1, 0.3, 1)",

@@ -7,6 +7,7 @@ import { useLanguage } from "@/components/providers/language-provider";
 import { OrderFlow } from "@/components/order/order-flow";
 import { Container } from "@/components/ui/primitives";
 import { ExperienceSwitch } from "@/components/experience/experience-switch";
+import { SkeletonPanel } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 /** The full interactive district stays available — it is simply no longer the
@@ -17,8 +18,10 @@ const ServiceDistrictMain = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="grid min-h-[360px] place-items-center rounded-3xl border border-border/10 bg-surface text-xs font-mono text-fg-muted">
-        Loading the Service District…
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <SkeletonPanel key={i} />
+        ))}
       </div>
     ),
   }
@@ -48,7 +51,7 @@ export function OrderPageClient() {
   };
 
   return (
-    <div className="relative min-h-screen pb-24 pt-14 sm:pt-16">
+    <div className="relative min-h-screen pb-16 pt-10 sm:pt-14">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-radial-fade opacity-70" />
         <div className="absolute -left-24 top-20 h-72 w-72 rounded-full bg-brand-600/15 blur-[130px]" />
@@ -64,14 +67,14 @@ export function OrderPageClient() {
           </span>
           <h1 className="mt-5 text-balance text-display-lg font-bold tracking-tight">
             {t({
-              en: "Order your website in four short steps",
-              bn: "চারটি সহজ ধাপে ওয়েবসাইট অর্ডার করুন",
+              en: "Order your website in three short steps",
+              bn: "তিনটি সহজ ধাপে ওয়েবসাইট অর্ডার করুন",
             })}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-pretty text-base leading-relaxed text-fg-soft">
             {t({
-              en: "Pick a category, choose a size, add anything extra, and leave your contact. You get a live price estimate as you go — no long forms, no obligation.",
-              bn: "ক্যাটাগরি বাছুন, আকার ঠিক করুন, অতিরিক্ত কিছু লাগলে যোগ করুন এবং যোগাযোগের তথ্য দিন। সঙ্গে সঙ্গেই মূল্যের ধারণা পাবেন — বড় ফর্ম নেই, বাধ্যবাধকতাও নেই।",
+              en: "Pick a category, set the size, and leave your contact. You get a live price estimate as you go — no long forms, no obligation.",
+              bn: "ক্যাটাগরি বাছুন, আকার ঠিক করুন এবং যোগাযোগের তথ্য দিন। সঙ্গে সঙ্গেই মূল্যের ধারণা পাবেন — বড় ফর্ম নেই, বাধ্যবাধকতাও নেই।",
             })}
           </p>
 

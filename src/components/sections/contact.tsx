@@ -22,6 +22,9 @@ import {
   SectionHeading,
 } from "@/components/ui/primitives";
 import { Button } from "@/components/ui/button";
+import { CopyButton } from "@/components/ui/copy-button";
+import { useToast } from "@/components/ui/toast";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const socialIcons: Record<string, typeof Facebook> = {
@@ -35,6 +38,7 @@ type Status = "idle" | "sending" | "success" | "error" | "unconfigured";
 
 export function Contact() {
   const { t, lang } = useLanguage();
+  const { toast } = useToast();
   const [status, setStatus] = useState<Status>("idle");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -44,6 +48,12 @@ export function Contact() {
 
     if (!endpoint) {
       setStatus("unconfigured");
+      toast({
+        title: t(contact.form.status.unconfigured),
+        description: `${t({ en: "Email directly", bn: "সরাসরি ইমেইল করুন" })}: ${site.email}`,
+        tone: "warning",
+        duration: 7000,
+      });
       return;
     }
 
@@ -62,18 +72,32 @@ export function Contact() {
       if (res.ok) {
         form.reset();
         setStatus("success");
+        toast({
+          title: t({ en: "Message sent", bn: "বার্তা পাঠানো হয়েছে" }),
+          description: t(contact.form.status.success),
+          tone: "success",
+          duration: 5500,
+        });
       } else {
         setStatus("error");
+        toast({ title: t(contact.form.status.error), tone: "error" });
       }
     } catch {
       setStatus("error");
+      toast({ title: t(contact.form.status.error), tone: "error" });
     }
   }
 
-  const methods = [
-    { icon: Mail, label: { bn: "ইমেইল", en: "Email" }, value: site.email, href: `mailto:${site.email}` },
-    { icon: MessageCircle, label: { bn: "হোয়াটসঅ্যাপ", en: "WhatsApp" }, value: site.phoneDisplay, href: site.whatsapp },
-    { icon: Phone, label: { bn: "ফোন করুন", en: "Call" }, value: site.phoneDisplay, href: `tel:${site.phoneHref}` },
+  const methods: Array<{
+    icon: typeof Mail;
+    label: { bn: string; en: string };
+    value: string;
+    href?: string;
+    copyValue?: string;
+  }> = [
+    { icon: Mail, label: { bn: "ইমেইল", en: "Email" }, value: site.email, href: `mailto:${site.email}`, copyValue: site.email },
+    { icon: MessageCircle, label: { bn: "হোয়াটসঅ্যাপ", en: "WhatsApp" }, value: site.phoneDisplay, href: site.whatsapp, copyValue: site.phoneDisplay },
+    { icon: Phone, label: { bn: "ফোন করুন", en: "Call" }, value: site.phoneDisplay, href: `tel:${site.phoneHref}`, copyValue: site.phoneDisplay },
     { icon: MapPin, label: { bn: "অবস্থান", en: "Location" }, value: t(site.location), href: undefined },
   ];
 
@@ -111,22 +135,35 @@ export function Contact() {
                       </span>
                     </>
                   );
-                  return m.href ? (
-                    <a
-                      key={m.label.en}
-                      href={m.href}
-                      target={m.href.startsWith("http") ? "_blank" : undefined}
-                      rel={m.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                      className="group flex items-center gap-3 rounded-2xl border border-border/10 bg-surface/60 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-500/25"
-                    >
-                      {inner}
-                    </a>
-                  ) : (
+                  const copyable = m.copyValue ? (
+                    <CopyButton
+                      value={m.copyValue}
+                      className="shrink-0"
+                      toastTitle={t({ en: "Copied", bn: "কপি হয়েছে" })}
+                    />
+                  ) : null;
+
+                  /* The copy control is a sibling of the link, never nested
+                     inside it — an interactive element inside an anchor is
+                     invalid and breaks keyboard navigation. */
+                  return (
                     <div
                       key={m.label.en}
-                      className="flex items-center gap-3 rounded-2xl border border-border/10 bg-surface/60 p-4"
+                      className="group flex items-center gap-2 rounded-2xl border border-border/10 bg-surface/60 pr-2 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-500/25"
                     >
-                      {inner}
+                      {m.href ? (
+                        <a
+                          href={m.href}
+                          target={m.href.startsWith("http") ? "_blank" : undefined}
+                          rel={m.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                          className="flex min-w-0 flex-1 items-center gap-3 p-4"
+                        >
+                          {inner}
+                        </a>
+                      ) : (
+                        <div className="flex min-w-0 flex-1 items-center gap-3 p-4">{inner}</div>
+                      )}
+                      {copyable}
                     </div>
                   );
                 })}
@@ -284,7 +321,11 @@ export function Contact() {
                 <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" className="hidden" />
 
                 <Button type="submit" size="lg" disabled={status === "sending"}>
-                  <Send className="h-4 w-4" />
+                  {status === "sending" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                   {status === "sending"
                     ? t(contact.form.status.sending)
                     : t(contact.form.submit)}

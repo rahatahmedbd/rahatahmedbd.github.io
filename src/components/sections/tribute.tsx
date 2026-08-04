@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { tribute } from "@/content/tribute";
 import { useLanguage } from "@/components/providers/language-provider";
 import { Container, Reveal, Section, Eyebrow } from "@/components/ui/primitives";
@@ -35,13 +37,13 @@ export function Tribute() {
         {/* Portrait */}
         <Reveal direction="scale" className="mt-10 flex flex-col items-center">
           <div className="relative aspect-[3/4] w-48 overflow-hidden rounded-4xl border border-gold-500/30 shadow-lift sm:w-56">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={tribute.photoSrc}
               alt={tribute.photoAlt}
-              className="h-full w-full object-cover"
+              fill
               loading="lazy"
-              decoding="async"
+              sizes="(max-width: 640px) 12rem, 14rem"
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
           </div>

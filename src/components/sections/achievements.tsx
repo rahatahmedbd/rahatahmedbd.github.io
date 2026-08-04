@@ -24,8 +24,8 @@ function Stat({
   const { t, lang } = useLanguage();
   const { ref, display } = useCountUp(value, lang);
   return (
-    <div className="card-surface rounded-3xl p-6 text-center">
-      <div className="text-display-lg font-bold text-gradient-brand">
+    <div className="card-surface rounded-3xl p-6 text-center transition-all duration-500 ease-premium hover:-translate-y-1 hover:border-brand-500/25 hover:shadow-lift">
+      <div className="text-display-lg font-bold tabular-nums text-gradient-brand">
         <span ref={ref}>
           {display}
           {suffix ? "+" : ""}
@@ -103,10 +103,15 @@ export function Achievements() {
           </article>
         </Reveal>
 
-        {/* Grid */}
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Cards — a swipeable rail on phones, a grid from sm upward */}
+        <div className="no-scrollbar snap-rail mt-8 flex gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-3">
           {achievements.cards.map((card, i) => (
-            <Reveal key={i} direction="up" delay={(i % 3) * 80}>
+            <Reveal
+              key={i}
+              direction="up"
+              delay={(i % 3) * 80}
+              className="snap-item w-[82%] shrink-0 sm:w-auto"
+            >
               <article className="card-surface group h-full rounded-3xl p-6 transition-all duration-500 hover:-translate-y-1 hover:border-brand-500/30 hover:shadow-lift">
                 <div className="flex items-center justify-between">
                   <span className="grid h-11 w-11 place-items-center rounded-xl bg-canvas-muted text-xl transition-transform duration-300 group-hover:scale-110">

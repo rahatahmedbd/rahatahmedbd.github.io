@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { Quote, Building2, Sparkles, ArrowRight, Compass, MapPin, Award, Heart, GraduationCap, Code, Users, BookOpen, Target, Shield, Zap, Star } from "lucide-react";
 import { about } from "@/content/about";
@@ -154,13 +155,13 @@ export function About() {
                 <div className="flex flex-col gap-8">
                   <div className="relative">
                     <div className="relative aspect-[4/5] overflow-hidden rounded-4xl border border-border/10 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.3)]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image
                         src="/images/profile.jpg"
                         alt="Rahat Ahmed at Sunamganj"
-                        className="h-full w-full object-cover transition-transform duration-1000 hover:scale-105"
+                        fill
                         loading="lazy"
-                        decoding="async"
+                        sizes="(max-width: 1024px) 92vw, 40vw"
+                        className="object-cover transition-transform duration-1000 ease-premium hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     </div>

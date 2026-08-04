@@ -1,16 +1,19 @@
+"use client";
+
 import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
   ReactElement,
   ReactNode,
 } from "react";
+import { useRipple } from "@/components/ui/ripple";
 import { cn } from "@/lib/utils";
 
 type Variant = "primary" | "secondary" | "ghost" | "light" | "gold";
 type Size = "sm" | "md" | "lg";
 
 const base =
-  "group relative inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-300 ease-premium focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60";
+  "group relative inline-flex select-none items-center justify-center gap-2 overflow-hidden rounded-full font-semibold transition-all duration-300 ease-premium active:scale-[0.97] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100";
 
 const variants: Record<Variant, string> = {
   primary:
@@ -23,10 +26,20 @@ const variants: Record<Variant, string> = {
   gold: "bg-gradient-to-br from-gold-400 to-gold-600 text-white hover:-translate-y-0.5 shadow-soft",
 };
 
+/** Touch targets never fall below 40px, even at the smallest size. */
 const sizes: Record<Size, string> = {
-  sm: "h-9 px-4 text-sm",
+  sm: "h-10 px-4 text-sm",
   md: "h-11 px-5 text-sm",
   lg: "h-12 px-7 text-base",
+};
+
+/** Ripple colour tuned per variant so it reads on both light and dark fills. */
+const rippleColor: Record<Variant, string> = {
+  primary: "rgba(255,255,255,0.35)",
+  secondary: "rgba(244,63,94,0.18)",
+  ghost: "rgba(244,63,94,0.15)",
+  light: "rgba(244,63,94,0.18)",
+  gold: "rgba(255,255,255,0.35)",
 };
 
 type CommonProps = {
@@ -51,10 +64,25 @@ export function Button(props: any): ReactElement {
     className,
     children,
     href,
+    onPointerDown,
     ...rest
   } = props;
 
-  const classes = cn(base, variants[variant as Variant], sizes[size as Size], className);
+  const { onPointerDown: ripplePointerDown, rippleLayer } = useRipple(
+    rippleColor[variant as Variant]
+  );
+
+  const classes = cn(
+    base,
+    variants[variant as Variant],
+    sizes[size as Size],
+    className
+  );
+
+  const handlePointerDown = (e: any) => {
+    ripplePointerDown(e);
+    onPointerDown?.(e);
+  };
 
   if (typeof href === "string") {
     const external = href.startsWith("http");
@@ -62,17 +90,20 @@ export function Button(props: any): ReactElement {
       <a
         href={href}
         className={classes}
+        onPointerDown={handlePointerDown}
         {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
         {...rest}
       >
         {children}
+        {rippleLayer}
       </a>
     );
   }
 
   return (
-    <button className={classes} {...rest}>
+    <button className={classes} onPointerDown={handlePointerDown} {...rest}>
       {children}
+      {rippleLayer}
     </button>
   );
 }

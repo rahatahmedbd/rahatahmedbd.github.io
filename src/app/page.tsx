@@ -1,11 +1,13 @@
 import { Hero } from "@/components/sections/hero";
 import { QuickAccess } from "@/components/sections/quick-access";
+import { Organizations } from "@/components/sections/organizations";
 import { About } from "@/components/sections/about";
 import { Services } from "@/components/sections/services";
 import { Skills } from "@/components/sections/skills";
 import { Education } from "@/components/sections/education";
 import { Achievements } from "@/components/sections/achievements";
 import { Experience } from "@/components/sections/experience";
+import { Portfolio } from "@/components/sections/portfolio";
 import { Testimonials } from "@/components/sections/testimonials";
 import { Blood } from "@/components/sections/blood";
 import { Tribute } from "@/components/sections/tribute";
@@ -23,6 +25,9 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+
+      {/* TRUST — the real institutions behind the story, immediately */}
+      <Organizations />
 
       {/* FAST LANE — get anyone to what they came for in one tap */}
       <QuickAccess />
@@ -42,6 +47,7 @@ export default function HomePage() {
 
       {/* PROOF — work, achievements, experience */}
       <div id="work" className="scroll-mt-20">
+        <Portfolio />
         <Achievements />
         <Experience />
         <Gallery />

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Facebook, MessageCircle } from "lucide-react";
 import { blood } from "@/content/blood";
 import { useLanguage } from "@/components/providers/language-provider";
@@ -82,13 +83,13 @@ export function Blood() {
             <span className="absolute inset-2 rounded-full border border-white/20" />
             <span className="absolute inset-5 rounded-full border border-white/15" />
             <div className="relative grid h-24 w-24 place-items-center overflow-hidden rounded-full border border-white/25 bg-white/10 backdrop-blur sm:h-28 sm:w-28">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={blood.logoSrc}
                 alt={blood.logoAlt}
-                className="h-full w-full object-cover"
+                fill
                 loading="lazy"
-                decoding="async"
+                sizes="7rem"
+                className="object-cover"
               />
             </div>
           </div>

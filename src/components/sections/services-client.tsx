@@ -160,7 +160,16 @@ export function ServicesClient({ dbServices }: ServicesClientProps) {
         />
 
         {/* Service Cards Grid */}
-        <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-8">
+        <div
+          className={cn(
+            "mt-14 grid grid-cols-1 gap-6 sm:gap-8",
+            services.length === 1
+              ? "max-w-xl mx-auto"
+              : services.length === 2
+              ? "md:grid-cols-2"
+              : "md:grid-cols-2 lg:grid-cols-3"
+          )}
+        >
           {services.map((srv, idx) => {
             const Icon = serviceIcons[srv.icon] || serviceIcons.Sparkles;
             const iconBg = iconBgStyles[idx % iconBgStyles.length];
@@ -189,8 +198,10 @@ export function ServicesClient({ dbServices }: ServicesClientProps) {
                     )}>
                       {Icon}
                     </div>
-                    <Badge tone="light" className="text-[10px] uppercase tracking-wider font-semibold">
-                      {idx + 1}/3
+                    {/* tone="light" is for dark backdrops only — on this
+                        light surface it renders white-on-white. */}
+                    <Badge className="text-[10px] font-semibold uppercase tracking-wider tabular-nums">
+                      {idx + 1}/{services.length}
                     </Badge>
                   </div>
 
@@ -210,7 +221,7 @@ export function ServicesClient({ dbServices }: ServicesClientProps) {
                           <li key={fi} className="flex items-start gap-2.5 text-sm text-fg-soft group transition-colors">
                             <span className={cn(
                               "shrink-0 mt-0.5 grid h-5 w-5 place-items-center rounded-lg",
-                              "bg-brand-500/10 text-brand-500 group:bg-brand-500 group:text-white transition-all duration-300"
+                              "bg-brand-500/10 text-brand-500 transition-all duration-300"
                             )}>
                               <Check className="h-3 w-3" />
                             </span>

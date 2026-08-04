@@ -209,7 +209,7 @@ export function QuickAccess() {
                 <a
                   href={d.href}
                   className={cn(
-                    "group relative flex h-full flex-col gap-3 rounded-3xl border p-4 sm:p-5 transition-all duration-500 ease-premium",
+                    "press group relative flex h-full flex-col gap-3 overflow-hidden rounded-3xl border p-4 sm:p-5 transition-all duration-500 ease-premium",
                     "hover:-translate-y-1.5 hover:shadow-lift",
                     styles.bg,
                     styles.border,
@@ -232,7 +232,7 @@ export function QuickAccess() {
                     >
                       <Icon className="h-[22px] w-[22px]" />
                     </span>
-                    <ArrowUpRight className="h-4 w-4 text-fg-muted transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand-500 opacity-0 group-hover:opacity-100" />
+                    <ArrowUpRight className="h-4 w-4 text-fg-muted opacity-40 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand-500 group-hover:opacity-100" />
                   </div>
 
                   <div className="mt-auto flex flex-col gap-1.5">
