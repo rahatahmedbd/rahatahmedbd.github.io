@@ -1,85 +1,138 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Container } from '@/components/ui/container';
-import { CityScene } from './city/CityScene';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Stars } from '@react-three/drei';
+import { AutoTour } from './vehicle/AutoTour';
+import { InfoPanel } from './ui/InfoPanel';
 
-// RahatVerse Foundation - Phase 06
-// 3D City Scene Foundation
+// RahatVerse - Phase 09: Vehicle System & Auto Tour
 
-export default function RahatVerseFoundation() {
+export default function RahatVerseExperience() {
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [currentStop, setCurrentStop] = useState<{ id: string; name: string; description: string } | null>(null);
+
+  const handleStopChange = (stop: { id: string; name: string; description: string }) => {
+    setCurrentStop(stop);
+  };
+
+  const handleTourComplete = () => {
+    setIsPlaying(false);
+  };
+
+  const handleClosePanel = () => {
+    setCurrentStop(null);
+  };
+
+  const handlePauseResume = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleRestart = () => {
+    setIsPlaying(true);
+    setCurrentStop(null);
+    window.location.reload(); // Simple restart
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0c12] text-white overflow-hidden">
       {/* Top Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/60 backdrop-blur-xl">
-        <Container>
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <div className="text-2xl">🏙️</div>
-                <div>
-                  <div className="font-semibold tracking-tight">RahatVerse</div>
-                  <div className="text-[10px] text-white/50 -mt-0.5">3D City Experience</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <Link href="/">
-                <Button variant="ghost" size="sm" className="text-white/70 hover:text-white">
-                  ← Back to Welcome
-                </Button>
-              </Link>
-              <Link href="/portfolio">
-                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10">
-                  Website Experience
-                </Button>
-              </Link>
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/70 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-6 flex h-16 items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="text-2xl">🏙️</div>
+            <div>
+              <div className="font-semibold tracking-tight">RahatVerse</div>
+              <div className="text-[10px] text-white/50 -mt-0.5">Auto Tour Experience</div>
             </div>
           </div>
-        </Container>
+
+          <div className="flex items-center gap-4">
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="text-white/70 hover:text-white">
+                ← Exit RahatVerse
+              </Button>
+            </Link>
+          </div>
+        </div>
       </nav>
 
-      {/* Hero Header */}
-      <div className="pt-20 pb-8 text-center">
-        <div className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-white/5 text-sm mb-4 border border-white/10">
-          PHASE 06 — FOUNDATION
-        </div>
-        <h1 className="text-5xl md:text-6xl font-semibold tracking-[-2.5px]">RahatVerse</h1>
-        <p className="text-white/60 mt-2">3D City Foundation Ready</p>
+      {/* 3D Scene */}
+      <div className="fixed inset-0 pt-16">
+        <Canvas
+          camera={{ position: [0, 65, 95], fov: 42 }}
+          style={{ background: '#0a0c12' }}
+        >
+          <ambientLight intensity={0.6} />
+          <directionalLight position={[90, 140, 70]} intensity={1.6} castShadow />
+
+          {/* Ground */}
+          <mesh rotation={[-Math.PI * 0.5, 0, 0]} position={[0, -0.6, 0]} receiveShadow>
+            <planeGeometry args={[320, 320]} />
+            <meshLambertMaterial color="#0f172a" />
+          </mesh>
+
+          {/* Roads */}
+          <mesh position={[0, 0.15, 0]} rotation={[0, 0, 0]}>
+            <boxGeometry args={[260, 0.4, 6]} />
+            <meshLambertMaterial color="#475569" />
+          </mesh>
+          <mesh position={[0, 0.15, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <boxGeometry args={[260, 0.4, 6]} />
+            <meshLambertMaterial color="#475569" />
+          </mesh>
+
+          {/* Buildings (Simplified) */}
+          <mesh position={[0, 16, 0]} castShadow>
+            <boxGeometry args={[24, 32, 24]} />
+            <meshLambertMaterial color="#1e40af" />
+          </mesh>
+
+          {/* Auto Tour Vehicle */}
+          <AutoTour 
+            isPlaying={isPlaying} 
+            onStopChange={handleStopChange}
+            onTourComplete={handleTourComplete}
+          />
+
+          <Stars radius={450} depth={90} count={1500} factor={3.5} fade speed={0.25} />
+          <OrbitControls enablePan enableZoom enableRotate minDistance={30} maxDistance={200} />
+        </Canvas>
       </div>
 
-      {/* 3D Scene Container */}
-      <div className="relative mx-auto max-w-[1200px] px-4">
-        <div className="aspect-video rounded-3xl overflow-hidden border border-white/10 bg-black relative">
-          <CityScene />
-        </div>
+      {/* Controls */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex gap-3">
+        <Button 
+          onClick={handlePauseResume} 
+          variant="outline" 
+          className="border-white/30 text-white hover:bg-white/10 px-8"
+        >
+          {isPlaying ? 'Pause Tour' : 'Resume Tour'}
+        </Button>
         
-        <div className="text-center mt-4 text-xs text-white/40">
-          Orbit Controls Enabled • Drag to rotate • Scroll to zoom
-        </div>
+        <Button 
+          onClick={handleRestart} 
+          variant="outline" 
+          className="border-white/30 text-white hover:bg-white/10"
+        >
+          Restart Tour
+        </Button>
+        
+        <Link href="/">
+          <Button variant="ghost" className="text-white/70 hover:text-white">
+            Exit
+          </Button>
+        </Link>
       </div>
 
-      {/* Foundation Status */}
-      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          {[
-            'Three.js + React Three Fiber',
-            'Modular Architecture',
-            'Camera System Ready',
-            'Vehicle System Ready',
-          ].map((item, index) => (
-            <div key={index} className="px-4 py-3 rounded-2xl bg-white/5 border border-white/10">
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Info Panel */}
+      <InfoPanel stop={currentStop} onClose={handleClosePanel} />
 
-      <div className="border-t border-white/10 py-8 text-center text-sm text-white/40">
-        RahatVerse Foundation • Phase 06 Complete
+      {/* Status Indicator */}
+      <div className="fixed top-24 right-6 z-50 text-xs bg-black/60 px-4 py-2 rounded-full border border-white/10">
+        {isPlaying ? '🚗 Auto Tour Active' : '⏸️ Tour Paused'}
       </div>
     </div>
   );
