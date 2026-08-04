@@ -1,14 +1,10 @@
 import "server-only";
 
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
 
 import { getServerEnvironment, isCloudinaryConfigured } from "@/config/env";
 
-/**
- * Returns a configured server-only Cloudinary SDK instance. This is an
- * integration boundary only; no uploads or media features are implemented in
- * Phase 0.
- */
+/** Returns a configured server-only Cloudinary SDK instance. */
 export function getCloudinaryServerClient() {
   const environment = getServerEnvironment();
   const cloudName = environment.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
@@ -29,4 +25,57 @@ export function getCloudinaryServerClient() {
   });
 
   return cloudinary;
+}
+
+export async function uploadMediaBuffer(
+  buffer: Buffer,
+  options: {
+    folder: string;
+    publicId?: string;
+    resourceType?: "image" | "video" | "raw" | "auto";
+    tags?: string[];
+  },
+): Promise<UploadApiResponse> {
+  const client = getCloudinaryServerClient();
+
+  return new Promise((resolve, reject) => {
+    const uploadStream = client.uploader.upload_stream(
+      {
+        folder: options.folder,
+        public_id: options.publicId,
+        resource_type: options.resourceType ?? "auto",
+        tags: ["rahat-platform", ...(options.tags ?? [])],
+        overwrite: false,
+        invalidate: true,
+        transformation:
+          options.resourceType === "video"
+            ? undefined
+            : [
+                {
+                  quality: "auto:good",
+                  fetch_format: "auto",
+                },
+              ],
+      },
+      (error, result) => {
+        if (error || !result) {
+          reject(error ?? new Error("Cloudinary upload failed."));
+          return;
+        }
+        resolve(result);
+      },
+    );
+
+    uploadStream.end(buffer);
+  });
+}
+
+export function buildCloudinaryOptimizedUrl(publicId: string, width = 1200): string {
+  const environment = getServerEnvironment();
+  const cloudName = environment.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  if (!cloudName) {
+    throw new Error("Cloudinary cloud name is not configured.");
+  }
+
+  return `https://res.cloudinary.com/${cloudName}/image/upload/f_auto,q_auto,w_${width}/${publicId}`;
 }

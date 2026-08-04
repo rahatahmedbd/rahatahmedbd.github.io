@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import {
@@ -31,10 +33,43 @@ export function createSupabaseServerClient(): SupabaseClient {
   });
 }
 
+/** Creates a cookie-aware server component client for Supabase Auth/RLS. */
+export async function createSupabaseCookieClient(): Promise<SupabaseClient> {
+  const environment = getServerEnvironment();
+  const url = environment.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = environment.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!isSupabaseConfigured(environment) || !url || !anonKey) {
+    throw new Error(
+      "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to server environment variables.",
+    );
+  }
+
+  const cookieStore = await cookies();
+
+  return createServerClient(url, anonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        } catch {
+          // Server Components cannot always mutate cookies. Middleware refreshes
+          // sessions before protected pages render, so this is safe to ignore.
+        }
+      },
+    },
+  });
+}
+
 /**
  * Creates an elevated server-only client. Never import this function from
- * client components, never expose its key, and use it only after RLS-safe
- * request authorization has been implemented in a future phase.
+ * client components and never expose its key. Route handlers must authorize the
+ * requester before calling data paths that use this client.
  */
 export function createSupabaseAdminClient(): SupabaseClient {
   const environment = getServerEnvironment();

@@ -25,6 +25,7 @@ export const publicEnvironmentSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: optionalHttpsUrl,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: optionalString,
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: optionalString,
+  NEXT_PUBLIC_APP_URL: optionalHttpsUrl,
 });
 
 export type PublicEnvironment = z.infer<typeof publicEnvironmentSchema>;
@@ -34,6 +35,7 @@ export function getPublicEnvironment(): PublicEnvironment {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   });
 
   if (!parsedEnvironment.success) {

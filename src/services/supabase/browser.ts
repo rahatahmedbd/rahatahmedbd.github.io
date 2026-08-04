@@ -1,12 +1,14 @@
 "use client";
 
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { getPublicEnvironment, isPublicSupabaseConfigured } from "@/config/public-env";
 
 /**
- * Creates a browser-safe Supabase client only after public configuration exists.
- * No service-role credential can enter this module or a client bundle.
+ * Creates a browser-safe Supabase client. The SSR helper stores auth state in
+ * secure cookies so middleware, server routes, and client components all share
+ * one session without exposing service-role credentials.
  */
 export function createSupabaseBrowserClient(): SupabaseClient {
   const environment = getPublicEnvironment();
@@ -15,9 +17,9 @@ export function createSupabaseBrowserClient(): SupabaseClient {
 
   if (!isPublicSupabaseConfigured(environment) || !url || !anonKey) {
     throw new Error(
-      "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local.",
+      "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to the environment.",
     );
   }
 
-  return createClient(url, anonKey);
+  return createBrowserClient(url, anonKey);
 }

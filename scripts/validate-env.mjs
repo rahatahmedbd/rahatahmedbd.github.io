@@ -8,6 +8,8 @@ const environmentKeys = [
   "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME",
   "CLOUDINARY_API_KEY",
   "CLOUDINARY_API_SECRET",
+  "ADMIN_EMAILS",
+  "NEXT_PUBLIC_APP_URL",
 ];
 
 const envFile = resolve(process.cwd(), ".env.local");
@@ -44,14 +46,16 @@ const values = Object.fromEntries(
 const isSet = (key) => Boolean(values[key]?.trim());
 const errors = [];
 
-if (isSet("NEXT_PUBLIC_SUPABASE_URL")) {
-  try {
-    const url = new URL(values.NEXT_PUBLIC_SUPABASE_URL);
-    if (url.protocol !== "https:") {
-      errors.push("NEXT_PUBLIC_SUPABASE_URL must use https.");
+for (const urlKey of ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_APP_URL"]) {
+  if (isSet(urlKey)) {
+    try {
+      const url = new URL(values[urlKey]);
+      if (url.protocol !== "https:") {
+        errors.push(`${urlKey} must use https.`);
+      }
+    } catch {
+      errors.push(`${urlKey} must be a valid URL.`);
     }
-  } catch {
-    errors.push("NEXT_PUBLIC_SUPABASE_URL must be a valid URL.");
   }
 }
 
