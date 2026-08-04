@@ -14,7 +14,12 @@ export const adminResourceSchema = z.enum([
 
 export const contentEntrySchema = z.object({
   resource: adminResourceSchema,
-  key: z.string().trim().min(2).max(80).regex(/^[a-z0-9_.-]+$/u),
+  key: z
+    .string()
+    .trim()
+    .min(2)
+    .max(80)
+    .regex(/^[a-z0-9_.-]+$/u),
   title: z.string().trim().min(1).max(160),
   data: z.record(z.string(), z.unknown()),
   status: z.enum(["draft", "published", "archived"]).default("published"),

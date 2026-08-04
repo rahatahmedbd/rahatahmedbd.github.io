@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 interface MiniMapProps {
   currentPosition: [number, number, number];
@@ -10,18 +10,23 @@ interface MiniMapProps {
 }
 
 const districts = [
-  { name: 'Website Store', x: 50, y: 50 },
-  { name: 'About Me', x: 50, y: 25 },
-  { name: 'Achievements', x: 75, y: 30 },
-  { name: 'Portfolio', x: 80, y: 50 },
-  { name: 'Blood Donation', x: 75, y: 75 },
-  { name: 'Gallery', x: 50, y: 80 },
-  { name: 'Education', x: 25, y: 75 },
-  { name: 'Skills', x: 20, y: 50 },
-  { name: 'Contact', x: 25, y: 25 },
+  { name: "Website Store", x: 50, y: 50 },
+  { name: "About Me", x: 50, y: 25 },
+  { name: "Achievements", x: 75, y: 30 },
+  { name: "Portfolio", x: 80, y: 50 },
+  { name: "Blood Donation", x: 75, y: 75 },
+  { name: "Gallery", x: 50, y: 80 },
+  { name: "Education", x: 25, y: 75 },
+  { name: "Skills", x: 20, y: 50 },
+  { name: "Contact", x: 25, y: 25 },
 ];
 
-export function MiniMap({ currentPosition, currentDistrict, isCollapsed = false, onToggle }: MiniMapProps) {
+export function MiniMap({
+  currentPosition,
+  currentDistrict,
+  isCollapsed = false,
+  onToggle,
+}: MiniMapProps) {
   const [x, , z] = currentPosition;
   const mapX = ((x + 130) / 260) * 100;
   const mapZ = ((z + 130) / 260) * 100;
@@ -30,8 +35,14 @@ export function MiniMap({ currentPosition, currentDistrict, isCollapsed = false,
     <div className="fixed top-24 right-6 z-50 bg-black/70 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden w-48">
       <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 text-sm">
         <div className="font-medium">Mini Map</div>
-        <button onClick={onToggle} className="text-white/60 hover:text-white text-xs">
-          {isCollapsed ? 'Show' : 'Hide'}
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={!isCollapsed}
+          aria-label={isCollapsed ? "Show mini map" : "Hide mini map"}
+          className="text-white/60 hover:text-white text-xs"
+        >
+          {isCollapsed ? "Show" : "Hide"}
         </button>
       </div>
 
@@ -48,7 +59,11 @@ export function MiniMap({ currentPosition, currentDistrict, isCollapsed = false,
             <div
               key={index}
               className="absolute w-2 h-2 bg-white/60 rounded-full"
-              style={{ left: `${district.x}%`, top: `${district.y}%`, transform: 'translate(-50%, -50%)' }}
+              style={{
+                left: `${district.x}%`,
+                top: `${district.y}%`,
+                transform: "translate(-50%, -50%)",
+              }}
             />
           ))}
 
@@ -58,7 +73,7 @@ export function MiniMap({ currentPosition, currentDistrict, isCollapsed = false,
             style={{
               left: `${mapX}%`,
               top: `${mapZ}%`,
-              transform: 'translate(-50%, -50%)',
+              transform: "translate(-50%, -50%)",
             }}
           />
 

@@ -7,12 +7,5 @@ export default defineConfig([
   ...nextCoreWebVitals,
   ...nextTypeScript,
   eslintConfigPrettier,
-  globalIgnores([
-    ".next/**",
-    "out/**",
-    "node_modules/**",
-    "coverage/**",
-    "public/**",
-    "src/content/portfolio-markup.ts",
-  ]),
+  globalIgnores([".next/**", "out/**", "node_modules/**", "coverage/**", "public/**"]),
 ]);

@@ -337,5 +337,3 @@ export function usePlatform(): PlatformContextValue {
   }
   return context;
 }
-
-export { initialOrderDraft };

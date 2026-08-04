@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useThree, useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
+import { useThree, useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 
 interface CameraControllerProps {
-  mode: 'follow' | 'free';
+  mode: "follow" | "free";
   targetPosition: [number, number, number];
   enabled?: boolean;
 }
@@ -14,7 +14,7 @@ export function CameraController({ mode, targetPosition, enabled = true }: Camer
 
   // Smooth follow camera
   useFrame(() => {
-    if (!enabled || mode !== 'follow') return;
+    if (!enabled || mode !== "follow") return;
 
     const target = new THREE.Vector3(...targetPosition);
     const offset = new THREE.Vector3(0, 35, 55);

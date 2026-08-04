@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React, { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
+import React, { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 
 interface LivingWorldProps {
-  timeOfDay: 'morning' | 'day' | 'evening' | 'night';
-  weather: 'sunny' | 'cloudy' | 'rain';
+  timeOfDay: "morning" | "day" | "evening" | "night";
+  weather: "sunny" | "cloudy" | "rain";
 }
 
 export function LivingWorld({ timeOfDay, weather }: LivingWorldProps) {
@@ -79,9 +79,7 @@ export function LivingWorld({ timeOfDay, weather }: LivingWorldProps) {
       </group>
 
       {/* Subtle Fog */}
-      {weather === 'cloudy' && (
-        <fog attach="fog" args={['#0f172a', 70, 240]} />
-      )}
+      {weather === "cloudy" && <fog attach="fog" args={["#0f172a", 70, 240]} />}
     </group>
   );
 }

@@ -99,6 +99,15 @@ export function usePlatformAuth(): PlatformAuthState {
       refresh,
       signOut,
     }),
-    [config.client, config.isConfigured, error, getAccessToken, isLoading, refresh, session, signOut],
+    [
+      config.client,
+      config.isConfigured,
+      error,
+      getAccessToken,
+      isLoading,
+      refresh,
+      session,
+      signOut,
+    ],
   );
 }

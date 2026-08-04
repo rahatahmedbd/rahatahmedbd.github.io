@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { usePlatformAuth } from "@/hooks/use-platform-auth";
+import { sanitizeRedirectPath } from "@/utils/safe-redirect";
 
 interface AuthPanelProps {
   title?: string;
@@ -20,7 +21,9 @@ export function AuthPanel({
   mode = "full",
 }: AuthPanelProps) {
   const searchParams = useSearchParams();
-  const nextPath = searchParams.get("next") ?? "/dashboard";
+  // The `next` parameter is user-controlled input; sanitize it before using it
+  // in redirects to prevent open-redirect attacks.
+  const nextPath = sanitizeRedirectPath(searchParams.get("next"));
   const auth = usePlatformAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -72,7 +75,9 @@ export function AuthPanel({
         emailRedirectTo: redirectUrl,
       },
     });
-    setStatus(error ? error.message : "Account created. Confirm your email if required, then sign in.");
+    setStatus(
+      error ? error.message : "Account created. Confirm your email if required, then sign in.",
+    );
     setIsSubmitting(false);
   };
 
@@ -115,20 +120,32 @@ export function AuthPanel({
       </div>
 
       <div className="space-y-4">
-        <Input
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="you@example.com"
-          autoComplete="email"
-        />
-        <Input
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          placeholder="Password (optional for magic link)"
-          autoComplete="current-password"
-        />
+        <div className="space-y-1.5">
+          <label htmlFor="auth-email" className="text-sm font-medium">
+            Email address
+          </label>
+          <Input
+            id="auth-email"
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="you@example.com"
+            autoComplete="email"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="auth-password" className="text-sm font-medium">
+            Password
+          </label>
+          <Input
+            id="auth-password"
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Password (optional for magic link)"
+            autoComplete="current-password"
+          />
+        </div>
         {status && <p className="text-sm text-[var(--color-text-secondary)]">{status}</p>}
         <div className="grid gap-3 sm:grid-cols-3">
           <Button onClick={handleMagicLink} disabled={isSubmitting || !email}>

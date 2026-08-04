@@ -1,6 +1,6 @@
 {
   "name": "rahat-ahmed-portfolio",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Rahat Ahmed's portfolio — a production-ready Next.js foundation.",
   "engines": {
@@ -26,7 +26,6 @@
     "@react-three/fiber": "^9.7.0",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.0",
-    "@types/three": "^0.185.3",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.10.0",
     "clsx": "^2.1.1",
@@ -44,6 +43,7 @@
     "@types/node": "^22.19.11",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.185.3",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.39.1",
     "eslint-config-next": "^16.3.0",

@@ -34,7 +34,12 @@ export function DistrictPanel({
               <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
             </div>
           </div>
-          <button onClick={onClose} className="text-3xl text-white/50 hover:text-white">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close district panel"
+            className="text-3xl text-white/50 hover:text-white"
+          >
             ×
           </button>
         </div>

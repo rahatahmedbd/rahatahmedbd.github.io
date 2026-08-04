@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireAuthenticatedAccount } from "@/lib/backend/auth";
 import { apiError, apiJson } from "@/lib/backend/http";
 import { logPlatformError } from "@/lib/backend/logger";
-import { checkRateLimit } from "@/lib/backend/rate-limit";
+import { checkRateLimit, pruneRateLimitBuckets } from "@/lib/backend/rate-limit";
 import { createSupabaseAdminClient } from "@/services/supabase/server";
 
 export const runtime = "nodejs";
@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    pruneRateLimitBuckets();
     const account = await requireAuthenticatedAccount(request);
     const limit = checkRateLimit(`message:${account.user.id}`, 20, 60 * 60 * 1000);
     if (!limit.allowed) {

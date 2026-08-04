@@ -69,13 +69,3 @@ export async function uploadMediaBuffer(
     uploadStream.end(buffer);
   });
 }
-
-export function buildCloudinaryOptimizedUrl(publicId: string, width = 1200): string {
-  const environment = getServerEnvironment();
-  const cloudName = environment.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  if (!cloudName) {
-    throw new Error("Cloudinary cloud name is not configured.");
-  }
-
-  return `https://res.cloudinary.com/${cloudName}/image/upload/f_auto,q_auto,w_${width}/${publicId}`;
-}
