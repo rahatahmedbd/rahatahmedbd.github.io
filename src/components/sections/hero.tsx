@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -87,7 +87,9 @@ export function Hero() {
   const router = useRouter();
   const prefetchOrder = useCallback(() => router.prefetch("/order"), [router]);
 
-  const roles = hero.chips.map((chip) => t(chip));
+  /* Stable identity per language so the rotation timer is not reset on
+     every parent render. */
+  const roles = useMemo(() => hero.chips.map((chip) => t(chip)), [t]);
 
   return (
     <section

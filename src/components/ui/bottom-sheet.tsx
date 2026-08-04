@@ -69,14 +69,12 @@ export function BottomSheet({
   const onPointerUp = useCallback(() => {
     if (!dragging.current) return;
     dragging.current = false;
-    setDragY((current) => {
-      const height = panelRef.current?.offsetHeight ?? 400;
-      if (current > Math.min(140, height * 0.28)) {
-        onClose();
-      }
-      return 0;
-    });
-  }, [onClose]);
+    const height = panelRef.current?.offsetHeight ?? 400;
+    // Read the committed value rather than mutating state inside an updater —
+    // side effects in a state updater run twice under StrictMode.
+    if (dragY > Math.min(140, height * 0.28)) onClose();
+    setDragY(0);
+  }, [dragY, onClose]);
 
   return (
     <div
@@ -105,7 +103,7 @@ export function BottomSheet({
           open ? "translate-y-0" : "translate-y-full sm:translate-y-6 sm:opacity-0",
           className
         )}
-        style={dragging.current || dragY ? { transform: `translateY(${dragY}px)` } : undefined}
+        style={dragY !== 0 ? { transform: `translateY(${dragY}px)` } : undefined}
       >
         {/* Grabber — the whole header area is draggable on touch */}
         <div

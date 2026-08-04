@@ -6,6 +6,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { BackToTop } from "@/components/layout/back-to-top";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { NavSpacer } from "@/components/layout/nav-spacer";
 import { InteractionLayer } from "@/components/layout/interaction-layer";
 import { ToastProvider } from "@/components/ui/toast";
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
@@ -179,7 +180,9 @@ export default async function RootLayout({
   return (
     <html lang="bn" suppressHydrationWarning>
       <head>
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        {/* Fonts are loaded from Google with preconnect + display=swap.
+            next/font is deliberately not used: it fetches at build time, so
+            a transient network failure would break the production build. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -205,7 +208,7 @@ export default async function RootLayout({
               <main id="main">{children}</main>
               {!isDashboardOrAuth && <Footer />}
               {/* Clearance so the fixed mobile bottom bar never covers content. */}
-              {!isDashboardOrAuth && <div aria-hidden className="pb-nav" />}
+              {!isDashboardOrAuth && <NavSpacer />}
               {!isDashboardOrAuth && <BackToTop />}
               {!isDashboardOrAuth && <MobileNav />}
               {!isDashboardOrAuth && <InteractionLayer />}

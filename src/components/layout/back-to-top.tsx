@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { ArrowUp } from "lucide-react";
 import { useScrollState } from "@/hooks/use-scroll-direction";
 import { cn } from "@/lib/utils";
@@ -15,7 +16,12 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
  */
 export function BackToTop() {
   const { progress } = useScrollState(12);
+  const pathname = usePathname();
   const visible = progress > 0.12;
+
+  /* The order route replaces the bottom navigation with its own, slightly
+     taller, summary + submit bar — lift the ring clear of it. */
+  const raised = pathname.startsWith("/order");
 
   return (
     <button
@@ -32,7 +38,10 @@ export function BackToTop() {
       className={cn(
         "press fixed right-4 z-[56] grid place-items-center rounded-full border border-border/15 bg-surface/85 text-fg shadow-lift backdrop-blur transition-all duration-400 ease-premium hover:border-brand-500/40",
         // Clear the mobile bottom bar; drop back down on large screens.
-        "bottom-[calc(5.5rem+env(safe-area-inset-bottom))] lg:bottom-[calc(1.5rem+env(safe-area-inset-bottom))] lg:right-6",
+        raised
+          ? "bottom-[calc(6.25rem+env(safe-area-inset-bottom))]"
+          : "bottom-[calc(5.5rem+env(safe-area-inset-bottom))]",
+        "lg:bottom-[calc(1.5rem+env(safe-area-inset-bottom))] lg:right-6",
         visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
       )}
       style={{ width: SIZE, height: SIZE }}
