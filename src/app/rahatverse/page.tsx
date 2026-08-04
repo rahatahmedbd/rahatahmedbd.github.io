@@ -11,6 +11,9 @@ import { MiniMap } from './ui/MiniMap';
 import { Controls } from './ui/Controls';
 import { CameraController } from './camera/CameraController';
 import { SmartDistricts } from './districts/SmartDistricts';
+import { AIAssistant } from './ai/AIAssistant';
+import { LivingWorld } from './world/LivingWorld';
+import { SettingsPanel } from './settings/SettingsPanel';
 
 // RahatVerse - Phase 10: Camera, Controls & Interaction
 
@@ -20,6 +23,15 @@ export default function RahatVerseExperience() {
   const [currentMode, setCurrentMode] = useState<'auto' | 'explore'>('auto');
   const [currentPosition] = useState<[number, number, number]>([0, 3, 0]);
   const [miniMapCollapsed, setMiniMapCollapsed] = useState(false);
+  const [timeOfDay, setTimeOfDay] = useState<'morning' | 'day' | 'evening' | 'night'>('day');
+  const [weather, setWeather] = useState<'sunny' | 'cloudy' | 'rain'>('sunny');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [worldSettings, setWorldSettings] = useState({
+    graphics: 'medium' as const,
+    sound: true,
+    music: false,
+    motion: true,
+  });
 
   const handleStopChange = (stop: { id: string; name: string; description: string }) => {
     setCurrentStop(stop);
@@ -148,6 +160,9 @@ export default function RahatVerseExperience() {
             onToggle={() => setMiniMapCollapsed(!miniMapCollapsed)}
           />
 
+          {/* Living World */}
+          <LivingWorld timeOfDay={timeOfDay} weather={weather} />
+
           {/* Smart Interactive Districts */}
           <SmartDistricts />
 
@@ -157,6 +172,25 @@ export default function RahatVerseExperience() {
           ? (isPlaying ? '🚗 Auto Tour Active' : '⏸️ Tour Paused') 
           : '🕹️ Explore Mode'}
       </div>
+
+      {/* AI Assistant */}
+      <AIAssistant />
+
+      {/* Settings Button */}
+      <button
+        onClick={() => setSettingsOpen(true)}
+        className="fixed top-24 left-6 z-50 px-4 py-2 rounded-full bg-black/60 border border-white/20 text-xs hover:bg-white/10"
+      >
+        ⚙️ Settings
+      </button>
+
+      {/* Settings Panel */}
+      <SettingsPanel 
+        isOpen={settingsOpen} 
+        onClose={() => setSettingsOpen(false)}
+        settings={worldSettings}
+        onSettingsChange={(newSettings) => setWorldSettings(newSettings)}
+      />
     </div>
   );
 }
