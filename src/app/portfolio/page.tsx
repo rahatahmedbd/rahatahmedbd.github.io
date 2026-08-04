@@ -83,9 +83,9 @@ export default function ModernPortfolio() {
 
             {/* Primary CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="#services">
-                <Button size="lg" className="px-10 text-lg">Order a Website</Button>
-              </a>
+              <Link href="/order">
+                <Button size="lg" className="px-10 text-lg">Order a Website →</Button>
+              </Link>
               <a href="#achievements">
                 <Button variant="outline" size="lg" className="px-10 text-lg">View Achievements</Button>
               </a>
@@ -235,9 +235,9 @@ export default function ModernPortfolio() {
                 </div>
                 
                 <div className="mt-auto pt-6">
-                  <a href="#contact">
-                    <Button variant="outline" className="w-full">Choose This Service</Button>
-                  </a>
+                  <Link href="/order">
+                    <Button variant="outline" className="w-full">Choose This Service →</Button>
+                  </Link>
                 </div>
               </Card>
             ))}
