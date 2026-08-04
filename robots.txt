@@ -1,0 +1,8 @@
+# robots.txt for Rahat Ahmed Portfolio
+# Website: https://rahatahmedbd.github.io
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://rahatahmedbd.github.io/sitemap.xml

@@ -1,0 +1,962 @@
+/* ========================================================
+   MAIN.CSS — Master Stylesheet
+   Rahat Ahmed Portfolio v2.0
+   
+   This file imports all CSS modules in the correct order.
+   Only THIS file should be linked in index.html
+   ======================================================== */
+
+/* ======================================================
+   IMPORT ORDER MATTERS!
+   
+   1. Variables    → Design tokens (colors, fonts, spacing)
+   2. Base         → Reset + typography foundations
+   3. Layout       → Grid system + containers
+   4. Animations   → Motion + reveal effects
+   5. Components   → Buttons, cards, forms, chips
+   6. Dark Mode    → Theme overrides (must be last)
+   ====================================================== */
+
+@import url('variables.css');
+@import url('base.css');
+@import url('layout.css');
+@import url('animations.css');
+@import url('components.css');
+@import url('dark-mode.css');
+
+/* ======================================================
+   GLOBAL OVERRIDES & FINAL TOUCHES
+   ====================================================== */
+
+/* Prevent horizontal scroll on entire page */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Better image rendering */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Selection styling (already in base, but ensuring priority) */
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  text-shadow: none;
+}
+
+/* Print styles */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  .nav,
+  .theme-toggle,
+  .lang-switch,
+  .btn,
+  footer {
+    display: none !important;
+  }
+  
+  a {
+    color: black !important;
+    text-decoration: underline !important;
+  }
+  
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+  }
+}
+
+/* ======================================================
+   FONT LOADING OPTIMIZATION
+   Font is loaded via HTML <link> with font-display: swap
+   This prevents FOUT/FOIT issues
+   ====================================================== */
+
+@font-face {
+  font-family: 'Fallback';
+  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  size-adjust: 100%;
+  ascent-override: 100%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+}
+/* ========================================================
+   URGENT FIXES — Applied After Testing
+   ======================================================== */
+
+/* ==============================================
+   FIX 1: Force Light Mode as Default
+   ============================================== */
+:root {
+  color-scheme: light !important;
+}
+
+/* Only apply dark mode when explicitly set */
+:root:not([data-theme="dark"]) {
+  --color-bg:               #FBF8F3 !important;
+  --color-bg-alt:           #F3EEE4 !important;
+  --color-bg-elevated:      #FFFFFF !important;
+  --color-bg-overlay:       rgba(251, 248, 243, 0.92) !important;
+  --color-text:             #221A15 !important;
+  --color-text-soft:        #5A4F45 !important;
+  --color-text-muted:       #8B7F73 !important;
+  --color-border:           rgba(34, 26, 21, 0.10) !important;
+  --color-border-strong:    rgba(34, 26, 21, 0.18) !important;
+}
+
+/* Remove auto dark mode from prefers-color-scheme */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="dark"]) {
+    --color-bg:               #FBF8F3 !important;
+    --color-bg-alt:           #F3EEE4 !important;
+    --color-bg-elevated:      #FFFFFF !important;
+    --color-text:             #221A15 !important;
+    --color-text-soft:        #5A4F45 !important;
+  }
+}
+
+/* ==============================================
+   FIX 2: Hide Mobile Menu by Default
+   ============================================== */
+
+/* Hide mobile drawer completely by default */
+.nav__mobile {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+  width: 85% !important;
+  max-width: 360px !important;
+  transform: translateX(100%) !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  transition: transform 0.3s ease, visibility 0.3s ease, opacity 0.3s ease !important;
+  z-index: 1000 !important;
+  background: var(--color-bg-elevated) !important;
+  overflow-y: auto !important;
+  padding: 80px 24px 40px !important;
+  box-shadow: -10px 0 40px -10px rgba(0, 0, 0, 0.2) !important;
+  display: block !important;
+}
+
+.nav__mobile.is-open {
+  transform: translateX(0) !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Hide backdrop by default */
+.nav__backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  z-index: 999 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: opacity 0.3s ease, visibility 0.3s ease !important;
+}
+
+.nav__backdrop.is-visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* ==============================================
+   FIX 3: Desktop vs Mobile Menu Display
+   ============================================== */
+
+/* On Mobile — Hide desktop menu, show toggle */
+.nav__menu {
+  display: none !important;
+}
+
+.nav__toggle {
+  display: inline-flex !important;
+}
+
+.nav__cta {
+  display: none !important;
+}
+
+/* On Desktop (900px+) — Show desktop menu, hide mobile */
+@media (min-width: 900px) {
+  .nav__menu {
+    display: flex !important;
+  }
+  
+  .nav__cta {
+    display: inline-flex !important;
+  }
+  
+  .nav__toggle {
+    display: none !important;
+  }
+  
+  .nav__mobile,
+  .nav__backdrop {
+    display: none !important;
+  }
+}
+
+/* ==============================================
+   FIX 4: Hero Image Circle Overflow
+   ============================================== */
+
+.hero__avatar {
+  overflow: hidden !important;
+  border-radius: 50% !important;
+}
+
+.hero__avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 50% !important;
+  display: block !important;
+}
+
+/* ==============================================
+   FIX 5: Section Backgrounds
+   ============================================== */
+
+.section {
+  background: var(--color-bg);
+}
+
+.section--dark {
+  background: var(--color-bg-alt);
+}
+
+/* ==============================================
+   FIX 6: Body Background Force Light
+   ============================================== */
+
+body {
+  background-color: #FBF8F3 !important;
+  color: #221A15 !important;
+}
+
+body[data-theme="dark"],
+[data-theme="dark"] body {
+  background-color: #0F0D0B !important;
+  color: #F5F0E8 !important;
+}
+
+/* ==============================================
+   FIX 7: Ensure Nav Container Alignment
+   ============================================== */
+
+.nav__container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 16px !important;
+  max-width: var(--container-lg) !important;
+  margin: 0 auto !important;
+}
+
+.nav__controls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* ==============================================
+   FIX 8: Language & Theme Buttons Sizes
+   ============================================== */
+
+.lang-switch {
+  display: inline-flex !important;
+  padding: 3px !important;
+}
+
+.lang-switch__btn {
+  padding: 5px 10px !important;
+  font-size: 11px !important;
+}
+
+.theme-toggle {
+  width: 38px !important;
+  height: 38px !important;
+}
+
+.nav__toggle {
+  width: 42px !important;
+  height: 42px !important;
+  padding: 8px !important;
+}
+
+/* ==============================================
+   FIX 9: Skip Link Hidden Properly
+   ============================================== */
+
+.skip-to-main {
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  z-index: 9999 !important;
+}
+
+.skip-to-main:focus {
+  left: 12px !important;
+  top: 12px !important;
+}
+
+/* ==============================================
+   FIX 10: Prevent Any Overflow
+   ============================================== */
+
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+}
+
+section {
+  overflow-x: hidden !important;
+}
+/* ========================================================
+   BRIGHT THEME OVERRIDE — Force Light Mode
+   Applied: Final Fix
+   ======================================================== */
+
+/* ============================================
+   1. FORCE LIGHT MODE VARIABLES
+   ============================================ */
+:root,
+:root:not([data-theme="dark"]),
+html:not([data-theme="dark"]) {
+  --color-bg:               #FFFBF5 !important;
+  --color-bg-alt:           #F5EFE4 !important;
+  --color-bg-elevated:      #FFFFFF !important;
+  --color-bg-overlay:       rgba(255, 251, 245, 0.92) !important;
+  
+  --color-text:             #1A1410 !important;
+  --color-text-soft:        #4A3F35 !important;
+  --color-text-muted:       #7B6F63 !important;
+  --color-text-inverse:     #FFFFFF !important;
+  
+  --color-border:           rgba(26, 20, 16, 0.12) !important;
+  --color-border-strong:    rgba(26, 20, 16, 0.20) !important;
+  
+  --color-primary:          #8B0F32 !important;
+  --color-primary-light:    #B01A45 !important;
+  --color-primary-dark:     #5A0A20 !important;
+  --color-primary-soft:     rgba(139, 15, 50, 0.08) !important;
+  
+  --glass-bg:               rgba(255, 251, 245, 0.85) !important;
+  --glass-border:           rgba(139, 15, 50, 0.15) !important;
+}
+
+/* ============================================
+   2. REMOVE SYSTEM DARK PREFERENCE
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="dark"]) {
+    --color-bg:               #FFFBF5 !important;
+    --color-bg-alt:           #F5EFE4 !important;
+    --color-bg-elevated:      #FFFFFF !important;
+    --color-text:             #1A1410 !important;
+    --color-text-soft:        #4A3F35 !important;
+    --color-text-muted:       #7B6F63 !important;
+    --color-border:           rgba(26, 20, 16, 0.12) !important;
+  }
+}
+
+/* ============================================
+   3. FORCE BODY BACKGROUND
+   ============================================ */
+html {
+  background-color: #FFFBF5 !important;
+}
+
+body {
+  background-color: #FFFBF5 !important;
+  color: #1A1410 !important;
+}
+
+/* Only when explicitly set to dark */
+html[data-theme="dark"] {
+  background-color: #0F0D0B !important;
+}
+
+html[data-theme="dark"] body {
+  background-color: #0F0D0B !important;
+  color: #F5F0E8 !important;
+}
+
+/* ============================================
+   4. NAVIGATION BACKGROUND
+   ============================================ */
+.nav {
+  background: rgba(255, 251, 245, 0.90) !important;
+  
+  border-bottom: 1px solid rgba(26, 20, 16, 0.08) !important;
+}
+
+.nav.is-scrolled {
+  background: rgba(255, 251, 245, 0.95) !important;
+  box-shadow: 0 4px 20px -8px rgba(26, 20, 16, 0.12) !important;
+}
+
+.nav__link {
+  color: #4A3F35 !important;
+}
+
+.nav__link:hover,
+.nav__link.is-active {
+  color: #8B0F32 !important;
+  background: rgba(139, 15, 50, 0.08) !important;
+}
+
+.nav__brand-name {
+  color: #1A1410 !important;
+}
+
+.nav__brand-role {
+  color: #7B6F63 !important;
+}
+
+/* ============================================
+   5. HERO SECTION BACKGROUND
+   ============================================ */
+.hero {
+  background: linear-gradient(
+    180deg,
+    #FFFBF5 0%,
+    #F5EFE4 100%
+  ) !important;
+}
+
+.hero__bg {
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(139, 15, 50, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(201, 154, 62, 0.06) 0%, transparent 50%) !important;
+}
+
+.hero__glow--1 {
+  background: #8B0F32 !important;
+  opacity: 0.15 !important;
+}
+
+.hero__glow--2 {
+  background: #C99A3E !important;
+  opacity: 0.15 !important;
+}
+
+.hero__title-main {
+  color: #1A1410 !important;
+}
+
+.hero__subtitle {
+  color: #4A3F35 !important;
+}
+
+/* ============================================
+   6. SECTION BACKGROUNDS
+   ============================================ */
+.section {
+  background-color: #FFFBF5 !important;
+}
+
+.section--dark {
+  background-color: #F5EFE4 !important;
+}
+
+/* Blood section stays crimson */
+.section--primary,
+.blood {
+  background: linear-gradient(
+    165deg,
+    #5A0A20,
+    #8B0F32 60%
+  ) !important;
+  color: #FFFFFF !important;
+}
+
+/* Tribute stays dark warm */
+.section--tribute,
+.tribute {
+  background-color: #1A1613 !important;
+  color: #E8E0D5 !important;
+}
+
+/* ============================================
+   7. CARDS
+   ============================================ */
+.card,
+.timeline__card,
+.achievement-card,
+.role-card,
+.initiative-card,
+.contact-method,
+.social-btn,
+.gallery-item {
+  background-color: #FFFFFF !important;
+  border: 1px solid rgba(26, 20, 16, 0.10) !important;
+  color: #1A1410 !important;
+  box-shadow: 0 4px 20px -8px rgba(26, 20, 16, 0.08) !important;
+}
+
+.card:hover,
+.timeline__card:hover,
+.achievement-card:hover,
+.role-card:hover,
+.initiative-card:hover,
+.contact-method:hover,
+.social-btn:hover,
+.gallery-item:hover {
+  box-shadow: 0 12px 30px -10px rgba(26, 20, 16, 0.15) !important;
+  border-color: rgba(139, 15, 50, 0.30) !important;
+}
+
+/* Dark cards inside blood section stay dark */
+.blood .card--dark,
+.blood-stat,
+.blood-service {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #FFFFFF !important;
+}
+
+/* Card text colors */
+.card__title,
+.timeline__title,
+.achievement-card__title,
+.role-card__title,
+.initiative-card__title,
+.gallery-item__title {
+  color: #1A1410 !important;
+}
+
+.card__text,
+.timeline__desc,
+.achievement-card__desc,
+.role-card__desc,
+.initiative-card__desc,
+.gallery-item__meta {
+  color: #4A3F35 !important;
+}
+
+/* ============================================
+   8. TEXT COLORS EVERYWHERE
+   ============================================ */
+h1, h2, h3, h4, h5, h6 {
+  color: #1A1410 !important;
+}
+
+p {
+  color: #4A3F35 !important;
+}
+
+/* Section headers */
+.section-header__title {
+  color: #1A1410 !important;
+}
+
+.section-header__subtitle {
+  color: #4A3F35 !important;
+}
+
+.section-header__eyebrow {
+  color: #8B0F32 !important;
+  background: rgba(139, 15, 50, 0.10) !important;
+}
+
+/* Light variant for dark sections */
+.section-header--light .section-header__title,
+.blood .section-header__title,
+.tribute .section-header__title {
+  color: #FFFFFF !important;
+}
+
+.section-header--light .section-header__subtitle,
+.blood .section-header__subtitle {
+  color: rgba(255, 255, 255, 0.90) !important;
+}
+
+.tribute .section-header__title {
+  color: #E8E0D5 !important;
+}
+
+.tribute .section-header__subtitle {
+  color: rgba(232, 224, 213, 0.75) !important;
+}
+
+/* ============================================
+   9. CHIPS & TAGS
+   ============================================ */
+.chip {
+  background: #F5EFE4 !important;
+  color: #4A3F35 !important;
+  border: 1px solid rgba(26, 20, 16, 0.12) !important;
+}
+
+.chip:hover {
+  background: rgba(139, 15, 50, 0.08) !important;
+  color: #8B0F32 !important;
+}
+
+.chip--primary,
+.chip--blood {
+  background: #8B0F32 !important;
+  color: #FFFFFF !important;
+  border-color: #8B0F32 !important;
+}
+
+.chip--outline {
+  background: transparent !important;
+  color: #8B0F32 !important;
+  border-color: #8B0F32 !important;
+}
+
+/* ============================================
+   10. BUTTONS
+   ============================================ */
+.btn--primary {
+  background: #8B0F32 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 8px 20px -8px rgba(139, 15, 50, 0.45) !important;
+}
+
+.btn--primary:hover {
+  background: #B01A45 !important;
+  color: #FFFFFF !important;
+}
+
+.btn--secondary,
+.btn--ghost {
+  background: #FFFFFF !important;
+  color: #1A1410 !important;
+  border-color: rgba(26, 20, 16, 0.20) !important;
+}
+
+.btn--ghost:hover,
+.btn--secondary:hover {
+  background: rgba(139, 15, 50, 0.08) !important;
+  color: #8B0F32 !important;
+  border-color: #8B0F32 !important;
+}
+
+/* ============================================
+   11. FORM INPUTS
+   ============================================ */
+.form-input,
+.form-textarea,
+.form-select {
+  background: #FFFBF5 !important;
+  border: 1.5px solid rgba(26, 20, 16, 0.15) !important;
+  color: #1A1410 !important;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  background: #FFFFFF !important;
+  border-color: #8B0F32 !important;
+  box-shadow: 0 0 0 4px rgba(139, 15, 50, 0.10) !important;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #A89B8E !important;
+}
+
+.form-label {
+  color: #1A1410 !important;
+}
+
+/* ============================================
+   12. TIMELINE
+   ============================================ */
+.timeline__line {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    #8B0F32 5%,
+    #8B0F32 95%,
+    transparent
+  ) !important;
+}
+
+.timeline__marker {
+  background: #FFFFFF !important;
+  border-color: #8B0F32 !important;
+}
+
+.timeline__year {
+  color: #8B0F32 !important;
+}
+
+.timeline__institution {
+  color: #8B0F32 !important;
+}
+
+/* ============================================
+   13. FOOTER
+   ============================================ */
+.footer {
+  background: #F5EFE4 !important;
+  color: #4A3F35 !important;
+  border-top: 1px solid rgba(26, 20, 16, 0.10) !important;
+}
+
+.footer__link {
+  color: #4A3F35 !important;
+}
+
+.footer__link:hover {
+  color: #8B0F32 !important;
+}
+
+.footer__title {
+  color: #1A1410 !important;
+}
+
+.footer__brand-name {
+  color: #1A1410 !important;
+}
+
+.footer__brand-role,
+.footer__location,
+.footer__version {
+  color: #7B6F63 !important;
+}
+
+.footer__social-btn {
+  background: #FFFFFF !important;
+  color: #4A3F35 !important;
+  border: 1px solid rgba(26, 20, 16, 0.10) !important;
+}
+
+.footer__social-btn:hover {
+  background: #8B0F32 !important;
+  color: #FFFFFF !important;
+  border-color: #8B0F32 !important;
+}
+
+/* ============================================
+   14. QUOTE
+   ============================================ */
+.quote,
+.about__quote {
+  background: #F5EFE4 !important;
+  color: #1A1410 !important;
+  border-left-color: #C99A3E !important;
+}
+
+.quote p {
+  color: #1A1410 !important;
+}
+
+/* ============================================
+   15. ABOUT FACTS
+   ============================================ */
+.about__fact {
+  background: #F5EFE4 !important;
+}
+
+.about__fact:hover {
+  background: rgba(139, 15, 50, 0.08) !important;
+}
+
+.about__fact-value {
+  color: #1A1410 !important;
+}
+
+.about__fact-label {
+  color: #7B6F63 !important;
+}
+
+/* ============================================
+   16. HERO EYEBROW
+   ============================================ */
+.hero__eyebrow {
+  background: rgba(139, 15, 50, 0.10) !important;
+  color: #8B0F32 !important;
+}
+
+.hero__title-sub {
+  color: #8B0F32 !important;
+}
+
+/* ============================================
+   17. LANGUAGE & THEME TOGGLES
+   ============================================ */
+.lang-switch {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(26, 20, 16, 0.15) !important;
+}
+
+.lang-switch__btn {
+  color: #4A3F35 !important;
+}
+
+.lang-switch__btn.is-active {
+  background: #8B0F32 !important;
+  color: #FFFFFF !important;
+}
+
+.theme-toggle {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(26, 20, 16, 0.15) !important;
+  color: #4A3F35 !important;
+}
+
+.theme-toggle:hover {
+  border-color: #8B0F32 !important;
+}
+
+/* ============================================
+   18. NAV TOGGLE (MOBILE)
+   ============================================ */
+.nav__toggle {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(26, 20, 16, 0.15) !important;
+}
+
+.nav__toggle-bar {
+  background: #1A1410 !important;
+}
+
+/* ============================================
+   19. MOBILE MENU
+   ============================================ */
+.nav__mobile {
+  background: #FFFFFF !important;
+}
+
+.nav__mobile-link {
+  color: #1A1410 !important;
+}
+
+.nav__mobile-link:hover,
+.nav__mobile-link.is-active {
+  background: rgba(139, 15, 50, 0.08) !important;
+  color: #8B0F32 !important;
+  border-left-color: #8B0F32 !important;
+}
+
+/* ============================================
+   20. ACHIEVEMENT STATS
+   ============================================ */
+.achievements__stat-number {
+  color: #8B0F32 !important;
+}
+
+.achievements__stat-label {
+  color: #4A3F35 !important;
+}
+
+.achievements__cta {
+  background: rgba(139, 15, 50, 0.08) !important;
+}
+
+.achievements__cta-text {
+  color: #8B0F32 !important;
+}
+
+/* ============================================
+   21. INITIATIVE CARDS DETAILS
+   ============================================ */
+.initiative-card__details {
+  background: #F5EFE4 !important;
+}
+
+.initiative-card__detail-label {
+  color: #1A1410 !important;
+}
+
+.initiative-card__role {
+  color: #8B0F32 !important;
+}
+
+/* ============================================
+   22. GALLERY
+   ============================================ */
+.gallery-item {
+  background: #FFFFFF !important;
+}
+
+.gallery-item__caption {
+  background: #FFFFFF !important;
+}
+
+.gallery__info {
+  background: #F5EFE4 !important;
+}
+
+.gallery__info-text {
+  color: #4A3F35 !important;
+}
+
+/* ============================================
+   23. CONTACT
+   ============================================ */
+.contact__methods-title,
+.contact__social-title,
+.contact__form-title {
+  color: #1A1410 !important;
+}
+
+.contact-method__value,
+.contact-method__body {
+  color: #1A1410 !important;
+}
+
+.contact-method__label,
+.contact-method__arrow {
+  color: #7B6F63 !important;
+}
+
+.contact__response {
+  background: rgba(139, 15, 50, 0.08) !important;
+  border-left: 4px solid #8B0F32 !important;
+}
+
+.contact__response-body strong {
+  color: #1A1410 !important;
+}
+
+.social-btn__name {
+  color: #1A1410 !important;
+}
+
+.social-btn__handle {
+  color: #7B6F63 !important;
+}
+
+/* ============================================
+   24. SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar-track {
+  background: #F5EFE4 !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 15, 50, 0.30) !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8B0F32 !important;
+}
+
+/* ============================================
+   25. SELECTION
+   ============================================ */
+::selection {
+  background: #8B0F32 !important;
+  color: #FFFFFF !important;
+}
