@@ -111,13 +111,27 @@ export function PlatformNavigation() {
             ))}
           </div>
 
-          <div className="flex items-center justify-between gap-2 border-t border-[var(--color-border)] pt-3">
+          <div className="grid grid-cols-2 gap-2 border-t border-[var(--color-border)] pt-3">
             <button
               type="button"
               onClick={() => setLanguage(language === "bn" ? "en" : "bn")}
               className="rounded-xl px-3 py-2 text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]"
             >
               {language === "bn" ? "বাংলা" : "English"}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleWebsiteSection("/dashboard")}
+              className="rounded-xl px-3 py-2 text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]"
+            >
+              Client Portal
+            </button>
+            <button
+              type="button"
+              onClick={() => handleWebsiteSection("/admin")}
+              className="rounded-xl px-3 py-2 text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]"
+            >
+              Admin
             </button>
             <button
               type="button"

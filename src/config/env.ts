@@ -30,6 +30,8 @@ const serverEnvironmentSchema = z.object({
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: optionalString,
   CLOUDINARY_API_KEY: optionalString,
   CLOUDINARY_API_SECRET: optionalString,
+  ADMIN_EMAILS: optionalString,
+  NEXT_PUBLIC_APP_URL: optionalHttpsUrl,
 });
 
 export type ServerEnvironment = z.infer<typeof serverEnvironmentSchema>;
@@ -42,6 +44,8 @@ export function getServerEnvironment(): ServerEnvironment {
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+    ADMIN_EMAILS: process.env.ADMIN_EMAILS,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   });
 
   if (!parsedEnvironment.success) {

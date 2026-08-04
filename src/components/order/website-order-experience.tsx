@@ -99,13 +99,43 @@ export default function WebsiteOrderExperience() {
     if (!selectedType || !selectedPackage || !validateContact()) return;
 
     setIsSubmitting(true);
-    // Replace this boundary with the server action/API integration when orders
-    // are connected to Supabase; validation remains on the client and server.
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    setValidationError("");
 
-    const newOrderId = `ORD-${Date.now().toString().slice(-6)}`;
-    updateOrderDraft({ isSubmitted: true, orderId: newOrderId });
-    setIsSubmitting(false);
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          selectedTypeId: selectedType.id,
+          selectedPackageId: selectedPackage.id,
+          selectedExtras,
+          contact: formData,
+          source: "website",
+        }),
+      });
+      const payload = (await response.json()) as {
+        order?: { orderNumber?: string };
+        error?: string;
+        issues?: string[];
+      };
+
+      if (!response.ok) {
+        throw new Error(payload.issues?.[0] ?? payload.error ?? "Could not submit the order.");
+      }
+
+      updateOrderDraft({
+        isSubmitted: true,
+        orderId: payload.order?.orderNumber ?? `ORD-${Date.now().toString().slice(-6)}`,
+      });
+    } catch (error) {
+      setValidationError(
+        error instanceof Error
+          ? error.message
+          : "Could not submit the order. Please try again or contact Rahat directly.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Success Screen
@@ -535,6 +565,15 @@ export default function WebsiteOrderExperience() {
                 </div>
               </div>
             </Card>
+
+            {validationError && (
+              <p
+                role="alert"
+                className="mb-5 rounded-xl border border-[var(--color-error)]/30 bg-[var(--color-error)]/10 p-3 text-sm text-[var(--color-error-dark)]"
+              >
+                {validationError}
+              </p>
+            )}
 
             <form onSubmit={handleSubmitOrder}>
               <div className="flex gap-4">
