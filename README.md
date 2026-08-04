@@ -74,4 +74,5 @@ public/
 ## Deployment notes
 
 - Vercel uses the standard Next.js server build so future server-only integrations can be added safely.
+- The legacy GitHub Pages root (`https://rahatahmedbd.github.io/`) forwards to the Vercel production site, so existing visitors reach the same portfolio while Vercel remains the deployment runtime.
 - Do not commit `.next`, `out`, `node_modules`, `.vercel`, or `.env.local`.
