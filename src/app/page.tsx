@@ -15,7 +15,8 @@ import { Faqs } from "@/components/sections/faqs";
 import { Gallery } from "@/components/sections/gallery";
 import { Contact } from "@/components/sections/contact";
 import { OrderCta } from "@/components/sections/order-cta";
-import { VerseInvite } from "@/components/sections/verse-invite";
+// VerseInvite removed (caused loading issues from recent RahatVerse update)
+// import { VerseInvite } from "@/components/sections/verse-invite";
 
 /**
  * The homepage is the whole product: one continuous journey from
@@ -60,8 +61,7 @@ export default function HomePage() {
         <Tribute />
       </div>
 
-      {/* An optional door, never a detour */}
-      <VerseInvite />
+      {/* VerseInvite removed (caused loading issues from recent RahatVerse update) */}
 
       {/* CONTACT */}
       <div id="contact" className="scroll-mt-20">
