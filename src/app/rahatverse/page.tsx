@@ -26,12 +26,15 @@ export default function RahatVerseExperience() {
   const [timeOfDay] = useState<'morning' | 'day' | 'evening' | 'night'>('day');
   const [weather] = useState<'sunny' | 'cloudy' | 'rain'>('sunny');
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [worldSettings, setWorldSettings] = useState<{
-    graphics: 'low' | 'medium' | 'high';
+
+  type GameSettings = {
+    graphics: "low" | "medium" | "high";
     sound: boolean;
     music: boolean;
     motion: boolean;
-  }>({
+  };
+
+  const [worldSettings, setWorldSettings] = useState<GameSettings>({
     graphics: 'medium',
     sound: true,
     music: false,
