@@ -7,12 +7,18 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import { AutoTour } from './vehicle/AutoTour';
 import { InfoPanel } from './ui/InfoPanel';
+import { MiniMap } from './ui/MiniMap';
+import { Controls } from './ui/Controls';
+import { CameraController } from './camera/CameraController';
 
-// RahatVerse - Phase 09: Vehicle System & Auto Tour
+// RahatVerse - Phase 10: Camera, Controls & Interaction
 
 export default function RahatVerseExperience() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentStop, setCurrentStop] = useState<{ id: string; name: string; description: string } | null>(null);
+  const [currentMode, setCurrentMode] = useState<'auto' | 'explore'>('auto');
+  const [currentPosition] = useState<[number, number, number]>([0, 3, 0]);
+  const [miniMapCollapsed, setMiniMapCollapsed] = useState(false);
 
   const handleStopChange = (stop: { id: string; name: string; description: string }) => {
     setCurrentStop(stop);
@@ -33,7 +39,12 @@ export default function RahatVerseExperience() {
   const handleRestart = () => {
     setIsPlaying(true);
     setCurrentStop(null);
-    window.location.reload(); // Simple restart
+    window.location.reload();
+  };
+
+  const handleModeSwitch = (mode: 'auto' | 'explore') => {
+    setCurrentMode(mode);
+    if (mode === 'explore') setIsPlaying(false);
   };
 
   return (
@@ -45,7 +56,7 @@ export default function RahatVerseExperience() {
             <div className="text-2xl">🏙️</div>
             <div>
               <div className="font-semibold tracking-tight">RahatVerse</div>
-              <div className="text-[10px] text-white/50 -mt-0.5">Auto Tour Experience</div>
+              <div className="text-[10px] text-white/50 -mt-0.5">Interactive Experience</div>
             </div>
           </div>
 
@@ -84,7 +95,7 @@ export default function RahatVerseExperience() {
             <meshLambertMaterial color="#475569" />
           </mesh>
 
-          {/* Buildings (Simplified) */}
+          {/* Buildings */}
           <mesh position={[0, 16, 0]} castShadow>
             <boxGeometry args={[24, 32, 24]} />
             <meshLambertMaterial color="#1e40af" />
@@ -97,42 +108,50 @@ export default function RahatVerseExperience() {
             onTourComplete={handleTourComplete}
           />
 
+          {/* Camera Controller */}
+          <CameraController 
+            mode={currentMode === 'auto' ? 'follow' : 'free'} 
+            targetPosition={currentPosition}
+            enabled={currentMode === 'auto'}
+          />
+
           <Stars radius={450} depth={90} count={1500} factor={3.5} fade speed={0.25} />
-          <OrbitControls enablePan enableZoom enableRotate minDistance={30} maxDistance={200} />
+          <OrbitControls 
+            enablePan 
+            enableZoom 
+            enableRotate 
+            minDistance={25} 
+            maxDistance={220} 
+            enabled={currentMode === 'explore'}
+          />
         </Canvas>
       </div>
 
       {/* Controls */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex gap-3">
-        <Button 
-          onClick={handlePauseResume} 
-          variant="outline" 
-          className="border-white/30 text-white hover:bg-white/10 px-8"
-        >
-          {isPlaying ? 'Pause Tour' : 'Resume Tour'}
-        </Button>
-        
-        <Button 
-          onClick={handleRestart} 
-          variant="outline" 
-          className="border-white/30 text-white hover:bg-white/10"
-        >
-          Restart Tour
-        </Button>
-        
-        <Link href="/">
-          <Button variant="ghost" className="text-white/70 hover:text-white">
-            Exit
-          </Button>
-        </Link>
-      </div>
+      <Controls 
+        isPlaying={isPlaying} 
+        onPauseResume={handlePauseResume}
+        onRestart={handleRestart}
+        onModeSwitch={handleModeSwitch}
+        currentMode={currentMode}
+      />
 
       {/* Info Panel */}
       <InfoPanel stop={currentStop} onClose={handleClosePanel} />
 
+      {/* Mini Map */}
+      <MiniMap 
+        currentPosition={currentPosition} 
+        currentDistrict={currentStop?.name || 'Website Store'}
+        isCollapsed={miniMapCollapsed}
+        onToggle={() => setMiniMapCollapsed(!miniMapCollapsed)}
+      />
+
       {/* Status Indicator */}
       <div className="fixed top-24 right-6 z-50 text-xs bg-black/60 px-4 py-2 rounded-full border border-white/10">
-        {isPlaying ? '🚗 Auto Tour Active' : '⏸️ Tour Paused'}
+        {currentMode === 'auto' 
+          ? (isPlaying ? '🚗 Auto Tour Active' : '⏸️ Tour Paused') 
+          : '🕹️ Explore Mode'}
       </div>
     </div>
   );
