@@ -278,7 +278,7 @@ function StoreContent({ onOrdered }: { onOrdered?: (ref: string) => void }) {
         </HoloCard>
       </PanelSection>
 
-      <OrderFlow variant="verse" onSubmitted={(ref) => onOrdered?.(ref)} />
+      <OrderFlow variant="verse" stickyBar={false} onSubmitted={(ref) => onOrdered?.(ref)} />
     </>
   );
 }

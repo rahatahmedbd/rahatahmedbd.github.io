@@ -10,7 +10,7 @@ type Variant = "primary" | "secondary" | "ghost" | "light" | "gold";
 type Size = "sm" | "md" | "lg";
 
 const base =
-  "group relative inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-300 ease-premium focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60";
+  "group relative inline-flex select-none items-center justify-center gap-2 overflow-hidden rounded-full font-semibold transition-all duration-300 ease-premium active:scale-[0.97] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100";
 
 const variants: Record<Variant, string> = {
   primary:
@@ -23,8 +23,9 @@ const variants: Record<Variant, string> = {
   gold: "bg-gradient-to-br from-gold-400 to-gold-600 text-white hover:-translate-y-0.5 shadow-soft",
 };
 
+/* Touch targets never fall below 44px on the two sizes used on mobile. */
 const sizes: Record<Size, string> = {
-  sm: "h-9 px-4 text-sm",
+  sm: "h-10 px-4 text-sm",
   md: "h-11 px-5 text-sm",
   lg: "h-12 px-7 text-base",
 };

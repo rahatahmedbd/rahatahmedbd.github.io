@@ -4,8 +4,10 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { LanguageProvider } from "@/components/providers/language-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { ScrollProgress } from "@/components/layout/scroll-progress";
 import { BackToTop } from "@/components/layout/back-to-top";
+import { MobileNav } from "@/components/layout/mobile-nav";
+import { InteractionLayer } from "@/components/layout/interaction-layer";
+import { ToastProvider } from "@/components/ui/toast";
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
 import { GateMount } from "@/components/experience/gate-mount";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
@@ -197,13 +199,18 @@ export default async function RootLayout({
         />
         <ThemeProvider>
           <LanguageProvider>
-            {!isDashboardOrAuth && <AnnouncementBanner settings={currentSettings} />}
-            {!isDashboardOrAuth && <ScrollProgress />}
-            {!isDashboardOrAuth && <Navbar />}
-            <main id="main">{children}</main>
-            {!isDashboardOrAuth && <Footer />}
-            {!isDashboardOrAuth && <BackToTop />}
-            {showGate && <GateMount />}
+            <ToastProvider>
+              {!isDashboardOrAuth && <AnnouncementBanner settings={currentSettings} />}
+              {!isDashboardOrAuth && <Navbar />}
+              <main id="main">{children}</main>
+              {!isDashboardOrAuth && <Footer />}
+              {/* Clearance so the fixed mobile bottom bar never covers content. */}
+              {!isDashboardOrAuth && <div aria-hidden className="pb-nav" />}
+              {!isDashboardOrAuth && <BackToTop />}
+              {!isDashboardOrAuth && <MobileNav />}
+              {!isDashboardOrAuth && <InteractionLayer />}
+              {showGate && <GateMount />}
+            </ToastProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>
