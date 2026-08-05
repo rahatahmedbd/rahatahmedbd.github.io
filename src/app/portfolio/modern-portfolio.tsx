@@ -592,7 +592,7 @@ export default function ModernPortfolio() {
                 <Card
                   key={service.title}
                   variant="elevated"
-                  className="group flex flex-col border border-transparent p-7 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_22%,transparent)] hover:shadow-[var(--shadow-xl)]"
+                  className="group flex flex-col border border-transparent p-7 premium-hover focus-visible-ring hover:border-[color-mix(in_srgb,var(--color-brand-primary)_22%,transparent)] hover:shadow-[var(--shadow-xl)]"
                 >
                   <div>
                     <div className="font-semibold text-[21px] leading-tight tracking-[-0.3px] mb-2 group-hover:text-[var(--color-brand-primary)] transition-colors">
