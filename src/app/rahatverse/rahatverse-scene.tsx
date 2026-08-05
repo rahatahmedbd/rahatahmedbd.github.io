@@ -267,10 +267,20 @@ export default function RahatVerseExperience() {
             }}
             fallback={<RahatVerseFallback onRetry={() => window.location.reload()} />}
             onCreated={({ gl }) => {
-              gl.domElement.addEventListener("webglcontextlost", (event) => {
+              const canvas = gl.domElement;
+              const handleContextLost = (event: Event) => {
+                // Prevent the browser's default "restart GPU" dialog —
+                // we show a branded recovery overlay instead.
                 event.preventDefault();
                 setWebglLost(true);
-              });
+              };
+              const handleContextRestored = () => {
+                // R3F resumes rendering automatically on restore; the
+                // recovery overlay dismisses itself.
+                setWebglLost(false);
+              };
+              canvas.addEventListener("webglcontextlost", handleContextLost);
+              canvas.addEventListener("webglcontextrestored", handleContextRestored);
             }}
           >
             {/* Ground */}
@@ -411,10 +421,27 @@ export default function RahatVerseExperience() {
         />
       ) : null}
 
-      {/* Runtime context-loss fallback */}
+      {/* Runtime context-loss overlay — branded and auto-recovering.
+          Only shown while the GPU context is actually lost; it dismisses
+          itself on webglcontextrestored (R3F resumes the scene). */}
       {webglLost ? (
-        <div className="fixed inset-0 z-[80]">
-          <RahatVerseFallback onRetry={() => window.location.reload()} />
+        <div className="fixed inset-0 z-[80] flex flex-col items-center justify-center gap-4 bg-[#0a0c12]/95 px-6 text-center text-white backdrop-blur-sm">
+          <div className="text-5xl" aria-hidden="true">
+            🏙️
+          </div>
+          <p className="text-lg font-semibold tracking-tight">
+            Reconnecting to your graphics processor…
+          </p>
+          <p className="max-w-sm text-sm leading-relaxed text-white/55">
+            The city will reappear in a moment. If it doesn&apos;t, try again below.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-2 rounded-full border border-white/25 bg-white/10 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20"
+          >
+            Try Again
+          </button>
         </div>
       ) : null}
     </div>
