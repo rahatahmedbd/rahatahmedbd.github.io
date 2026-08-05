@@ -210,6 +210,7 @@ export default function ModernPortfolio() {
       const center = y + height * 0.5;
       let bestTab: string | null = null;
       let bestDistance = Number.POSITIVE_INFINITY;
+
       for (const tab of BOTTOM_NAV_TABS) {
         const el = document.getElementById(tab.id);
         if (!el) continue;
@@ -977,50 +978,81 @@ export default function ModernPortfolio() {
         </motion.div>
       ) : null}
 
-      {/* Bottom Navigation — mobile/tablet only (hidden md+), native-app feel */}
+      {/* ========================================================
+         Phase 4: Premium Elevated Bottom Navigation
+         Mobile/tablet only (lg:hidden)
+         - Floating, pseudo-3D raised center item ("Portfolio")
+         - Glassmorphic premium treatment
+         - Strong active states + micro-interactions
+         - Consistent with global PremiumTopbar aesthetic
+      ========================================================= */}
       <nav
-        aria-label="Primary"
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-bg)_92%,transparent)] pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.25)] backdrop-blur-xl lg:hidden"
+        aria-label="Primary navigation"
+        className="fixed inset-x-4 bottom-4 z-[90] lg:hidden"
       >
-        <div className="grid h-16 grid-cols-5">
-          {BOTTOM_NAV_TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => handleTabSelect(tab.id)}
-                aria-current={isActive ? "page" : undefined}
-                className="group relative flex flex-col items-center justify-center gap-1 transition-colors duration-200"
-              >
-                {/* Active indicator */}
-                <span
-                  aria-hidden="true"
-                  className={`absolute top-0 h-0.5 w-8 rounded-full bg-[var(--color-brand-primary)] transition-all duration-300 ${
-                    isActive ? "opacity-100" : "opacity-0"
-                  }`}
-                />
-                <Icon
-                  className={`h-5 w-5 transition-all duration-200 ${
-                    isActive
-                      ? "scale-110 text-[var(--color-brand-primary)]"
-                      : "text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-secondary)]"
-                  }`}
-                  aria-hidden="true"
-                />
-                <span
-                  className={`text-[10px] font-medium leading-none transition-colors duration-200 ${
-                    isActive
-                      ? "text-[var(--color-brand-primary)]"
-                      : "text-[var(--color-text-tertiary)]"
+        <div className="mx-auto max-w-md">
+          <div 
+            className="flex h-[62px] items-center justify-around rounded-3xl border border-white/10 bg-[color-mix(in_srgb,var(--color-bg)_92%,transparent)] px-1.5 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.35),0_4px_12px_-2px_rgba(0,0,0,0.25)] backdrop-blur-2xl"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+          >
+            {BOTTOM_NAV_TABS.map((tab, index) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              const isCenter = index === 2; // "Portfolio" is the prominent center item
+
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => handleTabSelect(tab.id)}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`group relative flex flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl transition-all duration-200 active:scale-[0.94] ${
+                    isCenter 
+                      ? "mx-1 -mt-3 h-[58px] rounded-[20px] bg-[var(--color-brand-primary)] text-white shadow-[0_8px_20px_-4px_rgba(122,12,46,0.5),0_2px_8px_-2px_rgba(0,0,0,0.3)]" 
+                      : ""
                   }`}
                 >
-                  {tab.label}
-                </span>
-              </button>
-            );
-          })}
+                  {/* Elevated pseudo-3D center treatment */}
+                  {isCenter && (
+                    <div 
+                      aria-hidden="true" 
+                      className="absolute -inset-px rounded-[22px] bg-gradient-to-b from-white/25 to-transparent opacity-40" 
+                    />
+                  )}
+
+                  {/* Icon */}
+                  <Icon 
+                    className={`transition-all duration-200 ${
+                      isCenter 
+                        ? "h-5 w-5 text-white" 
+                        : isActive 
+                          ? "h-[21px] w-[21px] text-[var(--color-brand-primary)] scale-[1.08]" 
+                          : "h-5 w-5 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-secondary)]"
+                    }`} 
+                    aria-hidden="true" 
+                  />
+
+                  {/* Label */}
+                  <span 
+                    className={`text-[9.5px] font-medium tracking-[0.2px] transition-all duration-200 ${
+                      isCenter 
+                        ? "text-white/95" 
+                        : isActive 
+                          ? "text-[var(--color-brand-primary)] font-semibold" 
+                          : "text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-secondary)]"
+                    }`}
+                  >
+                    {tab.label}
+                  </span>
+
+                  {/* Subtle active underline for non-center items */}
+                  {!isCenter && isActive && (
+                    <div className="absolute -bottom-0.5 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-[var(--color-brand-primary)]" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </nav>
     </div>
