@@ -46,6 +46,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { SectionTitle } from "@/components/ui/section-title";
+import { ServiceCard } from "@/components/portfolio/ServiceCard";
 
 /**
  * Profile image source.
@@ -671,36 +672,15 @@ export default function ModernPortfolio() {
               align="center"
             />
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
               {portfolioServices.map((service) => (
-                <Card
+                <ServiceCard
                   key={service.title}
-                  variant="elevated"
-                  className="group flex flex-col border border-transparent p-7 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
-                >
-                  <div>
-                    <div className="font-semibold text-2xl mb-2 group-hover:text-[var(--color-brand-primary)] transition-colors">
-                      {service.title}
-                    </div>
-                    <div className="text-3xl font-semibold text-[var(--color-brand-primary)] mb-1">
-                      {service.price}
-                    </div>
-                    <div className="text-sm text-[var(--color-text-tertiary)] mb-4">
-                      Delivery: {service.time}
-                    </div>
-                    <p className="text-[var(--color-text-secondary)] leading-relaxed">
-                      {service.desc}
-                    </p>
-                  </div>
-
-                  <div className="mt-auto pt-6">
-                    <Link href="/order">
-                      <Button variant="outline" className="w-full">
-                        Choose This Service →
-                      </Button>
-                    </Link>
-                  </div>
-                </Card>
+                  title={service.title}
+                  price={service.price}
+                  time={service.time}
+                  desc={service.desc}
+                />
               ))}
             </div>
 
