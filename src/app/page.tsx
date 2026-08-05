@@ -149,11 +149,11 @@ export default function WelcomeExperience() {
       <ParticleBackground />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(122,12,46,0.22),transparent_55%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-18%,rgba(122,12,46,0.32),transparent_62%)]"
       />
 
-      {/* Content */}
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-4 py-16 text-center sm:px-6">
+      {/* Content — offset for new fixed PremiumTopbar (Phase 2) */}
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-5 pt-20 pb-16 text-center sm:px-8 md:pt-24 md:pb-20">
         {/* Headline */}
         <div className="mb-5">
           <motion.p
