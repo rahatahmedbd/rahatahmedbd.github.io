@@ -1,0 +1,33 @@
+{
+  "name": "Rahat Ahmed — রাহাত আহমেদ",
+  "short_name": "Rahat Ahmed",
+  "description": "Personal portfolio of Rahat Ahmed — Student, Teacher, Blood Donor & Web Developer from Sunamganj, Bangladesh",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF8F3",
+  "theme_color": "#7A0C2E",
+  "lang": "bn",
+  "dir": "ltr",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/assets/images/favicon/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/favicon/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/favicon/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
