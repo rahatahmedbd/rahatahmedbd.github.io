@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -29,6 +29,18 @@ import { SectionTitle } from "@/components/ui/section-title";
  */
 const PROFILE_IMAGE_SRC = "/assets/images/profile.jpg";
 const PROFILE_IMAGE_ALT = `${portfolioProfile.name} — ${portfolioProfile.roles}`;
+
+/* ------------------------------------------------------------------ */
+/* Navigation model used by both the sticky navbar and the scrollspy  */
+/* ------------------------------------------------------------------ */
+const NAV_ITEMS = [
+  { id: "about", label: "About" },
+  { id: "education", label: "Education" },
+  { id: "achievements", label: "Achievements" },
+  { id: "experience", label: "Experience" },
+  { id: "services", label: "Services" },
+  { id: "contact", label: "Contact" },
+] as const;
 
 /* ------------------------------------------------------------------ */
 /* Motion variants for hero entrance animations                       */
@@ -62,10 +74,58 @@ const statFloatVariants = (delay: number) =>
 
 // Modern Premium Portfolio Redesign - Phase 04
 export default function ModernPortfolio() {
+  const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("");
+
+  // Navbar: transparent at top → glassmorphism once the page is scrolled.
+  // Scrollspy: the active nav link is the last section whose top has
+  // crossed the upper part of the viewport (rAF-throttled, single listener).
+  useEffect(() => {
+    let frame = 0;
+
+    const update = () => {
+      const y = window.scrollY;
+      setScrolled(y > 16);
+
+      const probe = y + window.innerHeight * 0.4;
+      let current = "";
+      for (const item of NAV_ITEMS) {
+        const el = document.getElementById(item.id);
+        if (el && el.getBoundingClientRect().top + y <= probe) {
+          current = item.id;
+        }
+      }
+      setActiveSection(current);
+    };
+
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        update();
+      });
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)]">
-      {/* Premium Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur-lg">
+      {/* Premium Navigation — transparent at top, glassmorphism on scroll */}
+      <nav
+        className={`sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out ${
+          scrolled
+            ? "border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-bg)_80%,transparent)] shadow-[var(--shadow-sm)] backdrop-blur-xl"
+            : "border-transparent bg-transparent backdrop-blur-none"
+        }`}
+      >
         <Container>
           <div className="flex h-20 items-center justify-between">
             <div className="flex items-center gap-3">
@@ -79,42 +139,23 @@ export default function ModernPortfolio() {
             </div>
 
             <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-              <a
-                href="#about"
-                className="hover:text-[var(--color-brand-primary)] transition-colors"
-              >
-                About
-              </a>
-              <a
-                href="#education"
-                className="hover:text-[var(--color-brand-primary)] transition-colors"
-              >
-                Education
-              </a>
-              <a
-                href="#achievements"
-                className="hover:text-[var(--color-brand-primary)] transition-colors"
-              >
-                Achievements
-              </a>
-              <a
-                href="#experience"
-                className="hover:text-[var(--color-brand-primary)] transition-colors"
-              >
-                Experience
-              </a>
-              <a
-                href="#services"
-                className="hover:text-[var(--color-brand-primary)] transition-colors"
-              >
-                Services
-              </a>
-              <a
-                href="#contact"
-                className="hover:text-[var(--color-brand-primary)] transition-colors"
-              >
-                Contact
-              </a>
+              {NAV_ITEMS.map((item) => {
+                const isActive = activeSection === item.id;
+                return (
+                  <a
+                    key={item.id}
+                    href={`#${item.id}`}
+                    aria-current={isActive ? "true" : undefined}
+                    className={`relative transition-colors ${
+                      isActive
+                        ? "text-[var(--color-brand-primary)] font-semibold after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:rounded-full after:bg-[var(--color-brand-primary)]"
+                        : "hover:text-[var(--color-brand-primary)]"
+                    }`}
+                  >
+                    {item.label}
+                  </a>
+                );
+              })}
             </div>
 
             <div className="flex items-center gap-4">
@@ -377,7 +418,11 @@ export default function ModernPortfolio() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {achievementItems.map((item) => (
-              <Card key={item.title} variant="elevated" className="p-6">
+              <Card
+                key={item.title}
+                variant="elevated"
+                className="border border-transparent p-6 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
+              >
                 <div className="text-4xl mb-4">{item.icon}</div>
                 <div className="font-semibold text-xl mb-1">{item.title}</div>
                 <div className="text-sm text-[var(--color-brand-primary)] font-medium mb-3">
@@ -404,7 +449,11 @@ export default function ModernPortfolio() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {portfolioServices.map((service) => (
-              <Card key={service.title} variant="elevated" className="group p-7 flex flex-col">
+              <Card
+                key={service.title}
+                variant="elevated"
+                className="group flex flex-col border border-transparent p-7 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
+              >
                 <div>
                   <div className="font-semibold text-2xl mb-2 group-hover:text-[var(--color-brand-primary)] transition-colors">
                     {service.title}
