@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
-import { AlertCircle, CheckCircle2, Loader2, Send } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, CheckCircle2, Loader2, Send, X } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 type FieldErrors = Partial<Record<"name" | "email" | "message", string>>;
 
@@ -22,12 +24,24 @@ const EMPTY_VALUES: ContactFormValues = { name: "", email: "", message: "" };
  * Contact form — saves messages to Supabase (public.contact_messages via
  * POST /api/contact). Additive: the existing mailto/WhatsApp/social links
  * remain alongside this form.
+ *
+ * Success/error feedback renders as a fixed toast that sits ABOVE the
+ * phase-26 bottom nav on mobile/tablet (bottom-24 = 96px, clearing the
+ * 64px bar + safe area) and at a normal desktop position (bottom-8)
+ * where no bottom nav exists. Auto-dismisses, closable, aria-live.
  */
 export function ContactForm() {
   const [values, setValues] = useState<ContactFormValues>(EMPTY_VALUES);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [serverError, setServerError] = useState("");
+
+  // Auto-dismiss the toast (success 5s, error 8s).
+  useEffect(() => {
+    if (status !== "success" && status !== "error") return;
+    const timer = window.setTimeout(() => setStatus("idle"), status === "success" ? 5000 : 8000);
+    return () => window.clearTimeout(timer);
+  }, [status]);
 
   const validate = (next: ContactFormValues): FieldErrors => {
     const errors: FieldErrors = {};
@@ -181,35 +195,6 @@ export function ContactForm() {
           ) : null}
         </div>
 
-        {status === "success" ? (
-          <div
-            role="status"
-            className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--color-success)]/30 bg-[var(--color-success)]/10 p-4 text-sm text-[var(--color-text-primary)]"
-          >
-            <CheckCircle2
-              className="mt-0.5 h-5 w-5 flex-none text-[var(--color-success)]"
-              aria-hidden="true"
-            />
-            <p>
-              <span className="font-semibold">Message sent successfully.</span> Thank you — I
-              usually respond within 24 hours.
-            </p>
-          </div>
-        ) : null}
-
-        {status === "error" ? (
-          <div
-            role="alert"
-            className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--color-error)]/30 bg-[var(--color-error)]/10 p-4 text-sm text-[var(--color-text-primary)]"
-          >
-            <AlertCircle
-              className="mt-0.5 h-5 w-5 flex-none text-[var(--color-error)]"
-              aria-hidden="true"
-            />
-            <p>{serverError}</p>
-          </div>
-        ) : null}
-
         <button
           type="submit"
           disabled={status === "submitting"}
@@ -228,6 +213,58 @@ export function ContactForm() {
           )}
         </button>
       </div>
+
+      {/* Fixed toast — sits above the phase-26 bottom nav on mobile/tablet */}
+      <AnimatePresence>
+        {status === "success" || status === "error" ? (
+          <motion.div
+            key={status}
+            role={status === "error" ? "alert" : "status"}
+            aria-live="polite"
+            initial={{ opacity: 0, y: 16, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.97 }}
+            transition={{ duration: 0.25, ease: EASE }}
+            className={`fixed bottom-24 left-1/2 z-[60] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 lg:bottom-8 ${
+              status === "success"
+                ? "border-[var(--color-success)]/30 bg-[color-mix(in_srgb,var(--color-surface)_96%,transparent)]"
+                : "border-[var(--color-error)]/30 bg-[color-mix(in_srgb,var(--color-surface)_96%,transparent)]"
+            } rounded-2xl border p-4 shadow-[var(--shadow-xl)] backdrop-blur-xl`}
+          >
+            <div className="flex items-start gap-3">
+              {status === "success" ? (
+                <CheckCircle2
+                  className="mt-0.5 h-5 w-5 flex-none text-[var(--color-success)]"
+                  aria-hidden="true"
+                />
+              ) : (
+                <AlertCircle
+                  className="mt-0.5 h-5 w-5 flex-none text-[var(--color-error)]"
+                  aria-hidden="true"
+                />
+              )}
+              <div className="min-w-0 flex-1 text-sm text-[var(--color-text-primary)]">
+                {status === "success" ? (
+                  <p>
+                    <span className="font-semibold">Message sent successfully.</span> Thank you — I
+                    usually respond within 24 hours.
+                  </p>
+                ) : (
+                  <p>{serverError}</p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setStatus("idle")}
+                aria-label="Dismiss notification"
+                className="flex h-7 w-7 flex-none items-center justify-center rounded-full text-[var(--color-text-tertiary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]"
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </form>
   );
 }
