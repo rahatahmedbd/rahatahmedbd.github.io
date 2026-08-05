@@ -153,6 +153,7 @@ function SectionReveal({ children, className }: { children: React.ReactNode; cla
 
 // Modern Premium Portfolio Redesign - Phase 04
 export default function ModernPortfolio() {
+  const reduceMotion = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("top");
@@ -333,19 +334,19 @@ export default function ModernPortfolio() {
         </Container>
       </nav>
 
-      {/* HERO SECTION — Redesigned Phase 17: premium split layout */}
+      {/* HERO SECTION — Redesigned Phase 27: cinematic split layout */}
       <section
         id="top"
-        className="relative overflow-hidden border-b border-[var(--color-border)] pt-16 pb-20 md:pt-24 md:pb-28"
+        className="relative overflow-hidden border-b border-[var(--color-border)] pt-20 pb-20 md:pt-28 md:pb-28"
       >
-        {/* Decorative background */}
+        {/* Decorative background — cinematic atmosphere (phase-25 style) */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,12,46,0.08),transparent_55%),radial-gradient(circle_at_bottom_left,rgba(26,60,90,0.06),transparent_50%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,12,46,0.1),transparent_55%),radial-gradient(circle_at_bottom_left,rgba(26,60,90,0.08),transparent_50%)]"
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-[length:4px_4px] opacity-25"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-[length:4px_4px] opacity-20"
         />
 
         <Container className="relative">
@@ -359,7 +360,7 @@ export default function ModernPortfolio() {
             {/* ---------------- LEFT: TEXT CONTENT ---------------- */}
             <div className="text-center lg:text-left">
               <motion.div variants={fadeUp} className="mb-6 flex justify-center lg:justify-start">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-brand-primary)]/15 bg-[var(--color-brand-primary)]/8 px-3 py-1.5 text-sm font-medium text-[var(--color-brand-primary)]">
+                <span className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--color-brand-primary)_15%,transparent)] bg-[color-mix(in_srgb,var(--color-brand-primary)_8%,transparent)] px-3 py-1.5 text-sm font-medium text-[var(--color-brand-primary)]">
                   <Sparkles className="h-4 w-4" aria-hidden="true" />
                   {portfolioProfile.roles}
                 </span>
@@ -415,10 +416,16 @@ export default function ModernPortfolio() {
 
             {/* ---------------- RIGHT: PROFILE IMAGE + FLOATING BADGES ---------------- */}
             <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-              {/* Glow ring */}
-              <div
+              {/* Cinematic glow — breathing burgundy aura + warm accent layer */}
+              <motion.div
                 aria-hidden="true"
-                className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-[var(--color-brand-primary)]/30 via-[var(--color-brand-accent)]/20 to-[var(--color-brand-secondary)]/30 blur-2xl"
+                animate={
+                  reduceMotion
+                    ? { opacity: 0.8 }
+                    : { opacity: [0.55, 0.95, 0.55], scale: [1, 1.045, 1] }
+                }
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -inset-5 rounded-[2.25rem] bg-[radial-gradient(ellipse_at_35%_30%,color-mix(in_srgb,var(--color-brand-primary)_38%,transparent),transparent_62%),radial-gradient(ellipse_at_70%_75%,color-mix(in_srgb,var(--color-brand-accent)_22%,transparent),transparent_58%)] blur-2xl"
               />
 
               {/* Image container with gradient border */}
@@ -451,7 +458,7 @@ export default function ModernPortfolio() {
                 variants={statFloatVariants(0.55)}
                 className="absolute -left-2 top-6 w-60 sm:-left-6 sm:w-64"
               >
-                <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/95 p-3 shadow-[var(--shadow-lg)] backdrop-blur-md">
+                <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-surface)_95%,transparent)] p-3 shadow-[var(--shadow-lg)] backdrop-blur-md">
                   <div className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                     <GraduationCap className="h-5 w-5" aria-hidden="true" />
                   </div>
@@ -471,7 +478,7 @@ export default function ModernPortfolio() {
                 variants={statFloatVariants(0.7)}
                 className="absolute -right-2 top-[38%] w-48 sm:-right-6 sm:w-56"
               >
-                <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/95 p-3 shadow-[var(--shadow-lg)] backdrop-blur-md">
+                <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-surface)_95%,transparent)] p-3 shadow-[var(--shadow-lg)] backdrop-blur-md">
                   <div className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-red-50 text-red-600">
                     <Droplet className="h-5 w-5" aria-hidden="true" />
                   </div>
@@ -491,7 +498,7 @@ export default function ModernPortfolio() {
                 variants={statFloatVariants(0.85)}
                 className="absolute -bottom-4 left-4 w-44 sm:-bottom-6 sm:left-6 sm:w-52"
               >
-                <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/95 p-3 shadow-[var(--shadow-lg)] backdrop-blur-md">
+                <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-surface)_95%,transparent)] p-3 shadow-[var(--shadow-lg)] backdrop-blur-md">
                   <div className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-amber-50 text-amber-600">
                     <Shield className="h-5 w-5" aria-hidden="true" />
                   </div>
