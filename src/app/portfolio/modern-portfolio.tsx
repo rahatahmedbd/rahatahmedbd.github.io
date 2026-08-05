@@ -4,15 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  Award,
-  Droplet,
-  GraduationCap,
-  Shield,
-  Sparkles,
-  Trophy,
-} from "lucide-react";
+import { ArrowRight, Droplet, GraduationCap, Shield, Sparkles, Trophy } from "lucide-react";
 import {
   achievementItems,
   bloodDonation,
@@ -160,7 +152,7 @@ export default function ModernPortfolio() {
             className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16"
           >
             {/* ---------------- LEFT: TEXT CONTENT ---------------- */}
-            <div className="order-2 text-center lg:order-1 lg:text-left">
+            <div className="text-center lg:text-left">
               <motion.div variants={fadeUp} className="mb-6 flex justify-center lg:justify-start">
                 <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-brand-primary)]/15 bg-[var(--color-brand-primary)]/8 px-3 py-1.5 text-sm font-medium text-[var(--color-brand-primary)]">
                   <Sparkles className="h-4 w-4" aria-hidden="true" />
@@ -190,7 +182,7 @@ export default function ModernPortfolio() {
                 <Link href="/order" className="sm:w-auto">
                   <Button
                     size="lg"
-                    className="w-full px-8 text-base transition-transform duration-200 ease-out hover:scale-[1.03] hover:shadow-[var(--shadow-xl)] sm:text-lg"
+                    className="w-full px-8 text-base transition-[transform,box-shadow] duration-200 ease-out hover:scale-[1.03] hover:shadow-[var(--shadow-xl)] sm:text-lg"
                   >
                     Order a Website
                     <ArrowRight className="h-5 w-5" aria-hidden="true" />
@@ -200,7 +192,7 @@ export default function ModernPortfolio() {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="w-full px-8 text-base transition-transform duration-200 ease-out hover:scale-[1.03] hover:shadow-[var(--shadow-lg)] sm:text-lg"
+                    className="w-full px-8 text-base transition-[transform,box-shadow] duration-200 ease-out hover:scale-[1.03] hover:shadow-[var(--shadow-lg)] sm:text-lg"
                   >
                     <Trophy className="h-5 w-5" aria-hidden="true" />
                     View Achievements
@@ -217,7 +209,7 @@ export default function ModernPortfolio() {
             </div>
 
             {/* ---------------- RIGHT: PROFILE IMAGE + FLOATING BADGES ---------------- */}
-            <div className="relative order-1 mx-auto w-full max-w-md lg:order-2 lg:max-w-none">
+            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
               {/* Glow ring */}
               <div
                 aria-hidden="true"
@@ -252,7 +244,7 @@ export default function ModernPortfolio() {
               {/* Card 1: Education — top-left on desktop, top on mobile */}
               <motion.div
                 variants={statFloatVariants(0.55)}
-                className="absolute -left-2 top-6 w-44 sm:-left-6 sm:w-52"
+                className="absolute -left-2 top-6 w-60 sm:-left-6 sm:w-64"
               >
                 <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/95 p-3 shadow-[var(--shadow-lg)] backdrop-blur-md">
                   <div className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-blue-50 text-blue-600">
@@ -262,7 +254,7 @@ export default function ModernPortfolio() {
                     <div className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">
                       Education
                     </div>
-                    <div className="truncate text-sm font-semibold text-[var(--color-text-primary)]">
+                    <div className="text-sm font-semibold leading-snug text-[var(--color-text-primary)]">
                       {portfolioProfile.currentEducation}
                     </div>
                   </div>
@@ -307,15 +299,6 @@ export default function ModernPortfolio() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
-
-              {/* Decorative mini badge — top-right corner of image */}
-              <motion.div
-                variants={statFloatVariants(1.0)}
-                className="absolute -top-3 right-6 flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)]/95 px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] shadow-[var(--shadow-md)] backdrop-blur-md sm:right-10"
-              >
-                <Award className="h-3.5 w-3.5 text-[var(--color-brand-accent)]" aria-hidden="true" />
-                Available for work
               </motion.div>
             </div>
           </motion.div>
