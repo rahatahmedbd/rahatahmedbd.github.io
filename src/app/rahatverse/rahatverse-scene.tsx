@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
+import { Volume2, VolumeX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { PlatformErrorBoundary } from "@/components/platform/platform-error-boundary";
@@ -17,6 +18,7 @@ import {
 } from "@/data/platform";
 import { usePlatform } from "@/state/platform-context";
 import type { TourMode } from "@/types/platform";
+import { rahatVerseAudio } from "./audio/ambient-audio";
 import { AutoTour } from "./vehicle/AutoTour";
 import { InfoPanel } from "./ui/InfoPanel";
 import { MiniMap } from "./ui/MiniMap";
@@ -73,6 +75,20 @@ export default function RahatVerseExperience() {
 
   // Live vehicle position, written by AutoTour and read by the mini-map.
   const vehiclePositionRef = useRef<[number, number, number]>([0, 3, 0]);
+
+  // Ambient audio: follows the settings toggle (muted by default) and the
+  // lighting theme. The AudioContext is only created/resumed inside a user
+  // gesture (toggle click), so nothing ever autoplays.
+  const soundOn = settings.sound;
+  useEffect(() => {
+    rahatVerseAudio.setEnabled(soundOn);
+  }, [soundOn]);
+
+  useEffect(() => {
+    rahatVerseAudio.setTheme(settings.timeOfDay);
+  }, [settings.timeOfDay]);
+
+  useEffect(() => () => rahatVerseAudio.dispose(), []);
 
   const currentStop =
     rahatVerseTourStops.find((stop) => stop.id === tourProgress.currentStopId) ??
@@ -135,8 +151,13 @@ export default function RahatVerseExperience() {
   };
 
   // Building clicked/tapped: pause the tour, switch to explore, and fly
-  // the camera to the building.
-  const handleBuildingSelect = (stop: RahatVerseStop) => {
+  // the camera to the building. `soundKind` distinguishes the interaction
+  // source so the click feedback matches (building tap vs mini-map tap).
+  const handleBuildingSelect = (
+    stop: RahatVerseStop,
+    soundKind: "building" | "minimap" = "building",
+  ) => {
+    rahatVerseAudio.playSfx(soundKind);
     const stopIndex = rahatVerseTourStops.findIndex((tourStop) => tourStop.id === stop.id);
     updateTourProgress({
       currentStopId: stop.id,
@@ -181,22 +202,54 @@ export default function RahatVerseExperience() {
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#0a0c12] text-white">
-      {/* Top Navigation */}
+      {/* Top Navigation — mode status + sound toggle live here */}
       <nav className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-black/70 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-3">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="text-2xl">🏙️</div>
-            <div>
-              <div className="font-semibold tracking-tight">RahatVerse</div>
-              <div className="-mt-0.5 text-[10px] text-white/50">Interactive Experience</div>
+            <div className="min-w-0">
+              <div className="truncate font-semibold tracking-tight">RahatVerse</div>
+              <div className="-mt-0.5 truncate text-[10px] text-white/50">
+                {tourProgress.mode === "auto"
+                  ? tourProgress.isPlaying
+                    ? "🚗 Auto Tour Active"
+                    : "⏸️ Tour Paused"
+                  : tourProgress.mode === "guide"
+                    ? "🧭 Guided Tour"
+                    : "🕹️ Explore Freely"}
+              </div>
             </div>
           </div>
 
-          <Link href="/portfolio">
-            <Button variant="ghost" size="sm" className="text-white/70 hover:text-white">
-              ← Website Experience
-            </Button>
-          </Link>
+          <div className="flex flex-none items-center gap-2">
+            <button
+              type="button"
+              onClick={() => updateSettings({ sound: !settings.sound })}
+              aria-pressed={settings.sound}
+              aria-label={settings.sound ? "Mute ambient sound" : "Unmute ambient sound"}
+              title={settings.sound ? "Mute sound" : "Unmute sound"}
+              className={`flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${
+                settings.sound
+                  ? "border-[#22d3ee]/60 bg-[#22d3ee]/20 text-[#22d3ee] hover:bg-[#22d3ee]/30"
+                  : "border-white/20 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              {settings.sound ? (
+                <Volume2 className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <VolumeX className="h-4 w-4" aria-hidden="true" />
+              )}
+            </button>
+
+            <Link href="/portfolio" aria-label="Open Website Experience">
+              <Button variant="ghost" size="sm" className="text-white/70 hover:text-white">
+                <span className="hidden sm:inline">← Website Experience</span>
+                <span className="sm:hidden" aria-hidden="true">
+                  ←
+                </span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -289,15 +342,21 @@ export default function RahatVerseExperience() {
         ) : null}
       </div>
 
-      <Controls
-        isPlaying={tourProgress.isPlaying}
-        onPauseResume={handlePauseResume}
-        onRestart={handleRestart}
-        onModeSwitch={handleModeSwitch}
-        currentMode={tourProgress.mode}
-      />
+      {/* Bottom controls are hidden while the district info panel is open
+          so nothing overlaps the panel on small screens. */}
+      {!isInfoOpen ? (
+        <>
+          <Controls
+            isPlaying={tourProgress.isPlaying}
+            onPauseResume={handlePauseResume}
+            onRestart={handleRestart}
+            onModeSwitch={handleModeSwitch}
+            currentMode={tourProgress.mode}
+          />
 
-      <SmartGuideControls mode={tourProgress.mode} onModeChange={handleModeSwitch} />
+          <SmartGuideControls mode={tourProgress.mode} onModeChange={handleModeSwitch} />
+        </>
+      ) : null}
 
       <InfoPanel stop={isInfoOpen ? currentStop : null} onClose={() => setIsInfoOpen(false)} />
 
@@ -307,20 +366,10 @@ export default function RahatVerseExperience() {
         currentStopId={tourProgress.currentStopId}
         isCollapsed={miniMapCollapsed}
         onToggle={() => setMiniMapCollapsed((collapsed) => !collapsed)}
-        onSelectStop={handleBuildingSelect}
+        onSelectStop={(stop) => handleBuildingSelect(stop, "minimap")}
       />
 
       <SmartDistricts />
-
-      <div className="fixed right-6 top-24 z-50 rounded-full border border-white/10 bg-black/60 px-4 py-2 text-xs">
-        {tourProgress.mode === "auto"
-          ? tourProgress.isPlaying
-            ? "🚗 Auto Tour Active"
-            : "⏸️ Tour Paused"
-          : tourProgress.mode === "guide"
-            ? "🧭 Guided Tour"
-            : "🕹️ Explore Mode"}
-      </div>
 
       <AIAssistant />
 
@@ -332,7 +381,7 @@ export default function RahatVerseExperience() {
       <button
         type="button"
         onClick={() => setSettingsOpen(true)}
-        className="fixed left-6 top-24 z-50 rounded-full border border-white/20 bg-black/60 px-4 py-2 text-xs hover:bg-white/10"
+        className="fixed left-2 top-[8.75rem] z-50 rounded-full border border-white/20 bg-black/60 px-4 py-2 text-xs hover:bg-white/10 md:left-6 md:top-24"
       >
         ⚙️ Settings
       </button>

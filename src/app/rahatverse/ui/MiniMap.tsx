@@ -52,7 +52,7 @@ export function MiniMap({
   const dot = toMapPercent(position[0], position[2]);
 
   return (
-    <div className="fixed top-24 right-6 z-50 w-48 bg-black/70 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
+    <div className="fixed right-2 top-[8.75rem] z-50 w-40 bg-black/70 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden md:right-6 md:top-24 md:w-48">
       <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 text-sm">
         <div className="font-medium">Mini Map</div>
         <button

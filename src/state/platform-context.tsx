@@ -57,7 +57,7 @@ const initialPlatformState: PlatformState = {
   },
   settings: {
     graphics: "medium",
-    sound: true,
+    sound: false, // ambient sound starts muted — never autoplays
     music: false,
     motion: true,
     timeOfDay: "day",
