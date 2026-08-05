@@ -1,0 +1,67 @@
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Rahat Ahmed",
+    "alternateName": "রাহাত আহমেদ",
+    "url": "https://rahatahmedbd.github.io/",
+    "image": "https://rahatahmedbd.github.io/assets/images/profile.jpg",
+    "birthDate": "2006-06-21",
+    "birthPlace": {
+      "@type": "Place",
+      "name": "Jibdara, Shantiganj, Sunamganj, Bangladesh"
+    },
+    "nationality": "Bangladeshi",
+    "gender": "Male",
+    "email": "rahatbd20505@gmail.com",
+    "telephone": "+8801626224878",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Sunamganj",
+      "addressCountry": "Bangladesh"
+    },
+    "jobTitle": [
+      "Student",
+      "Home Tutor",
+      "Web Developer",
+      "Blood Donor",
+      "General Secretary — Shantichakra Blood Society"
+    ],
+    "worksFor": [
+      {
+        "@type": "EducationalOrganization",
+        "name": "Sunamganj Government College"
+      },
+      {
+        "@type": "Organization",
+        "name": "Shantichakra Blood Society Sunamganj"
+      },
+      {
+        "@type": "Organization",
+        "name": "FS Coaching Center"
+      }
+    ],
+    "alumniOf": [
+      {
+        "@type": "EducationalOrganization",
+        "name": "Satgaon Jibdara High School"
+      },
+      {
+        "@type": "EducationalOrganization",
+        "name": "Jibdara Government Primary School"
+      }
+    ],
+    "sameAs": [
+      "https://www.facebook.com/rahat.ahmed.948943",
+      "https://www.tiktok.com/@rahatvives",
+      "https://www.youtube.com/@RahatAhmedOfficial0",
+      "https://www.instagram.com/rahatahm6d/"
+    ],
+    "knowsAbout": [
+      "Web Development",
+      "Teaching",
+      "Blood Donation",
+      "Community Service",
+      "Content Creation"
+    ],
+    "knowsLanguage": ["Bengali", "English"]
+  }

@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Phase 00 — Faithful port.
+ * The actual site styling comes from the original stylesheets linked in
+ * app/layout.tsx (/css/main.css + /css/legacy-overrides.css).
+ * Tailwind base/utilities are available for the redesign in later phases.
+ */
