@@ -7,3 +7,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* RahatVerse tooltip float (Phase 32) */
+@keyframes rahatverse-tooltip-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.rahatverse-tooltip-float {
+  animation: rahatverse-tooltip-float 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rahatverse-tooltip-float {
+    animation: none;
+  }
+}

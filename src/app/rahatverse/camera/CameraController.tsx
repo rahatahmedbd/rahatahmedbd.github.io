@@ -17,7 +17,7 @@ interface CameraControllerProps {
   onFocusComplete?: () => void;
 }
 
-const FOCUS_DURATION_MS = 1400;
+const FOCUS_DURATION_MS = 1200;
 const FOCUS_OFFSET = new THREE.Vector3(0, 34, 50);
 const FOCUS_LOOK_AT = new THREE.Vector3(0, 12, 0);
 
