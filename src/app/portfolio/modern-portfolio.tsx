@@ -6,16 +6,21 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
+  Award,
+  Brain,
   Briefcase,
   ChevronLeft,
   ChevronRight,
   Droplet,
   GraduationCap,
+  Handshake,
   HeartHandshake,
   Home,
   Images,
   Mail,
+  Medal,
   Rocket,
+  School,
   Shield,
   ShieldCheck,
   Sparkles,
@@ -98,6 +103,21 @@ const BOTTOM_NAV_TABS = [
 ] as const;
 
 /* ------------------------------------------------------------------ */
+/* Emoji -> lucide icon map (Phase 28).                                */
+/* The data layer keeps its existing icon strings (content unchanged); */
+/* at render time they are replaced with SVG icons where mapped.       */
+/* ------------------------------------------------------------------ */
+const CARD_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  "🏆": Trophy,
+  "🥇": Medal,
+  "🧠": Brain,
+  "🎖️": Award,
+  "🩸": Droplet,
+  "🏫": School,
+  "🤝": Handshake,
+};
+
+/* ------------------------------------------------------------------ */
 /* Motion variants for hero entrance animations                       */
 /* ------------------------------------------------------------------ */
 const containerVariants = {
@@ -159,29 +179,6 @@ export default function ModernPortfolio() {
   const [activeTab, setActiveTab] = useState<string>("top");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  // Bottom-nav scrollspy: Intersection Observer with a center band —
-  // the tab whose section crosses the middle of the viewport is active.
-  // If no tab section is in the band (in-between sections), the last
-  // active tab stays lit.
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveTab(entry.target.id);
-          }
-        }
-      },
-      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
-    );
-
-    for (const tab of BOTTOM_NAV_TABS) {
-      const element = document.getElementById(tab.id);
-      if (element) observer.observe(element);
-    }
-    return () => observer.disconnect();
-  }, []);
-
   const handleTabSelect = (tabId: string) => {
     if (tabId === "top") {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -190,17 +187,23 @@ export default function ModernPortfolio() {
     document.getElementById(tabId)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // Navbar: transparent at top → glassmorphism once the page is scrolled.
-  // Scrollspy: the active nav link is the last section whose top has
-  // crossed the upper part of the viewport (rAF-throttled, single listener).
+  // Scrollspy (Phase 28 fine-tune): one rAF-throttled pass keeps the top
+  // bar and bottom nav active states perfectly in sync.
+  // - Top bar: the last nav section whose top has crossed ~30% of the
+  //   viewport (the reading line just below the sticky bar) is active.
+  // - Bottom nav: the tab whose section center is closest to the viewport
+  //   center wins — boundaries flip precisely at the halfway point and
+  //   never flicker; if no tab section is on screen the last tab stays.
   useEffect(() => {
     let frame = 0;
 
     const update = () => {
       const y = window.scrollY;
       setScrolled(y > 16);
+      const height = window.innerHeight;
 
-      const probe = y + window.innerHeight * 0.4;
+      // Top bar scrollspy.
+      const probe = y + height * 0.3;
       let current = "";
       for (const item of NAV_ITEMS) {
         const el = document.getElementById(item.id);
@@ -209,6 +212,24 @@ export default function ModernPortfolio() {
         }
       }
       setActiveSection(current);
+
+      // Bottom nav scrollspy — closest section center to viewport center.
+      const center = y + height * 0.5;
+      let bestTab: string | null = null;
+      let bestDistance = Number.POSITIVE_INFINITY;
+      for (const tab of BOTTOM_NAV_TABS) {
+        const el = document.getElementById(tab.id);
+        if (!el) continue;
+        const top = el.getBoundingClientRect().top + y;
+        const bottom = top + el.offsetHeight;
+        if (bottom < y || top > y + height) continue; // off-screen
+        const distance = Math.abs((top + bottom) / 2 - center);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestTab = tab.id;
+        }
+      }
+      if (bestTab) setActiveTab(bestTab);
     };
 
     const onScroll = () => {
@@ -593,20 +614,29 @@ export default function ModernPortfolio() {
             />
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {achievementItems.map((item) => (
-                <Card
-                  key={item.title}
-                  variant="elevated"
-                  className="border border-transparent p-6 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
-                >
-                  <div className="text-4xl mb-4">{item.icon}</div>
-                  <div className="font-semibold text-xl mb-1">{item.title}</div>
-                  <div className="text-sm text-[var(--color-brand-primary)] font-medium mb-3">
-                    {item.year}
-                  </div>
-                  <div className="text-[var(--color-text-secondary)] text-sm">{item.desc}</div>
-                </Card>
-              ))}
+              {achievementItems.map((item) => {
+                const CardIcon = CARD_ICON_MAP[item.icon];
+                return (
+                  <Card
+                    key={item.title}
+                    variant="elevated"
+                    className="border border-transparent p-6 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
+                  >
+                    {CardIcon ? (
+                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--color-brand-primary)_10%,transparent)] text-[var(--color-brand-primary)]">
+                        <CardIcon className="h-6 w-6" aria-hidden="true" />
+                      </div>
+                    ) : (
+                      <div className="mb-4 text-4xl">{item.icon}</div>
+                    )}
+                    <div className="font-semibold text-xl mb-1">{item.title}</div>
+                    <div className="text-sm text-[var(--color-brand-primary)] font-medium mb-3">
+                      {item.year}
+                    </div>
+                    <div className="text-[var(--color-text-secondary)] text-sm">{item.desc}</div>
+                  </Card>
+                );
+              })}
             </div>
           </SectionReveal>
         </Container>
@@ -725,18 +755,31 @@ export default function ModernPortfolio() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-              {initiatives.map((initiative) => (
-                <Card key={initiative.title} variant="elevated" className="p-8">
-                  <div className="text-4xl mb-4">{initiative.icon}</div>
-                  <div className="font-semibold text-2xl">{initiative.title}</div>
-                  <div className="text-[var(--color-brand-primary)] font-medium">
-                    {initiative.role}
-                  </div>
-                  <p className="mt-4 text-[var(--color-text-secondary)]">
-                    {initiative.description}
-                  </p>
-                </Card>
-              ))}
+              {initiatives.map((initiative) => {
+                const CardIcon = CARD_ICON_MAP[initiative.icon];
+                return (
+                  <Card
+                    key={initiative.title}
+                    variant="elevated"
+                    className="border border-transparent p-8 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
+                  >
+                    {CardIcon ? (
+                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--color-brand-secondary)_10%,transparent)] text-[var(--color-brand-secondary)]">
+                        <CardIcon className="h-6 w-6" aria-hidden="true" />
+                      </div>
+                    ) : (
+                      <div className="mb-4 text-4xl">{initiative.icon}</div>
+                    )}
+                    <div className="font-semibold text-2xl">{initiative.title}</div>
+                    <div className="text-[var(--color-brand-primary)] font-medium">
+                      {initiative.role}
+                    </div>
+                    <p className="mt-4 text-[var(--color-text-secondary)]">
+                      {initiative.description}
+                    </p>
+                  </Card>
+                );
+              })}
             </div>
           </SectionReveal>
         </Container>
