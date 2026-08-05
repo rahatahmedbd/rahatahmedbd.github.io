@@ -80,18 +80,23 @@ const wordReveal: Variants = {
 };
 
 const subtitleReveal: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, delay: 0.55, ease: EASE } },
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.78, delay: 0.62, ease: EASE } },
 };
 
 const portalContainer: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.18, delayChildren: 0.75 } },
+  visible: { transition: { staggerChildren: 0.22, delayChildren: 0.82 } },
 };
 
 const portalReveal: Variants = {
-  hidden: { opacity: 0, y: 34, scale: 0.94 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.75, ease: EASE } },
+  hidden: { opacity: 0, y: 48, scale: 0.965 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1, 
+    transition: { duration: 0.9, ease: EASE } 
+  },
 };
 
 const footerReveal: Variants = {
@@ -147,6 +152,12 @@ export default function WelcomeExperience() {
     <div className="relative min-h-screen overflow-hidden bg-[#07070d] text-white">
       {/* Deep-space atmosphere */}
       <ParticleBackground />
+      
+      {/* Premium cinematic background layers */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-18%,rgba(122,12,46,0.32),transparent_62%)]"
+      />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-18%,rgba(122,12,46,0.32),transparent_62%)]"
@@ -155,30 +166,32 @@ export default function WelcomeExperience() {
       {/* Content — offset for new fixed PremiumTopbar (Phase 2) */}
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-5 pt-20 pb-16 text-center sm:px-8 md:pt-24 md:pb-20">
         {/* Headline */}
-        <div className="mb-5">
-          <motion.p
+        <div className="mb-3">
+          <motion.div
             initial={reduceMotion ? false : "hidden"}
             animate="visible"
             variants={subtitleReveal}
-            className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-medium uppercase tracking-[0.22em] text-white/60"
+            className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.035] px-5 py-1.5 text-xs font-medium uppercase tracking-[0.28em] text-white/70 backdrop-blur-sm"
           >
             <span
               aria-hidden="true"
-              className="inline-block h-1.5 w-1.5 rounded-full bg-[#c9a227]"
+              className="inline-block h-1.5 w-1.5 rounded-full bg-[#c9a227] shadow-[0_0_6px_rgba(201,162,39,0.6)]"
             />
-            Rahat Ahmed
-          </motion.p>
+            <span className="tracking-[0.3em]">RAHAT AHMED</span>
+          </motion.div>
 
-          <h1 className="text-5xl font-semibold leading-[1.04] tracking-[-0.03em] sm:text-6xl md:text-7xl">
+          <h1 className="text-[56px] font-semibold leading-[0.96] tracking-[-0.045em] sm:text-7xl md:text-[76px] lg:text-[84px]">
             <WordReveal words={["Welcome", "to"]} className="block" />
-            <WordReveal words={["Rahat's", "World"]} className="block" />
+            <span className="block mt-[-0.06em]">
+              <WordReveal words={["Rahat's", "World"]} className="bg-gradient-to-r from-white via-white to-[#f4d8a3] bg-clip-text text-transparent" />
+            </span>
           </h1>
 
           <motion.p
             initial={reduceMotion ? false : "hidden"}
             animate="visible"
             variants={subtitleReveal}
-            className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-white/65 sm:text-xl"
+            className="mx-auto mt-7 max-w-[38ch] text-[17px] leading-relaxed tracking-[-0.01em] text-white/70 sm:text-[19px] sm:max-w-xl"
           >
             Choose how you&apos;d like to explore my portfolio
           </motion.p>
@@ -189,7 +202,7 @@ export default function WelcomeExperience() {
           initial={reduceMotion ? false : "hidden"}
           animate="visible"
           variants={portalContainer}
-          className="mt-12 grid w-full max-w-4xl gap-6 sm:gap-8 md:grid-cols-2"
+          className="mt-14 grid w-full max-w-[860px] gap-6 sm:gap-7 md:grid-cols-2"
         >
           {PORTALS.map((portal) => {
             const Icon = portal.icon;
@@ -198,67 +211,79 @@ export default function WelcomeExperience() {
               <motion.div
                 key={portal.kind}
                 variants={portalReveal}
-                animate={isSelected ? { scale: 1.09, y: -6 } : { scale: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeIn" }}
+                whileHover={!reduceMotion ? { scale: 1.015, y: -5 } : {}}
+                animate={isSelected ? { scale: 1.06, y: -8 } : { scale: 1, y: 0 }}
+                transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
                 className="h-full"
               >
                 <Link
                   href={portal.href}
                   onClick={(event) => handleSelect(event, portal)}
                   aria-label={portal.cta}
-                  className={`group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-7 text-left backdrop-blur-md transition-[border-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a227] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07070d] sm:p-9 ${portal.ringClass}`}
+                  className={`group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.032] p-8 text-left backdrop-blur-xl transition-all duration-500 ease-out hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a227] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07070d] sm:p-9 md:p-10 ${portal.ringClass}`}
                 >
-                  {/* Idle breathing glow + hover intensification */}
+                  {/* Premium layered glow background */}
                   <motion.div
                     aria-hidden="true"
                     animate={
                       reduceMotion
-                        ? { opacity: 0.75 }
-                        : { opacity: [0.5, 0.85, 0.5], scale: [1, 1.06, 1] }
+                        ? { opacity: 0.6 }
+                        : { opacity: [0.45, 0.82, 0.45], scale: [1, 1.035, 1] }
                     }
                     transition={
                       reduceMotion
                         ? { duration: 0 }
                         : {
-                            duration: 5.5,
+                            duration: 6.2,
                             repeat: Infinity,
                             ease: "easeInOut",
-                            delay: portal.kind === "verse" ? 0.8 : 0,
+                            delay: portal.kind === "verse" ? 1.1 : 0.2,
                           }
                     }
-                    className={`pointer-events-none absolute -inset-10 ${portal.glowClass} opacity-75 transition-opacity duration-300 group-hover:opacity-100`}
+                    className={`pointer-events-none absolute -inset-[42px] ${portal.glowClass} opacity-60 transition-opacity duration-500 group-hover:opacity-100`}
                   />
 
-                  {/* Portal top: icon + accent */}
-                  <div className="relative mb-8 flex items-start justify-between">
+                  {/* Subtle inner gradient frame */}
+                  <div 
+                    aria-hidden="true" 
+                    className="pointer-events-none absolute inset-0 rounded-3xl border border-white/5 bg-gradient-to-br from-white/[0.025] to-transparent" 
+                  />
+
+                  {/* Portal header: icon + premium accent */}
+                  <div className="relative mb-9 flex items-start justify-between">
                     <div
-                      className={`flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 transition-colors duration-300 ${portal.iconClass}`}
+                      className={`flex h-[68px] w-[68px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] transition-all duration-300 group-hover:border-white/20 ${portal.iconClass}`}
                     >
-                      <Icon className="h-8 w-8" aria-hidden="true" />
+                      <Icon className="h-8 w-8 transition-transform duration-300 group-hover:scale-[1.06]" aria-hidden="true" />
                     </div>
-                    <span
-                      aria-hidden="true"
-                      className="mt-1 h-2 w-2 rounded-full bg-[#c9a227]/70 shadow-[0_0_12px_rgba(201,162,39,0.8)]"
-                    />
+                    <div className="flex items-center gap-1.5 pt-1.5">
+                      <span
+                        aria-hidden="true"
+                        className="h-1.5 w-1.5 rounded-full bg-[#c9a227] shadow-[0_0_10px_rgba(201,162,39,0.9)]"
+                      />
+                      <span className="text-[10px] font-medium tracking-[3px] text-white/50">PREMIUM</span>
+                    </div>
                   </div>
 
-                  {/* Copy */}
-                  <h2 className="relative text-3xl font-semibold tracking-tight text-white sm:text-[2rem]">
+                  {/* Headline */}
+                  <h2 className="relative text-[27px] font-semibold tracking-[-0.025em] leading-[1.05] text-white sm:text-[29px] md:text-[31px]">
                     {portal.title}
                   </h2>
-                  <p className="relative mt-3 max-w-md text-base leading-relaxed text-white/65">
+
+                  {/* Description */}
+                  <p className="relative mt-4 max-w-[33ch] text-[15px] leading-relaxed tracking-[-0.005em] text-white/70 sm:text-[15.5px]">
                     {portal.description}
                   </p>
 
-                  {/* CTA */}
-                  <div className="relative mt-auto pt-8">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-5 py-2.5 text-sm font-medium text-white/90 transition-colors duration-300 group-hover:border-white/30 group-hover:bg-white/10">
+                  {/* Premium CTA */}
+                  <div className="relative mt-auto pt-9">
+                    <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.055] px-6 py-[13px] text-sm font-medium text-white/95 backdrop-blur-sm transition-all duration-300 group-hover:border-white/30 group-hover:bg-white/10 group-hover:text-white">
                       {portal.cta}
                       <ArrowRight
-                        className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                        className="h-4 w-4 transition-all duration-300 group-hover:translate-x-[2px]"
                         aria-hidden="true"
                       />
-                    </span>
+                    </div>
                   </div>
                 </Link>
               </motion.div>
@@ -271,7 +296,7 @@ export default function WelcomeExperience() {
           initial={reduceMotion ? false : "hidden"}
           animate="visible"
           variants={footerReveal}
-          className="mt-14 text-sm text-white/40"
+          className="mt-16 text-xs tracking-[1.5px] text-white/35 sm:text-sm"
         >
           Both experiences showcase the same information in different ways.
         </motion.p>
