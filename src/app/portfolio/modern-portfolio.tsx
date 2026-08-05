@@ -3,8 +3,18 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowRight, Droplet, GraduationCap, Shield, Sparkles, Trophy } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Droplet,
+  GraduationCap,
+  Shield,
+  Sparkles,
+  Trophy,
+  X,
+} from "lucide-react";
 import {
   achievementItems,
   bloodDonation,
@@ -72,10 +82,35 @@ const statFloatVariants = (delay: number) =>
     },
   }) as const;
 
+/** Shared easing curve used by the section reveal animations. */
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+/**
+ * SectionReveal — subtle fade + slight slide-up when a section enters the
+ * viewport. Fires once per section. Uses transform/opacity only, so it
+ * cannot cause layout shift (CLS). Respects prefers-reduced-motion by
+ * fading without sliding.
+ */
+function SectionReveal({ children, className }: { children: React.ReactNode; className?: string }) {
+  const reduceMotion = useReducedMotion();
+  return (
+    <motion.div
+      className={className}
+      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 24 }}
+      whileInView={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.5, ease: EASE }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 // Modern Premium Portfolio Redesign - Phase 04
 export default function ModernPortfolio() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // Navbar: transparent at top → glassmorphism once the page is scrolled.
   // Scrollspy: the active nav link is the last section whose top has
@@ -115,6 +150,32 @@ export default function ModernPortfolio() {
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);
+
+  // Lightbox: Escape closes, ArrowLeft/ArrowRight navigate; lock body scroll
+  // while the modal is open so the page behind can't scroll.
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setLightboxIndex(null);
+      } else if (e.key === "ArrowRight") {
+        setLightboxIndex((i) => (i === null ? i : (i + 1) % galleryItems.length));
+      } else if (e.key === "ArrowLeft") {
+        setLightboxIndex((i) =>
+          i === null ? i : (i - 1 + galleryItems.length) % galleryItems.length,
+        );
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [lightboxIndex]);
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)]">
@@ -349,26 +410,28 @@ export default function ModernPortfolio() {
       {/* ABOUT SECTION */}
       <section id="about" className="py-20 border-b border-[var(--color-border)]">
         <Container>
-          <SectionTitle
-            title="About Me"
-            subtitle="From a village in Sunamganj to building meaningful impact through education, service & technology"
-            align="center"
-          />
+          <SectionReveal>
+            <SectionTitle
+              title="About Me"
+              subtitle="From a village in Sunamganj to building meaningful impact through education, service & technology"
+              align="center"
+            />
 
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="prose prose-lg text-[var(--color-text-secondary)]">
-              <p>{portfolioProfile.summary}</p>
-              <p>
-                Currently an HSC 2nd Year Science student at Sunamganj Government College, I am also
-                a home tutor, Co-Founder &amp; General Secretary of Shantichakra Blood Society,
-                Founder of FS Coaching Center, and an active BNCC Cadet.
-              </p>
-              <p>
-                I am passionate about web development, AI, content creation, and community service —
-                with a mission to create positive change through education and technology.
-              </p>
+            <div className="max-w-3xl mx-auto text-center">
+              <div className="prose prose-lg text-[var(--color-text-secondary)]">
+                <p>{portfolioProfile.summary}</p>
+                <p>
+                  Currently an HSC 2nd Year Science student at Sunamganj Government College, I am
+                  also a home tutor, Co-Founder &amp; General Secretary of Shantichakra Blood
+                  Society, Founder of FS Coaching Center, and an active BNCC Cadet.
+                </p>
+                <p>
+                  I am passionate about web development, AI, content creation, and community service
+                  — with a mission to create positive change through education and technology.
+                </p>
+              </div>
             </div>
-          </div>
+          </SectionReveal>
         </Container>
       </section>
 
@@ -378,60 +441,64 @@ export default function ModernPortfolio() {
         className="py-20 bg-[var(--color-bg-secondary)] border-b border-[var(--color-border)]"
       >
         <Container>
-          <SectionTitle
-            title="Education Journey"
-            subtitle="A continuous path of academic excellence from primary school to HSC"
-            align="center"
-          />
+          <SectionReveal>
+            <SectionTitle
+              title="Education Journey"
+              subtitle="A continuous path of academic excellence from primary school to HSC"
+              align="center"
+            />
 
-          <div className="max-w-4xl mx-auto">
-            <div className="space-y-6">
-              {educationItems.map((edu) => (
-                <Card key={edu.title} variant="bordered" className="p-6">
-                  <div className="flex flex-col md:flex-row md:items-center gap-4">
-                    <div className="md:w-48 text-sm font-mono text-[var(--color-text-tertiary)]">
-                      {edu.year}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-xl">{edu.title}</div>
-                      <div className="text-[var(--color-text-secondary)]">{edu.institution}</div>
-                      <div className="mt-1 text-sm text-[var(--color-text-tertiary)]">
-                        {edu.desc}
+            <div className="max-w-4xl mx-auto">
+              <div className="space-y-6">
+                {educationItems.map((edu) => (
+                  <Card key={edu.title} variant="bordered" className="p-6">
+                    <div className="flex flex-col md:flex-row md:items-center gap-4">
+                      <div className="md:w-48 text-sm font-mono text-[var(--color-text-tertiary)]">
+                        {edu.year}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-xl">{edu.title}</div>
+                        <div className="text-[var(--color-text-secondary)]">{edu.institution}</div>
+                        <div className="mt-1 text-sm text-[var(--color-text-tertiary)]">
+                          {edu.desc}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+              </div>
             </div>
-          </div>
+          </SectionReveal>
         </Container>
       </section>
 
       {/* ACHIEVEMENTS SECTION */}
       <section id="achievements" className="py-20 border-b border-[var(--color-border)]">
         <Container>
-          <SectionTitle
-            title="Achievements"
-            subtitle="Recognition in academics, science fairs, and community service"
-            align="center"
-          />
+          <SectionReveal>
+            <SectionTitle
+              title="Achievements"
+              subtitle="Recognition in academics, science fairs, and community service"
+              align="center"
+            />
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {achievementItems.map((item) => (
-              <Card
-                key={item.title}
-                variant="elevated"
-                className="border border-transparent p-6 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
-              >
-                <div className="text-4xl mb-4">{item.icon}</div>
-                <div className="font-semibold text-xl mb-1">{item.title}</div>
-                <div className="text-sm text-[var(--color-brand-primary)] font-medium mb-3">
-                  {item.year}
-                </div>
-                <div className="text-[var(--color-text-secondary)] text-sm">{item.desc}</div>
-              </Card>
-            ))}
-          </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              {achievementItems.map((item) => (
+                <Card
+                  key={item.title}
+                  variant="elevated"
+                  className="border border-transparent p-6 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
+                >
+                  <div className="text-4xl mb-4">{item.icon}</div>
+                  <div className="font-semibold text-xl mb-1">{item.title}</div>
+                  <div className="text-sm text-[var(--color-brand-primary)] font-medium mb-3">
+                    {item.year}
+                  </div>
+                  <div className="text-[var(--color-text-secondary)] text-sm">{item.desc}</div>
+                </Card>
+              ))}
+            </div>
+          </SectionReveal>
         </Container>
       </section>
 
@@ -441,181 +508,207 @@ export default function ModernPortfolio() {
         className="py-20 bg-[var(--color-bg-secondary)] border-b border-[var(--color-border)]"
       >
         <Container>
-          <SectionTitle
-            title="Website Development Services"
-            subtitle="Choose the right service for your needs. Starting prices are beginner-friendly."
-            align="center"
-          />
+          <SectionReveal>
+            <SectionTitle
+              title="Website Development Services"
+              subtitle="Choose the right service for your needs. Starting prices are beginner-friendly."
+              align="center"
+            />
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {portfolioServices.map((service) => (
-              <Card
-                key={service.title}
-                variant="elevated"
-                className="group flex flex-col border border-transparent p-7 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
-              >
-                <div>
-                  <div className="font-semibold text-2xl mb-2 group-hover:text-[var(--color-brand-primary)] transition-colors">
-                    {service.title}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              {portfolioServices.map((service) => (
+                <Card
+                  key={service.title}
+                  variant="elevated"
+                  className="group flex flex-col border border-transparent p-7 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
+                >
+                  <div>
+                    <div className="font-semibold text-2xl mb-2 group-hover:text-[var(--color-brand-primary)] transition-colors">
+                      {service.title}
+                    </div>
+                    <div className="text-3xl font-semibold text-[var(--color-brand-primary)] mb-1">
+                      {service.price}
+                    </div>
+                    <div className="text-sm text-[var(--color-text-tertiary)] mb-4">
+                      Delivery: {service.time}
+                    </div>
+                    <p className="text-[var(--color-text-secondary)] leading-relaxed">
+                      {service.desc}
+                    </p>
                   </div>
-                  <div className="text-3xl font-semibold text-[var(--color-brand-primary)] mb-1">
-                    {service.price}
-                  </div>
-                  <div className="text-sm text-[var(--color-text-tertiary)] mb-4">
-                    Delivery: {service.time}
-                  </div>
-                  <p className="text-[var(--color-text-secondary)] leading-relaxed">
-                    {service.desc}
-                  </p>
-                </div>
 
-                <div className="mt-auto pt-6">
-                  <Link href="/order">
-                    <Button variant="outline" className="w-full">
-                      Choose This Service →
-                    </Button>
-                  </Link>
-                </div>
-              </Card>
-            ))}
-          </div>
+                  <div className="mt-auto pt-6">
+                    <Link href="/order">
+                      <Button variant="outline" className="w-full">
+                        Choose This Service →
+                      </Button>
+                    </Link>
+                  </div>
+                </Card>
+              ))}
+            </div>
 
-          <div className="text-center mt-10 text-sm text-[var(--color-text-tertiary)]">
-            All websites are fully responsive, fast-loading, and SEO optimized.
-          </div>
+            <div className="text-center mt-10 text-sm text-[var(--color-text-tertiary)]">
+              All websites are fully responsive, fast-loading, and SEO optimized.
+            </div>
+          </SectionReveal>
         </Container>
       </section>
 
       {/* EXPERIENCE & INITIATIVES */}
       <section id="experience" className="py-20 border-b border-[var(--color-border)]">
         <Container>
-          <SectionTitle
-            title="Experience & Initiatives"
-            subtitle="Organizations I founded and roles I currently hold"
-            align="center"
-          />
+          <SectionReveal>
+            <SectionTitle
+              title="Experience & Initiatives"
+              subtitle="Organizations I founded and roles I currently hold"
+              align="center"
+            />
 
-          <div id="skills" className="mx-auto mb-10 max-w-5xl">
-            <h3 className="mb-4 text-center text-xl font-semibold">Skills &amp; Focus</h3>
-            <div className="flex flex-wrap justify-center gap-3">
-              {skills.map((skill) => (
-                <span
-                  key={skill}
-                  className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm text-[var(--color-text-secondary)]"
-                >
-                  {skill}
-                </span>
+            <div id="skills" className="mx-auto mb-10 max-w-5xl">
+              <h3 className="mb-4 text-center text-xl font-semibold">Skills &amp; Focus</h3>
+              <div className="flex flex-wrap justify-center gap-3">
+                {skills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm text-[var(--color-text-secondary)]"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+              {initiatives.map((initiative) => (
+                <Card key={initiative.title} variant="elevated" className="p-8">
+                  <div className="text-4xl mb-4">{initiative.icon}</div>
+                  <div className="font-semibold text-2xl">{initiative.title}</div>
+                  <div className="text-[var(--color-brand-primary)] font-medium">
+                    {initiative.role}
+                  </div>
+                  <p className="mt-4 text-[var(--color-text-secondary)]">
+                    {initiative.description}
+                  </p>
+                </Card>
               ))}
             </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            {initiatives.map((initiative) => (
-              <Card key={initiative.title} variant="elevated" className="p-8">
-                <div className="text-4xl mb-4">{initiative.icon}</div>
-                <div className="font-semibold text-2xl">{initiative.title}</div>
-                <div className="text-[var(--color-brand-primary)] font-medium">
-                  {initiative.role}
-                </div>
-                <p className="mt-4 text-[var(--color-text-secondary)]">{initiative.description}</p>
-              </Card>
-            ))}
-          </div>
+          </SectionReveal>
         </Container>
       </section>
 
       {/* BLOOD DONATION & SHANTICHAKRA */}
       <section id="blood" className="py-20 bg-[var(--color-brand-primary)] text-white">
         <Container>
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="text-6xl mb-6">🩸</div>
-            <h2 className="text-4xl font-semibold tracking-tight mb-4">{bloodDonation.title}</h2>
-            <p className="text-xl opacity-90 mb-8">
-              {bloodDonation.role} • {bloodDonation.location}
-            </p>
+          <SectionReveal>
+            <div className="max-w-3xl mx-auto text-center">
+              <div className="text-6xl mb-6">🩸</div>
+              <h2 className="text-4xl font-semibold tracking-tight mb-4">{bloodDonation.title}</h2>
+              <p className="text-xl opacity-90 mb-8">
+                {bloodDonation.role} • {bloodDonation.location}
+              </p>
 
-            <div className="flex flex-wrap justify-center gap-4 text-sm">
-              <div className="px-6 py-2 bg-white/10 rounded-full">{bloodDonation.donations}</div>
-              <div className="px-6 py-2 bg-white/10 rounded-full">{bloodDonation.bloodGroup}</div>
-              <div className="px-6 py-2 bg-white/10 rounded-full">{bloodDonation.founded}</div>
+              <div className="flex flex-wrap justify-center gap-4 text-sm">
+                <div className="px-6 py-2 bg-white/10 rounded-full">{bloodDonation.donations}</div>
+                <div className="px-6 py-2 bg-white/10 rounded-full">{bloodDonation.bloodGroup}</div>
+                <div className="px-6 py-2 bg-white/10 rounded-full">{bloodDonation.founded}</div>
+              </div>
             </div>
-          </div>
+          </SectionReveal>
         </Container>
       </section>
 
-      {/* GALLERY SECTION */}
+      {/* GALLERY SECTION — click a card to open the lightbox */}
       <section
         id="gallery"
         className="border-b border-[var(--color-border)] bg-[var(--color-bg-secondary)] py-20"
       >
         <Container>
-          <SectionTitle
-            title="Gallery"
-            subtitle="Some moments from academic achievements, community work, and initiatives"
-            align="center"
-          />
+          <SectionReveal>
+            <SectionTitle
+              title="Gallery"
+              subtitle="Some moments from academic achievements, community work, and initiatives"
+              align="center"
+            />
 
-          <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {galleryItems.map((item) => (
-              <Card key={item.title} variant="elevated" className="overflow-hidden p-0">
-                <Image
-                  src={item.image}
-                  alt={item.alt}
-                  width={600}
-                  height={400}
-                  className="aspect-[3/2] w-full object-cover"
-                  loading="lazy"
-                />
-                <div className="p-5">
-                  <div className="mb-1 text-2xl">{item.icon}</div>
-                  <h3 className="font-semibold text-lg">{item.title}</h3>
-                  <p className="mt-1 text-sm text-[var(--color-text-tertiary)]">{item.meta}</p>
-                </div>
-              </Card>
-            ))}
-          </div>
+            <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {galleryItems.map((item, index) => (
+                <Card
+                  key={item.title}
+                  variant="elevated"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Open ${item.title} in lightbox`}
+                  onClick={() => setLightboxIndex(index)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setLightboxIndex(index);
+                    }
+                  }}
+                  className="cursor-pointer overflow-hidden p-0 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[var(--shadow-xl)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
+                >
+                  <Image
+                    src={item.image}
+                    alt={item.alt}
+                    width={600}
+                    height={400}
+                    className="aspect-[3/2] w-full object-cover"
+                    loading="lazy"
+                  />
+                  <div className="p-5">
+                    <div className="mb-1 text-2xl">{item.icon}</div>
+                    <h3 className="font-semibold text-lg">{item.title}</h3>
+                    <p className="mt-1 text-sm text-[var(--color-text-tertiary)]">{item.meta}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </SectionReveal>
         </Container>
       </section>
 
       {/* CONTACT SECTION */}
       <section id="contact" className="py-20">
         <Container>
-          <SectionTitle
-            title="Let’s Work Together"
-            subtitle="Ready to start a project or just want to connect?"
-            align="center"
-          />
+          <SectionReveal>
+            <SectionTitle
+              title="Let’s Work Together"
+              subtitle="Ready to start a project or just want to connect?"
+              align="center"
+            />
 
-          <div className="max-w-md mx-auto text-center">
-            <div className="space-y-4">
-              <a href={`mailto:${portfolioProfile.email}`}>
-                <Button size="lg" className="w-full">
-                  Email Me
-                </Button>
-              </a>
-              <a href={portfolioProfile.whatsapp} target="_blank" rel="noopener">
-                <Button variant="outline" size="lg" className="w-full">
-                  Message on WhatsApp
-                </Button>
-              </a>
-            </div>
-            <div className="mt-8 flex flex-wrap justify-center gap-2">
-              {socialLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-brand-primary)] hover:text-[var(--color-brand-primary)]"
-                >
-                  {link.label}
+            <div className="max-w-md mx-auto text-center">
+              <div className="space-y-4">
+                <a href={`mailto:${portfolioProfile.email}`}>
+                  <Button size="lg" className="w-full">
+                    Email Me
+                  </Button>
                 </a>
-              ))}
+                <a href={portfolioProfile.whatsapp} target="_blank" rel="noopener">
+                  <Button variant="outline" size="lg" className="w-full">
+                    Message on WhatsApp
+                  </Button>
+                </a>
+              </div>
+              <div className="mt-8 flex flex-wrap justify-center gap-2">
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-brand-primary)] hover:text-[var(--color-brand-primary)]"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+              <p className="mt-5 text-sm text-[var(--color-text-tertiary)]">
+                Usually respond within 24 hours
+              </p>
             </div>
-            <p className="mt-5 text-sm text-[var(--color-text-tertiary)]">
-              Usually respond within 24 hours
-            </p>
-          </div>
+          </SectionReveal>
         </Container>
       </section>
 
@@ -626,6 +719,96 @@ export default function ModernPortfolio() {
           Bangladesh
         </Container>
       </footer>
+
+      {/* GALLERY LIGHTBOX */}
+      {lightboxIndex !== null && galleryItems[lightboxIndex] ? (
+        <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label={galleryItems[lightboxIndex].title}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8"
+        >
+          {/* Backdrop — click outside the image to close */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setLightboxIndex(null)}
+          />
+
+          {/* Close button */}
+          <button
+            type="button"
+            onClick={() => setLightboxIndex(null)}
+            aria-label="Close gallery"
+            className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors duration-200 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
+
+          {/* Previous / Next — shown because there is more than one image */}
+          {galleryItems.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() =>
+                  setLightboxIndex((lightboxIndex - 1 + galleryItems.length) % galleryItems.length)
+                }
+                aria-label="Previous image"
+                className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors duration-200 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-6"
+              >
+                <ChevronLeft className="h-6 w-6" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setLightboxIndex((lightboxIndex + 1) % galleryItems.length)}
+                aria-label="Next image"
+                className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors duration-200 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-6"
+              >
+                <ChevronRight className="h-6 w-6" aria-hidden="true" />
+              </button>
+            </>
+          )}
+
+          {/* Image + caption (clicks inside do not close the lightbox) */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.25, ease: EASE }}
+            className="relative z-[1] w-full max-w-4xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="overflow-hidden rounded-2xl bg-black">
+              <Image
+                src={galleryItems[lightboxIndex].image}
+                alt={galleryItems[lightboxIndex].alt}
+                width={1200}
+                height={800}
+                sizes="(max-width: 1024px) 95vw, 900px"
+                className="max-h-[72vh] w-full object-contain"
+              />
+            </div>
+            <div className="mt-4 flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 text-lg font-semibold text-white">
+                  <span className="text-2xl" aria-hidden="true">
+                    {galleryItems[lightboxIndex].icon}
+                  </span>
+                  <span className="truncate">{galleryItems[lightboxIndex].title}</span>
+                </div>
+                <p className="mt-0.5 truncate text-sm text-white/70">
+                  {galleryItems[lightboxIndex].meta}
+                </p>
+              </div>
+              <div className="flex-none rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-white/80">
+                {lightboxIndex + 1} / {galleryItems.length}
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
     </div>
   );
 }
