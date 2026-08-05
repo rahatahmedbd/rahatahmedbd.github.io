@@ -160,20 +160,11 @@ export default function WelcomeExperience() {
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(26,60,90,0.12),transparent_55%)]"
-      />
-      {/* Very subtle premium grain */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.035] mix-blend-screen"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' fill='none'%3E%3Cpath fill='%23fff' fill-opacity='0.9' d='M140 0H0v140h140V0z'/%3E%3C/svg%3E")`,
-          backgroundSize: "140px 140px",
-        }}
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-18%,rgba(122,12,46,0.32),transparent_62%)]"
       />
 
-      {/* Content */}
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-5 py-20 text-center sm:px-8 md:py-24">
+      {/* Content — offset for new fixed PremiumTopbar (Phase 2) */}
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-5 pt-20 pb-16 text-center sm:px-8 md:pt-24 md:pb-20">
         {/* Headline */}
         <div className="mb-3">
           <motion.div
