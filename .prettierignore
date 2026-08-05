@@ -1,9 +1,0 @@
-node_modules
-.next
-out
-coverage
-package-lock.json
-public
-
-src/styles/legacy
-docs/README.md
