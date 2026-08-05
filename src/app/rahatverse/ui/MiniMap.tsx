@@ -52,17 +52,17 @@ export function MiniMap({
   const dot = toMapPercent(position[0], position[2]);
 
   return (
-    <div className="fixed right-2 top-[8.75rem] z-50 w-40 bg-black/70 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden md:right-6 md:top-24 md:w-48">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 text-sm">
-        <div className="font-medium">Mini Map</div>
+    <div className="fixed right-3 top-[88px] z-[85] w-36 bg-black/75 backdrop-blur-2xl border border-white/10 rounded-2xl overflow-hidden shadow-xl md:right-5 md:top-[96px] md:w-40">
+      <div className="flex items-center justify-between px-3.5 py-2 border-b border-white/10 text-xs">
+        <div className="font-medium tracking-[0.5px] text-white/90">MINI MAP</div>
         <button
           type="button"
           onClick={onToggle}
           aria-expanded={!isCollapsed}
           aria-label={isCollapsed ? "Show mini map" : "Hide mini map"}
-          className="text-white/60 hover:text-white text-xs"
+          className="text-[10px] text-white/50 hover:text-white/80 transition-colors px-1.5 py-0.5 -mr-1 rounded"
         >
-          {isCollapsed ? "Show" : "Hide"}
+          {isCollapsed ? "SHOW" : "HIDE"}
         </button>
       </div>
 

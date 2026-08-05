@@ -79,11 +79,17 @@ export function CameraController({
     if (!enabled || mode !== "follow") return;
 
     const target = new THREE.Vector3(...targetPosition);
-    const offset = new THREE.Vector3(0, 35, 55);
+    // More cinematic follow: slightly higher + further back for dramatic feel
+    const offset = new THREE.Vector3(0, 38, 62);
     const desiredPosition = target.clone().add(offset);
 
-    camera.position.lerp(desiredPosition, 0.04);
-    camera.lookAt(target.x, target.y + 8, target.z);
+    // Smoother cinematic lerp (lower value = more elegant glide)
+    camera.position.lerp(desiredPosition, 0.028);
+
+    // Look slightly ahead of the vehicle for better storytelling
+    const lookTarget = target.clone();
+    lookTarget.y += 11;
+    camera.lookAt(lookTarget);
   });
 
   return null;
