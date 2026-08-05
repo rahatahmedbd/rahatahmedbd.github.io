@@ -1,13 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { Volume2, VolumeX } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { PlatformErrorBoundary } from "@/components/platform/platform-error-boundary";
 import { detectWebGLSupport } from "@/lib/webgl";
 import {
@@ -203,60 +200,15 @@ export default function RahatVerseExperience() {
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#0a0c12] text-white">
-      {/* Top Navigation — mode status + sound toggle live here */}
-      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-black/70 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="text-2xl">🏙️</div>
-            <div className="min-w-0">
-              <div className="truncate font-semibold tracking-tight">RahatVerse</div>
-              <div className="-mt-0.5 truncate text-[10px] text-white/50">
-                {tourProgress.mode === "auto"
-                  ? tourProgress.isPlaying
-                    ? "🚗 Auto Tour Active"
-                    : "⏸️ Tour Paused"
-                  : tourProgress.mode === "guide"
-                    ? "🧭 Guided Tour"
-                    : "🕹️ Explore Freely"}
-              </div>
-            </div>
-          </div>
+      {/* 
+        Phase 2: Global PremiumTopbar is now provided by SiteShell.
+        Removed the duplicate RahatVerse top nav to avoid double header.
+        We keep a minimal status indicator below the global bar + important controls.
+      */}
 
-          <div className="flex flex-none items-center gap-2">
-            <button
-              type="button"
-              onClick={() => updateSettings({ sound: !settings.sound })}
-              aria-pressed={settings.sound}
-              aria-label={settings.sound ? "Mute ambient sound" : "Unmute ambient sound"}
-              title={settings.sound ? "Mute sound" : "Unmute sound"}
-              className={`flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${
-                settings.sound
-                  ? "border-[#22d3ee]/60 bg-[#22d3ee]/20 text-[#22d3ee] hover:bg-[#22d3ee]/30"
-                  : "border-white/20 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              {settings.sound ? (
-                <Volume2 className="h-4 w-4" aria-hidden="true" />
-              ) : (
-                <VolumeX className="h-4 w-4" aria-hidden="true" />
-              )}
-            </button>
-
-            <Link href="/portfolio" aria-label="Open Website Experience">
-              <Button variant="ghost" size="sm" className="text-white/70 hover:text-white">
-                <span className="hidden sm:inline">← Website Experience</span>
-                <span className="sm:hidden" aria-hidden="true">
-                  ←
-                </span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      {/* 3D Scene */}
+      {/* 3D Scene — padded for global topbar */}
       <PlatformErrorBoundary>
-        <div className="fixed inset-0 pt-16">
+        <div className="fixed inset-0 pt-[72px]">
           <Canvas
             camera={{ position: [0, 65, 95], fov: 42 }}
             style={{ background: "#0a0c12" }}
@@ -420,7 +372,7 @@ export default function RahatVerseExperience() {
       <button
         type="button"
         onClick={() => setSettingsOpen(true)}
-        className="fixed left-2 top-[8.75rem] z-50 rounded-full border border-white/20 bg-black/60 px-4 py-2 text-xs hover:bg-white/10 md:left-6 md:top-24"
+        className="fixed left-2 top-[88px] z-50 rounded-full border border-white/20 bg-black/60 px-4 py-2 text-xs hover:bg-white/10 md:left-6 md:top-[92px]"
       >
         ⚙️ Settings
       </button>
