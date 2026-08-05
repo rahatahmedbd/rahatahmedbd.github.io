@@ -6,16 +6,21 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
+  Briefcase,
   ChevronLeft,
   ChevronRight,
   Droplet,
   GraduationCap,
   HeartHandshake,
+  Home,
+  Images,
+  Mail,
   Rocket,
   Shield,
   ShieldCheck,
   Sparkles,
   Trophy,
+  Wrench,
   X,
 } from "lucide-react";
 import { ContactForm } from "@/components/contact/contact-form";
@@ -80,6 +85,19 @@ const NAV_ITEMS = [
 ] as const;
 
 /* ------------------------------------------------------------------ */
+/* Mobile bottom navigation (Phase 26) — 5 tabs, mobile/tablet only.  */
+/* "Portfolio" maps to #experience (the Portfolio Hub section, same   */
+/* route the RahatVerse districts use for the portfolio).             */
+/* ------------------------------------------------------------------ */
+const BOTTOM_NAV_TABS = [
+  { id: "top", label: "Home", icon: Home },
+  { id: "experience", label: "Portfolio", icon: Briefcase },
+  { id: "services", label: "Services", icon: Wrench },
+  { id: "gallery", label: "Gallery", icon: Images },
+  { id: "contact", label: "Contact", icon: Mail },
+] as const;
+
+/* ------------------------------------------------------------------ */
 /* Motion variants for hero entrance animations                       */
 /* ------------------------------------------------------------------ */
 const containerVariants = {
@@ -137,7 +155,39 @@ function SectionReveal({ children, className }: { children: React.ReactNode; cla
 export default function ModernPortfolio() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<string>("top");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Bottom-nav scrollspy: Intersection Observer with a center band —
+  // the tab whose section crosses the middle of the viewport is active.
+  // If no tab section is in the band (in-between sections), the last
+  // active tab stays lit.
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveTab(entry.target.id);
+          }
+        }
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
+    );
+
+    for (const tab of BOTTOM_NAV_TABS) {
+      const element = document.getElementById(tab.id);
+      if (element) observer.observe(element);
+    }
+    return () => observer.disconnect();
+  }, []);
+
+  const handleTabSelect = (tabId: string) => {
+    if (tabId === "top") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    document.getElementById(tabId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   // Navbar: transparent at top → glassmorphism once the page is scrolled.
   // Scrollspy: the active nav link is the last section whose top has
@@ -205,9 +255,11 @@ export default function ModernPortfolio() {
   }, [lightboxIndex]);
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)]">
-      {/* Premium Navigation — transparent at top, glassmorphism on scroll */}
+    <div className="min-h-screen bg-[var(--color-bg)] pb-24 text-[var(--color-text-primary)] lg:pb-0">
+      {/* Top Bar — slim on mobile (logo + badge), full nav on desktop.
+          Transparent at top, glassmorphism on scroll. Safe-area aware. */}
       <nav
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
         className={`sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out ${
           scrolled
             ? "border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-bg)_80%,transparent)] shadow-[var(--shadow-sm)] backdrop-blur-xl"
@@ -215,18 +267,33 @@ export default function ModernPortfolio() {
         }`}
       >
         <Container>
-          <div className="flex h-20 items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-brand-primary)] text-white font-bold text-xl">
+          <div className="flex h-14 items-center justify-between md:h-20">
+            {/* Compact identity */}
+            <div className="flex min-w-0 items-center gap-2 md:gap-3">
+              <div className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-[var(--color-brand-primary)] text-white font-bold text-sm md:h-10 md:w-10 md:rounded-xl md:text-xl">
                 RA
               </div>
-              <div>
-                <div className="font-semibold text-xl">Rahat Ahmed</div>
-                <div className="text-xs text-[var(--color-text-secondary)] -mt-1">Portfolio</div>
+              <div className="min-w-0">
+                <div className="truncate font-semibold text-base leading-tight md:text-xl">
+                  Rahat Ahmed
+                </div>
+                <div className="-mt-0.5 hidden text-xs text-[var(--color-text-secondary)] sm:block">
+                  Portfolio
+                </div>
               </div>
+
+              {/* Highlight badge — real info: the website order flow is live */}
+              <span className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--color-success)_25%,transparent)] bg-[color-mix(in_srgb,var(--color-success)_10%,transparent)] px-2 py-1 text-[10px] font-medium text-[var(--color-success-dark)] md:ml-2 md:px-2.5 md:text-xs">
+                <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-success)] opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--color-success)]" />
+                </span>
+                Now Taking Orders
+              </span>
             </div>
 
-            <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+            {/* Desktop horizontal nav */}
+            <div className="hidden items-center gap-8 text-sm font-medium md:flex">
               {NAV_ITEMS.map((item) => {
                 const isActive = activeSection === item.id;
                 return (
@@ -246,16 +313,17 @@ export default function ModernPortfolio() {
               })}
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex flex-none items-center gap-1 sm:gap-4">
               <Link href="/" aria-label="Back to Welcome">
                 <Button variant="ghost" size="sm" className="px-2 sm:px-4">
-                  <span className="sm:hidden" aria-hidden="true">
+                  <span className="md:hidden" aria-hidden="true">
                     ←
                   </span>
-                  <span className="hidden sm:inline">← Back to Welcome</span>
+                  <span className="hidden md:inline">← Back to Welcome</span>
                 </Button>
               </Link>
-              <a href="#contact">
+              {/* Redundant on mobile — Contact lives in the bottom nav */}
+              <a href="#contact" className="hidden sm:inline">
                 <Button size="sm" className="px-3 sm:px-4">
                   Get in Touch
                 </Button>
@@ -266,7 +334,10 @@ export default function ModernPortfolio() {
       </nav>
 
       {/* HERO SECTION — Redesigned Phase 17: premium split layout */}
-      <section className="relative overflow-hidden border-b border-[var(--color-border)] pt-16 pb-20 md:pt-24 md:pb-28">
+      <section
+        id="top"
+        className="relative overflow-hidden border-b border-[var(--color-border)] pt-16 pb-20 md:pt-24 md:pb-28"
+      >
         {/* Decorative background */}
         <div
           aria-hidden="true"
@@ -883,6 +954,53 @@ export default function ModernPortfolio() {
           </motion.div>
         </motion.div>
       ) : null}
+
+      {/* Bottom Navigation — mobile/tablet only (hidden md+), native-app feel */}
+      <nav
+        aria-label="Primary"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-bg)_92%,transparent)] pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.25)] backdrop-blur-xl lg:hidden"
+      >
+        <div className="grid h-16 grid-cols-5">
+          {BOTTOM_NAV_TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => handleTabSelect(tab.id)}
+                aria-current={isActive ? "page" : undefined}
+                className="group relative flex flex-col items-center justify-center gap-1 transition-colors duration-200"
+              >
+                {/* Active indicator */}
+                <span
+                  aria-hidden="true"
+                  className={`absolute top-0 h-0.5 w-8 rounded-full bg-[var(--color-brand-primary)] transition-all duration-300 ${
+                    isActive ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+                <Icon
+                  className={`h-5 w-5 transition-all duration-200 ${
+                    isActive
+                      ? "scale-110 text-[var(--color-brand-primary)]"
+                      : "text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-secondary)]"
+                  }`}
+                  aria-hidden="true"
+                />
+                <span
+                  className={`text-[10px] font-medium leading-none transition-colors duration-200 ${
+                    isActive
+                      ? "text-[var(--color-brand-primary)]"
+                      : "text-[var(--color-text-tertiary)]"
+                  }`}
+                >
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

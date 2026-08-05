@@ -23,8 +23,9 @@ html {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   scroll-behavior: smooth;
-  /* Keep anchored sections clear of the sticky navbar. */
-  scroll-padding-top: 5.5rem;
+  /* Keep anchored sections clear of the sticky top bar (which grows by
+     the iOS safe-area inset on notched phones). */
+  scroll-padding-top: 6.5rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
