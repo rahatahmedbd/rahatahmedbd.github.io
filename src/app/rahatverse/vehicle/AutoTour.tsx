@@ -14,6 +14,8 @@ interface AutoTourProps {
   onStopChange: (stop: RahatVerseStop) => void;
   onProgressChange?: (progress: { stopId: string; stopIndex: number }) => void;
   onTourComplete: () => void;
+  /** Written every frame with the vehicle's live world position. */
+  positionRef?: React.RefObject<[number, number, number]>;
 }
 
 function clampStopIndex(index: number): number {
@@ -27,6 +29,7 @@ export function AutoTour({
   onStopChange,
   onProgressChange,
   onTourComplete,
+  positionRef,
 }: AutoTourProps) {
   const initialStopIndexRef = useRef(clampStopIndex(initialStopIndex));
   const [currentStopIndex, setCurrentStopIndex] = useState(clampStopIndex(initialStopIndex));
@@ -95,6 +98,11 @@ export function AutoTour({
         nextStop.position[0] - currentStop.position[0],
       );
       vehicleRef.current.rotation.y = angle + Math.PI;
+    }
+
+    // Feed the live position to the mini-map (ref write, no re-render).
+    if (positionRef) {
+      positionRef.current = [x, 3, z];
     }
   });
 

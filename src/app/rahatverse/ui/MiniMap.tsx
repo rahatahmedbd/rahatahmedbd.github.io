@@ -1,38 +1,58 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+import { rahatVerseTourStops, type RahatVerseStop } from "@/data/platform";
 
 interface MiniMapProps {
-  currentPosition: [number, number, number];
+  /** Live vehicle position, written by the 3D frame loop. */
+  positionRef: React.RefObject<[number, number, number]>;
   currentDistrict: string;
+  currentStopId: string;
   isCollapsed?: boolean;
   onToggle?: () => void;
+  onSelectStop?: (stop: RahatVerseStop) => void;
 }
 
-const districts = [
-  { name: "Website Store", x: 50, y: 50 },
-  { name: "About Me", x: 50, y: 25 },
-  { name: "Achievements", x: 75, y: 30 },
-  { name: "Portfolio", x: 80, y: 50 },
-  { name: "Blood Donation", x: 75, y: 75 },
-  { name: "Gallery", x: 50, y: 80 },
-  { name: "Education", x: 25, y: 75 },
-  { name: "Skills", x: 20, y: 50 },
-  { name: "Contact", x: 25, y: 25 },
-];
+const WORLD_EXTENT = 260; // matches the road/grid extent (-130..130)
 
+function toMapPercent(x: number, z: number): { x: number; y: number } {
+  return {
+    x: ((x + WORLD_EXTENT / 2) / WORLD_EXTENT) * 100,
+    y: ((z + WORLD_EXTENT / 2) / WORLD_EXTENT) * 100,
+  };
+}
+
+/**
+ * Mini map — district dots are derived from the same tour-stop data as
+ * the 3D city (so they always match building positions), the player dot
+ * follows the vehicle in real time (ref polled at ~10Hz, decoupled from
+ * the render loop), and tapping a dot flies the camera to that building
+ * (reusing the phase-21 focus transition).
+ */
 export function MiniMap({
-  currentPosition,
+  positionRef,
   currentDistrict,
+  currentStopId,
   isCollapsed = false,
   onToggle,
+  onSelectStop,
 }: MiniMapProps) {
-  const [x, , z] = currentPosition;
-  const mapX = ((x + 130) / 260) * 100;
-  const mapZ = ((z + 130) / 260) * 100;
+  const [position, setPosition] = useState<[number, number, number]>([0, 3, 0]);
+
+  useEffect(() => {
+    if (isCollapsed) return;
+    const id = window.setInterval(() => {
+      const current = positionRef.current;
+      if (current) setPosition([current[0], current[1], current[2]]);
+    }, 100);
+    return () => window.clearInterval(id);
+  }, [isCollapsed, positionRef]);
+
+  const dot = toMapPercent(position[0], position[2]);
 
   return (
-    <div className="fixed top-24 right-6 z-50 bg-black/70 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden w-48">
+    <div className="fixed top-24 right-6 z-50 w-48 bg-black/70 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 text-sm">
         <div className="font-medium">Mini Map</div>
         <button
@@ -54,28 +74,39 @@ export function MiniMap({
             ))}
           </div>
 
-          {/* Districts */}
-          {districts.map((district, index) => (
-            <div
-              key={index}
-              className="absolute w-2 h-2 bg-white/60 rounded-full"
-              style={{
-                left: `${district.x}%`,
-                top: `${district.y}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            />
-          ))}
+          {/* Districts — derived from the real tour-stop positions */}
+          {rahatVerseTourStops.map((stop) => {
+            const coords = toMapPercent(stop.position[0], stop.position[2]);
+            const isCurrent = stop.id === currentStopId;
+            return (
+              <button
+                key={stop.id}
+                type="button"
+                aria-label={stop.name}
+                title={stop.name}
+                onClick={() => onSelectStop?.(stop)}
+                className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full p-2"
+                style={{ left: `${coords.x}%`, top: `${coords.y}%` }}
+              >
+                <span
+                  className={`block h-2 w-2 rounded-full transition-colors ${
+                    isCurrent ? "bg-[#22d3ee] ring-2 ring-white/70" : "bg-white/60 hover:bg-white"
+                  }`}
+                />
+              </button>
+            );
+          })}
 
-          {/* Current Position */}
+          {/* Real-time vehicle position */}
           <div
-            className="absolute w-3 h-3 bg-[#22d3ee] rounded-full border-2 border-white z-10"
-            style={{
-              left: `${mapX}%`,
-              top: `${mapZ}%`,
-              transform: "translate(-50%, -50%)",
-            }}
-          />
+            className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 z-10"
+            style={{ left: `${dot.x}%`, top: `${dot.y}%` }}
+          >
+            <div className="relative h-3 w-3">
+              <div className="absolute inset-0 animate-ping rounded-full bg-[#22d3ee]/50" />
+              <div className="absolute inset-0 rounded-full border-2 border-white bg-[#22d3ee]" />
+            </div>
+          </div>
 
           <div className="absolute bottom-2 left-4 text-[10px] text-white/50">
             {currentDistrict}

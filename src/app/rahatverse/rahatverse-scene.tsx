@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Stars } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 
 import { Button } from "@/components/ui/button";
 import { PlatformErrorBoundary } from "@/components/platform/platform-error-boundary";
@@ -70,6 +70,9 @@ export default function RahatVerseExperience() {
   const [tooltipStop, setTooltipStop] = useState<RahatVerseStop | null>(null);
   const [focusStop, setFocusStop] = useState<RahatVerseStop | null>(null);
   const [activeDistrict, setActiveDistrict] = useState<RahatVerseDistrict | null>(null);
+
+  // Live vehicle position, written by AutoTour and read by the mini-map.
+  const vehiclePositionRef = useRef<[number, number, number]>([0, 3, 0]);
 
   const currentStop =
     rahatVerseTourStops.find((stop) => stop.id === tourProgress.currentStopId) ??
@@ -217,9 +220,6 @@ export default function RahatVerseExperience() {
               });
             }}
           >
-            <ambientLight intensity={0.6} />
-            <directionalLight position={[90, 140, 70]} intensity={1.6} castShadow />
-
             {/* Ground */}
             <mesh rotation={[-Math.PI * 0.5, 0, 0]} position={[0, -0.6, 0]} receiveShadow>
               <planeGeometry args={[320, 320]} />
@@ -250,6 +250,7 @@ export default function RahatVerseExperience() {
               onStopChange={handleStopChange}
               onProgressChange={handleTourProgress}
               onTourComplete={handleTourComplete}
+              positionRef={vehiclePositionRef}
             />
 
             <CameraController
@@ -262,7 +263,6 @@ export default function RahatVerseExperience() {
 
             <LivingWorld timeOfDay={settings.timeOfDay} weather={settings.weather} />
 
-            <Stars radius={450} depth={90} count={1500} factor={3.5} fade speed={0.25} />
             <OrbitControls
               enablePan
               enableZoom
@@ -302,10 +302,12 @@ export default function RahatVerseExperience() {
       <InfoPanel stop={isInfoOpen ? currentStop : null} onClose={() => setIsInfoOpen(false)} />
 
       <MiniMap
-        currentPosition={currentPosition}
+        positionRef={vehiclePositionRef}
         currentDistrict={currentStop.name}
+        currentStopId={tourProgress.currentStopId}
         isCollapsed={miniMapCollapsed}
         onToggle={() => setMiniMapCollapsed((collapsed) => !collapsed)}
+        onSelectStop={handleBuildingSelect}
       />
 
       <SmartDistricts />
