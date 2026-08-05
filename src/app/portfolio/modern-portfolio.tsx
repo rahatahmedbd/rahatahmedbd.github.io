@@ -246,14 +246,19 @@ export default function ModernPortfolio() {
               })}
             </div>
 
-            <div className="flex items-center gap-4">
-              <Link href="/">
-                <Button variant="ghost" size="sm">
-                  ← Back to Welcome
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Link href="/" aria-label="Back to Welcome">
+                <Button variant="ghost" size="sm" className="px-2 sm:px-4">
+                  <span className="sm:hidden" aria-hidden="true">
+                    ←
+                  </span>
+                  <span className="hidden sm:inline">← Back to Welcome</span>
                 </Button>
               </Link>
               <a href="#contact">
-                <Button size="sm">Get in Touch</Button>
+                <Button size="sm" className="px-3 sm:px-4">
+                  Get in Touch
+                </Button>
               </a>
             </div>
           </div>
@@ -715,6 +720,7 @@ export default function ModernPortfolio() {
                     alt={item.alt}
                     width={600}
                     height={400}
+                    sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
                     className="aspect-[3/2] w-full object-cover"
                     loading="lazy"
                   />
