@@ -24,7 +24,7 @@ import { InfoPanel } from "./ui/InfoPanel";
 import { MiniMap } from "./ui/MiniMap";
 import { Controls } from "./ui/Controls";
 import { CameraController } from "./camera/CameraController";
-import { SmartDistricts } from "./districts/SmartDistricts";
+
 import { DistrictPanel } from "./districts/DistrictPanel";
 import { AIAssistant } from "./ai/AIAssistant";
 import { SmartGuideControls } from "./ui/SmartGuideControls";
@@ -67,9 +67,10 @@ export default function RahatVerseExperience() {
   const [webglSupported] = useState<boolean>(detectWebGLSupport);
   const [webglLost, setWebglLost] = useState(false);
 
-  // Building interaction — hover tooltip + click-to-focus.
+  // Building interaction — hover/preview tooltip + click-to-focus.
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [tooltipStop, setTooltipStop] = useState<RahatVerseStop | null>(null);
+  const [tooltipPreviewing, setTooltipPreviewing] = useState(false);
   const [focusStop, setFocusStop] = useState<RahatVerseStop | null>(null);
   const [activeDistrict, setActiveDistrict] = useState<RahatVerseDistrict | null>(null);
 
@@ -302,7 +303,8 @@ export default function RahatVerseExperience() {
             {/* Buildings for every tour stop (incl. the central store) */}
             <Buildings
               tooltipRef={tooltipRef}
-              onHoverChange={setTooltipStop}
+              onTooltipChange={setTooltipStop}
+              onPreviewChange={setTooltipPreviewing}
               onSelect={handleBuildingSelect}
             />
 
@@ -338,16 +340,31 @@ export default function RahatVerseExperience() {
         </div>
       </PlatformErrorBoundary>
 
-      {/* Building tooltip (moved by Buildings each frame; never blocks input) */}
+      {/* Building tooltip — positioned by Buildings each frame, floats
+          gently, never blocks input, clamped to the viewport. */}
       <div
         ref={tooltipRef}
         aria-hidden="true"
         className="pointer-events-none fixed left-0 top-0 z-40 opacity-0 transition-opacity duration-150 will-change-transform"
       >
         {tooltipStop ? (
-          <div className="flex items-center gap-2 whitespace-nowrap rounded-full border border-white/20 bg-black/85 px-3 py-1.5 text-xs font-medium text-white shadow-[var(--shadow-lg)] backdrop-blur-md">
-            <span aria-hidden="true">{tooltipDistrict?.icon ?? "🏙️"}</span>
-            {tooltipStop.name}
+          <div className="relative">
+            <div className="rahatverse-tooltip-float flex items-center gap-2 whitespace-nowrap rounded-2xl border border-white/15 bg-black/85 px-4 py-2.5 text-sm font-medium text-white shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+              <span className="flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-[#22d3ee]/20 text-base">
+                {tooltipDistrict?.icon ?? "🏙️"}
+              </span>
+              <span className="max-w-[220px] truncate">{tooltipStop.name}</span>
+              {tooltipPreviewing ? (
+                <span className="flex-none rounded-full border border-[#22d3ee]/40 bg-[#22d3ee]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#67e8f9]">
+                  Tap to visit
+                </span>
+              ) : null}
+            </div>
+            {/* Pointer arrow */}
+            <div
+              aria-hidden="true"
+              className="absolute left-1/2 top-full h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-white/15 bg-black/85"
+            />
           </div>
         ) : null}
       </div>
@@ -379,7 +396,19 @@ export default function RahatVerseExperience() {
         onSelectStop={(stop) => handleBuildingSelect(stop, "minimap")}
       />
 
-      <SmartDistricts />
+      {/* Camera-focus indicator — visible while the camera flies to a
+          building; disappears when the district panel opens. */}
+      {focusStop ? (
+        <div className="pointer-events-none fixed bottom-44 left-1/2 z-40 -translate-x-1/2">
+          <div className="flex items-center gap-2.5 whitespace-nowrap rounded-full border border-white/15 bg-black/70 px-4 py-2 text-xs text-white/85 shadow-[var(--shadow-lg)] backdrop-blur-xl">
+            <span className="relative flex h-2 w-2" aria-hidden="true">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22d3ee] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#22d3ee]" />
+            </span>
+            Focusing on {focusStop.name}…
+          </div>
+        </div>
+      ) : null}
 
       <AIAssistant />
 

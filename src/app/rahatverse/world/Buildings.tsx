@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -9,15 +9,18 @@ import { rahatVerseTourStops, type RahatVerseStop } from "@/data/platform";
 /**
  * Lightweight box-buildings placed at every RahatVerse tour stop.
  *
- * Each building:
- * - Shows a tooltip on hover (desktop) / tap (mobile) via a projected
- *   HTML element (the scene owns the tooltip DOM node, we only move it)
- * - Calls onSelect when clicked/tapped so the scene can animate the
- *   camera to focus the building
+ * Interaction model (Phase 32):
+ * - Desktop: hover previews the tooltip; click flies the camera.
+ * - Mobile: there is no hover, so the FIRST tap previews the building
+ *   (tooltip + highlight + "tap to visit" hint); the SECOND tap on the
+ *   same building triggers the camera flight. Tapping elsewhere clears
+ *   the preview.
  *
- * Geometry is intentionally primitive (2 boxes per building) so the
- * whole district adds ~20 draw calls and stays cheap on mid-range
- * mobile GPUs.
+ * Visual polish (per user feedback — "city feels plain"):
+ * - Warm lit windows on each building (small emissive boxes, cheap)
+ * - A glowing cyan ring floats above the hovered/previewed building
+ * - Tooltip DOM node is moved by the scene each frame (zero React
+ *   re-renders) and clamped to the viewport so it never overflows
  */
 
 const BUILDING_COLORS = [
@@ -33,12 +36,15 @@ const BUILDING_COLORS = [
   "#1e40af",
 ] as const;
 
+const WINDOW_COLOR = "#fcd34d";
+
 interface BuildingSpec {
   stop: RahatVerseStop;
   width: number;
   depth: number;
   height: number;
   color: string;
+  windows: Array<{ x: number; y: number; z: number; sx: number; sy: number; sz: number }>;
 }
 
 function buildingSpecs(): BuildingSpec[] {
@@ -47,53 +53,81 @@ function buildingSpecs(): BuildingSpec[] {
     const width = isStore ? 24 : 12 + (index % 3) * 3;
     const depth = isStore ? 24 : 12 + ((index + 1) % 3) * 3;
     const height = isStore ? 34 : 20 + ((index * 7) % 18);
+
+    // Two warm lit windows on the front face, staggered heights.
+    const frontZ = depth / 2 + 0.08;
+    const backZ = -depth / 2 - 0.08;
+    const windows = [
+      { x: -width * 0.22, y: height * 0.62, z: frontZ, sx: 2.4, sy: 3.2, sz: 0.15 },
+      { x: width * 0.22, y: height * 0.38, z: frontZ, sx: 2.4, sy: 3.2, sz: 0.15 },
+      { x: 0, y: height * 0.5, z: backZ, sx: 2.4, sy: 3.2, sz: 0.15 },
+    ];
+
     return {
       stop,
       width,
       depth,
       height,
       color: BUILDING_COLORS[index % BUILDING_COLORS.length],
+      windows,
     };
   });
 }
 
 interface BuildingsProps {
   tooltipRef: React.RefObject<HTMLDivElement | null>;
-  onHoverChange: (stop: RahatVerseStop | null) => void;
+  onTooltipChange: (stop: RahatVerseStop | null) => void;
+  /** True while the tooltip is in mobile "tap to visit" preview mode. */
+  onPreviewChange: (previewing: boolean) => void;
   onSelect: (stop: RahatVerseStop) => void;
 }
 
-export function Buildings({ tooltipRef, onHoverChange, onSelect }: BuildingsProps) {
+export function Buildings({
+  tooltipRef,
+  onTooltipChange,
+  onPreviewChange,
+  onSelect,
+}: BuildingsProps) {
   const [specs] = useState<BuildingSpec[]>(() => buildingSpecs());
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [previewedId, setPreviewedId] = useState<string | null>(null);
+  const ringRef = useRef<THREE.Mesh>(null!);
+  // The last pointer type seen on this object (set by onPointerOver,
+  // which is typed as PointerEvent — onClick's nativeEvent is not).
+  const pointerTypeRef = useRef<"mouse" | "touch" | "pen">("mouse");
 
-  const hoveredSpec =
-    hoveredId === null ? null : (specs.find((spec) => spec.stop.id === hoveredId) ?? null);
+  const activeId = hoveredId ?? previewedId;
+  const activeSpec = activeId === null ? null : (specs.find((s) => s.stop.id === activeId) ?? null);
 
-  // Pointer cursor while hovering a building; reset on unmount.
+  // Pointer cursor while interacting with a building.
   useEffect(() => {
-    document.body.style.cursor = hoveredId ? "pointer" : "";
+    document.body.style.cursor = activeId ? "pointer" : "";
     return () => {
       document.body.style.cursor = "";
     };
-  }, [hoveredId]);
+  }, [activeId]);
+
+  // Keep the scene's tooltip in sync.
+  useEffect(() => {
+    onTooltipChange(activeSpec ? activeSpec.stop : null);
+    onPreviewChange(hoveredId === null && previewedId !== null);
+  }, [activeSpec, hoveredId, previewedId, onTooltipChange, onPreviewChange]);
 
   // Move the tooltip DOM node to the building's screen position each
-  // frame. Direct style writes keep this at zero React re-renders.
+  // frame, clamped to the viewport so it never overflows the screen.
   useFrame((state) => {
     const element = tooltipRef.current;
     if (!element) return;
 
-    const spec = hoveredSpec;
-    if (!spec) {
+    if (!activeSpec) {
       element.style.opacity = "0";
       return;
     }
 
     const position = new THREE.Vector3(
-      spec.stop.position[0],
-      spec.height + 3,
-      spec.stop.position[2],
+      activeSpec.stop.position[0],
+      activeSpec.height + 3,
+      activeSpec.stop.position[2],
     ).project(state.camera);
 
     if (position.z > 1) {
@@ -101,33 +135,66 @@ export function Buildings({ tooltipRef, onHoverChange, onSelect }: BuildingsProp
       return;
     }
 
-    const x = (position.x * 0.5 + 0.5) * state.size.width;
-    const y = (-position.y * 0.5 + 0.5) * state.size.height;
+    const x = Math.min(
+      Math.max((position.x * 0.5 + 0.5) * state.size.width, 100),
+      state.size.width - 100,
+    );
+    const y = Math.min(
+      Math.max((-position.y * 0.5 + 0.5) * state.size.height, 90),
+      state.size.height - 70,
+    );
     element.style.opacity = "1";
     element.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -130%)`;
   });
 
+  // Slow ring spin above the active building.
+  useFrame((_, delta) => {
+    if (ringRef.current) {
+      ringRef.current.rotation.z += delta * 0.6;
+    }
+  });
+
   const handlePointerOver = (event: ThreeEvent<PointerEvent>, spec: BuildingSpec) => {
     event.stopPropagation();
-    setHoveredId(spec.stop.id);
-    onHoverChange(spec.stop);
+    pointerTypeRef.current =
+      event.pointerType === "touch" ? "touch" : event.pointerType === "pen" ? "pen" : "mouse";
+    // Touch has no hover — only real mouse/pen hovers preview.
+    if (event.pointerType === "mouse" || event.pointerType === "pen") {
+      setHoveredId(spec.stop.id);
+    }
   };
 
   const handlePointerOut = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation();
-    setHoveredId(null);
-    onHoverChange(null);
+    if (event.pointerType === "mouse" || event.pointerType === "pen") {
+      setHoveredId(null);
+    }
   };
 
   const handleClick = (event: ThreeEvent<MouseEvent>, spec: BuildingSpec) => {
     event.stopPropagation();
+    const isTouch = pointerTypeRef.current === "touch";
+
+    if (isTouch) {
+      // Mobile tap-to-preview: first tap previews, second tap visits.
+      if (previewedId === spec.stop.id) {
+        setPreviewedId(null);
+        onSelect(spec.stop);
+      } else {
+        setHoveredId(null);
+        setPreviewedId(spec.stop.id);
+      }
+      return;
+    }
+
+    // Desktop: hover already previewed — click flies the camera.
     onSelect(spec.stop);
   };
 
   return (
     <group>
       {specs.map((spec) => {
-        const isHovered = hoveredId === spec.stop.id;
+        const isActive = activeId === spec.stop.id;
         return (
           <group key={spec.stop.id} position={[spec.stop.position[0], 0, spec.stop.position[2]]}>
             {/* Main tower */}
@@ -141,8 +208,8 @@ export function Buildings({ tooltipRef, onHoverChange, onSelect }: BuildingsProp
               <boxGeometry args={[spec.width, spec.height, spec.depth]} />
               <meshLambertMaterial
                 color={spec.color}
-                emissive={isHovered ? "#22d3ee" : "#000000"}
-                emissiveIntensity={isHovered ? 0.55 : 0}
+                emissive={isActive ? "#22d3ee" : "#000000"}
+                emissiveIntensity={isActive ? 0.5 : 0}
               />
             </mesh>
 
@@ -151,9 +218,37 @@ export function Buildings({ tooltipRef, onHoverChange, onSelect }: BuildingsProp
               <boxGeometry args={[spec.width * 0.45, 3.2, spec.depth * 0.45]} />
               <meshLambertMaterial color="#0f172a" />
             </mesh>
+
+            {/* Warm lit windows */}
+            {spec.windows.map((w, windowIndex) => (
+              <mesh key={windowIndex} position={[w.x, w.y, w.z]}>
+                <boxGeometry args={[w.sx, w.sy, w.sz]} />
+                <meshLambertMaterial
+                  color={WINDOW_COLOR}
+                  emissive={WINDOW_COLOR}
+                  emissiveIntensity={isActive ? 1.6 : 0.7}
+                />
+              </mesh>
+            ))}
           </group>
         );
       })}
+
+      {/* Floating glow ring above the hovered/previewed building */}
+      {activeSpec ? (
+        <mesh
+          ref={ringRef}
+          position={[
+            activeSpec.stop.position[0],
+            activeSpec.height + 6.5,
+            activeSpec.stop.position[2],
+          ]}
+          rotation={[Math.PI / 2, 0, 0]}
+        >
+          <torusGeometry args={[Math.max(activeSpec.width, activeSpec.depth) * 0.6, 0.12, 8, 40]} />
+          <meshBasicMaterial color="#22d3ee" transparent opacity={0.85} />
+        </mesh>
+      ) : null}
     </group>
   );
 }
