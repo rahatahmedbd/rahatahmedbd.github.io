@@ -37,8 +37,8 @@ interface Orb {
   speed: number;
 }
 
-const ORB_COLORS = ["124,12,47", "26,60,90", "201,162,39"] as const;
-const PARTICLE_COLORS = ["229,215,220", "226,190,200", "255,245,240", "201,162,39"] as const;
+const ORB_COLORS = ["122,12,46", "26,60,90", "201,162,39"] as const;
+const PARTICLE_COLORS = ["229,215,220", "226,190,200", "255,245,240", "201,162,39", "245,235,220"] as const;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
