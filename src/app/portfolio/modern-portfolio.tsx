@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
   Award,
+  Bird,
   Brain,
   Briefcase,
   ChevronLeft,
@@ -19,6 +20,7 @@ import {
   Images,
   Mail,
   Medal,
+  Ribbon,
   Rocket,
   School,
   Shield,
@@ -115,6 +117,8 @@ const CARD_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>>
   "🩸": Droplet,
   "🏫": School,
   "🤝": Handshake,
+  "🎗️": Ribbon,
+  "🕊️": Bird,
 };
 
 /* ------------------------------------------------------------------ */
@@ -178,6 +182,20 @@ export default function ModernPortfolio() {
   const [activeSection, setActiveSection] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("top");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  // Swipe-to-navigate: records the touch start position for the lightbox.
+  const lightboxTouchStart = useRef<{ x: number; y: number } | null>(null);
+
+  const goToPreviousImage = () => {
+    setLightboxIndex((current) =>
+      current === null ? current : (current - 1 + galleryItems.length) % galleryItems.length,
+    );
+  };
+
+  const goToNextImage = () => {
+    setLightboxIndex((current) =>
+      current === null ? current : (current + 1) % galleryItems.length,
+    );
+  };
 
   const handleTabSelect = (tabId: string) => {
     if (tabId === "top") {
@@ -259,11 +277,9 @@ export default function ModernPortfolio() {
       if (e.key === "Escape") {
         setLightboxIndex(null);
       } else if (e.key === "ArrowRight") {
-        setLightboxIndex((i) => (i === null ? i : (i + 1) % galleryItems.length));
+        goToNextImage();
       } else if (e.key === "ArrowLeft") {
-        setLightboxIndex((i) =>
-          i === null ? i : (i - 1 + galleryItems.length) % galleryItems.length,
-        );
+        goToPreviousImage();
       }
     };
 
@@ -820,38 +836,47 @@ export default function ModernPortfolio() {
             />
 
             <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {galleryItems.map((item, index) => (
-                <Card
-                  key={item.title}
-                  variant="elevated"
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Open ${item.title} in lightbox`}
-                  onClick={() => setLightboxIndex(index)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setLightboxIndex(index);
-                    }
-                  }}
-                  className="cursor-pointer overflow-hidden p-0 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[var(--shadow-xl)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
-                >
-                  <Image
-                    src={item.image}
-                    alt={item.alt}
-                    width={600}
-                    height={400}
-                    sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
-                    className="aspect-[3/2] w-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="p-5">
-                    <div className="mb-1 text-2xl">{item.icon}</div>
-                    <h3 className="font-semibold text-lg">{item.title}</h3>
-                    <p className="mt-1 text-sm text-[var(--color-text-tertiary)]">{item.meta}</p>
-                  </div>
-                </Card>
-              ))}
+              {galleryItems.map((item, index) => {
+                const CardIcon = CARD_ICON_MAP[item.icon];
+                return (
+                  <Card
+                    key={item.title}
+                    variant="elevated"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Open ${item.title} in lightbox`}
+                    onClick={() => setLightboxIndex(index)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setLightboxIndex(index);
+                      }
+                    }}
+                    className="cursor-pointer overflow-hidden p-0 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[var(--shadow-xl)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
+                  >
+                    <Image
+                      src={item.image}
+                      alt={item.alt}
+                      width={600}
+                      height={400}
+                      sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                      className="aspect-[3/2] w-full object-cover"
+                      loading="lazy"
+                    />
+                    <div className="p-5">
+                      {CardIcon ? (
+                        <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--color-brand-primary)_10%,transparent)] text-[var(--color-brand-primary)]">
+                          <CardIcon className="h-5 w-5" aria-hidden="true" />
+                        </div>
+                      ) : (
+                        <div className="mb-1 text-2xl">{item.icon}</div>
+                      )}
+                      <h3 className="font-semibold text-lg">{item.title}</h3>
+                      <p className="mt-1 text-sm text-[var(--color-text-tertiary)]">{item.meta}</p>
+                    </div>
+                  </Card>
+                );
+              })}
             </div>
           </SectionReveal>
         </Container>
@@ -925,6 +950,27 @@ export default function ModernPortfolio() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8"
+          onTouchStart={(e) => {
+            if (galleryItems.length > 1) {
+              lightboxTouchStart.current = {
+                x: e.touches[0].clientX,
+                y: e.touches[0].clientY,
+              };
+            }
+          }}
+          onTouchEnd={(e) => {
+            const start = lightboxTouchStart.current;
+            lightboxTouchStart.current = null;
+            if (!start) return;
+            const dx = e.changedTouches[0].clientX - start.x;
+            const dy = e.changedTouches[0].clientY - start.y;
+            // Horizontal swipe past 56px, clearly more horizontal than
+            // vertical — otherwise treat it as a scroll/tap.
+            if (Math.abs(dx) > 56 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+              if (dx < 0) goToNextImage();
+              else goToPreviousImage();
+            }
+          }}
         >
           {/* Backdrop — click outside the image to close */}
           <div
@@ -948,9 +994,7 @@ export default function ModernPortfolio() {
             <>
               <button
                 type="button"
-                onClick={() =>
-                  setLightboxIndex((lightboxIndex - 1 + galleryItems.length) % galleryItems.length)
-                }
+                onClick={goToPreviousImage}
                 aria-label="Previous image"
                 className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors duration-200 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-6"
               >
@@ -958,7 +1002,7 @@ export default function ModernPortfolio() {
               </button>
               <button
                 type="button"
-                onClick={() => setLightboxIndex((lightboxIndex + 1) % galleryItems.length)}
+                onClick={goToNextImage}
                 aria-label="Next image"
                 className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors duration-200 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-6"
               >
@@ -988,9 +1032,19 @@ export default function ModernPortfolio() {
             <div className="mt-4 flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 text-lg font-semibold text-white">
-                  <span className="text-2xl" aria-hidden="true">
-                    {galleryItems[lightboxIndex].icon}
-                  </span>
+                  {(() => {
+                    const CaptionIcon = CARD_ICON_MAP[galleryItems[lightboxIndex].icon];
+                    return CaptionIcon ? (
+                      <CaptionIcon
+                        className="h-5 w-5 flex-none text-[#f4c7d4]"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <span className="text-2xl" aria-hidden="true">
+                        {galleryItems[lightboxIndex].icon}
+                      </span>
+                    );
+                  })()}
                   <span className="truncate">{galleryItems[lightboxIndex].title}</span>
                 </div>
                 <p className="mt-0.5 truncate text-sm text-white/70">
