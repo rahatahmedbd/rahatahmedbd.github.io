@@ -97,9 +97,10 @@ export function MiniMap({
             );
           })}
 
-          {/* Real-time vehicle position */}
+          {/* Real-time vehicle position — left/top transitions smooth the
+              10Hz position updates into a continuous glide */}
           <div
-            className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 z-10"
+            className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 z-10 transition-[left,top] duration-200 ease-linear"
             style={{ left: `${dot.x}%`, top: `${dot.y}%` }}
           >
             <div className="relative h-3 w-3">

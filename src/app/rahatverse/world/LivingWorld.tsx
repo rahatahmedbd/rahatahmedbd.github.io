@@ -35,6 +35,8 @@ interface ThemeConfig {
   hemisphere: { sky: string; ground: string; intensity: number };
   directional: { color: string; intensity: number; position: [number, number, number] };
   stars: number;
+  /** Moon glow intensity (0 = invisible, 1 = full night moon). */
+  moon: number;
   clouds: number;
   lamps: number;
   billboard: number;
@@ -49,6 +51,7 @@ const THEMES: Record<TimeOfDay, ThemeConfig> = {
     hemisphere: { sky: "#bfdbfe", ground: "#8b9bb4", intensity: 0.6 },
     directional: { color: "#ffd9a0", intensity: 1.15, position: [-70, 45, 50] },
     stars: 0,
+    moon: 0,
     clouds: 0.55,
     lamps: 0,
     billboard: 0.35,
@@ -61,6 +64,7 @@ const THEMES: Record<TimeOfDay, ThemeConfig> = {
     hemisphere: { sky: "#7dd3fc", ground: "#9fb3c8", intensity: 0.7 },
     directional: { color: "#ffffff", intensity: 1.6, position: [90, 140, 70] },
     stars: 0,
+    moon: 0,
     clouds: 0.75,
     lamps: 0,
     billboard: 0.35,
@@ -73,6 +77,7 @@ const THEMES: Record<TimeOfDay, ThemeConfig> = {
     hemisphere: { sky: "#fda4af", ground: "#5b3a2a", intensity: 0.5 },
     directional: { color: "#ffb07a", intensity: 0.9, position: [60, 25, -80] },
     stars: 0.35,
+    moon: 0.4,
     clouds: 0.35,
     lamps: 2.2,
     billboard: 0.75,
@@ -85,6 +90,7 @@ const THEMES: Record<TimeOfDay, ThemeConfig> = {
     hemisphere: { sky: "#1e3a8a", ground: "#0f172a", intensity: 0.35 },
     directional: { color: "#9db8ff", intensity: 0.45, position: [-50, 70, -60] },
     stars: 1,
+    moon: 1,
     clouds: 0.08,
     lamps: 2.9,
     billboard: 1.1,
@@ -155,6 +161,8 @@ export function LivingWorld({ timeOfDay, weather }: LivingWorldProps) {
   const directionalPosition = useRef(new THREE.Vector3(...THEMES.day.directional.position));
   const fogRef = useRef<THREE.Fog>(null!);
   const starsMaterialRef = useRef<THREE.PointsMaterial>(null!);
+  const moonMaterialRef = useRef<THREE.MeshBasicMaterial>(null!);
+  const moonHaloMaterialRef = useRef<THREE.MeshBasicMaterial>(null!);
   const billboardMaterialRef = useRef<THREE.MeshLambertMaterial>(null!);
   const lampHeadRefs = useRef<(THREE.MeshLambertMaterial | null)[]>([]);
   const cloudMaterialRefs = useRef<(THREE.MeshLambertMaterial | null)[]>([]);
@@ -198,6 +206,7 @@ export function LivingWorld({ timeOfDay, weather }: LivingWorldProps) {
     hemiIntensity: THEMES.day.hemisphere.intensity,
     dirIntensity: THEMES.day.directional.intensity,
     stars: 0,
+    moon: 0,
     clouds: THEMES.day.clouds,
     lamps: 0,
     billboard: THEMES.day.billboard,
@@ -247,6 +256,7 @@ export function LivingWorld({ timeOfDay, weather }: LivingWorldProps) {
     c.hemiIntensity = damp(c.hemiIntensity, target.hemisphere.intensity);
     c.dirIntensity = damp(c.dirIntensity, target.directional.intensity);
     c.stars = damp(c.stars, target.stars);
+    c.moon = damp(c.moon, target.moon);
     c.clouds = damp(c.clouds, target.clouds);
     c.lamps = damp(c.lamps, target.lamps);
     c.billboard = damp(c.billboard, target.billboard);
@@ -282,7 +292,18 @@ export function LivingWorld({ timeOfDay, weather }: LivingWorldProps) {
       fogRef.current.near = near;
     }
 
-    if (starsMaterialRef.current) starsMaterialRef.current.opacity = c.stars;
+    // Stars: gentle twinkle (opacity + size shimmer) on top of the
+    // theme fade — a single cheap points draw stays one call.
+    if (starsMaterialRef.current) {
+      const time = state.clock.elapsedTime;
+      const twinkle = 0.82 + 0.18 * Math.sin(time * 1.7);
+      starsMaterialRef.current.opacity = c.stars * twinkle;
+      starsMaterialRef.current.size = 0.5 + 0.08 * Math.sin(time * 2.3);
+    }
+    if (moonMaterialRef.current) moonMaterialRef.current.opacity = c.moon;
+    if (moonHaloMaterialRef.current) {
+      moonHaloMaterialRef.current.opacity = c.moon * 0.22;
+    }
     if (billboardMaterialRef.current) {
       billboardMaterialRef.current.emissiveIntensity = c.billboard;
     }
@@ -345,6 +366,29 @@ export function LivingWorld({ timeOfDay, weather }: LivingWorldProps) {
           blending={THREE.AdditiveBlending}
         />
       </points>
+
+      {/* ---- Night moon (fades in with the theme) ---- */}
+      <mesh position={[-250, 285, -230]}>
+        <sphereGeometry args={[16, 16, 16]} />
+        <meshBasicMaterial
+          ref={moonMaterialRef}
+          color="#f1f5f9"
+          transparent
+          opacity={0}
+          fog={false}
+        />
+      </mesh>
+      <mesh position={[-250, 285, -230]}>
+        <sphereGeometry args={[34, 16, 16]} />
+        <meshBasicMaterial
+          ref={moonHaloMaterialRef}
+          color="#cbd5e1"
+          transparent
+          opacity={0}
+          fog={false}
+          depthWrite={false}
+        />
+      </mesh>
 
       {/* ---- Drifting clouds (day emphasis, fade at night) ---- */}
       <group ref={cloudsGroupRef}>
