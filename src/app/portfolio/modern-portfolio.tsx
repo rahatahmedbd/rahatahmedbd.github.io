@@ -10,11 +10,15 @@ import {
   ChevronRight,
   Droplet,
   GraduationCap,
+  HeartHandshake,
+  Rocket,
   Shield,
+  ShieldCheck,
   Sparkles,
   Trophy,
   X,
 } from "lucide-react";
+import { ContactForm } from "@/components/contact/contact-form";
 import {
   achievementItems,
   bloodDonation,
@@ -39,6 +43,29 @@ import { SectionTitle } from "@/components/ui/section-title";
  */
 const PROFILE_IMAGE_SRC = "/assets/images/profile.jpg";
 const PROFILE_IMAGE_ALT = `${portfolioProfile.name} — ${portfolioProfile.roles}`;
+
+/* ------------------------------------------------------------------ */
+/* "Why Work With Me" value propositions                               */
+/* PLACEHOLDER CONTENT (Phase 20) — the user will provide the final    */
+/* copy separately; replace title/text below when it arrives.          */
+/* ------------------------------------------------------------------ */
+const trustPoints = [
+  {
+    icon: Rocket,
+    title: "Fast Delivery",
+    text: "Clean, modern websites built and delivered quickly without cutting corners.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Reliable & Honest",
+    text: "Clear communication, transparent pricing, and results delivered on time.",
+  },
+  {
+    icon: HeartHandshake,
+    title: "Support After Launch",
+    text: "I stay available after your site goes live for fixes, updates, and advice.",
+  },
+] as const;
 
 /* ------------------------------------------------------------------ */
 /* Navigation model used by both the sticky navbar and the scrollspy  */
@@ -555,6 +582,41 @@ export default function ModernPortfolio() {
         </Container>
       </section>
 
+      {/* WHY WORK WITH ME — PLACEHOLDER VALUE PROPOSITIONS (Phase 20).
+          Content is temporary; the user will provide the final copy
+          separately (see trustPoints in this file). */}
+      <section id="why-me" className="py-20 border-b border-[var(--color-border)]">
+        <Container>
+          <SectionReveal>
+            <SectionTitle
+              title="Why Work With Me"
+              subtitle="A quick look at what you can expect when we build together"
+              align="center"
+            />
+
+            <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+              {trustPoints.map((point) => (
+                <Card
+                  key={point.title}
+                  variant="elevated"
+                  className="p-7 text-center transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)] border border-transparent"
+                >
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--color-brand-primary)_10%,transparent)] text-[var(--color-brand-primary)]">
+                    <point.icon className="h-7 w-7" aria-hidden="true" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-[var(--color-text-primary)]">
+                    {point.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+                    {point.text}
+                  </p>
+                </Card>
+              ))}
+            </div>
+          </SectionReveal>
+        </Container>
+      </section>
+
       {/* EXPERIENCE & INITIATIVES */}
       <section id="experience" className="py-20 border-b border-[var(--color-border)]">
         <Container>
@@ -668,7 +730,7 @@ export default function ModernPortfolio() {
         </Container>
       </section>
 
-      {/* CONTACT SECTION */}
+      {/* CONTACT SECTION — form (new) + existing direct channels */}
       <section id="contact" className="py-20">
         <Container>
           <SectionReveal>
@@ -678,35 +740,41 @@ export default function ModernPortfolio() {
               align="center"
             />
 
-            <div className="max-w-md mx-auto text-center">
-              <div className="space-y-4">
-                <a href={`mailto:${portfolioProfile.email}`}>
-                  <Button size="lg" className="w-full">
-                    Email Me
-                  </Button>
-                </a>
-                <a href={portfolioProfile.whatsapp} target="_blank" rel="noopener">
-                  <Button variant="outline" size="lg" className="w-full">
-                    Message on WhatsApp
-                  </Button>
-                </a>
-              </div>
-              <div className="mt-8 flex flex-wrap justify-center gap-2">
-                {socialLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-brand-primary)] hover:text-[var(--color-brand-primary)]"
-                  >
-                    {link.label}
+            <div className="mx-auto grid max-w-5xl items-start gap-10 lg:grid-cols-2 lg:gap-14">
+              {/* Contact form — saves to Supabase via POST /api/contact */}
+              <ContactForm />
+
+              {/* Existing direct channels (unchanged) */}
+              <div className="mx-auto w-full max-w-md text-center lg:mx-0 lg:max-w-none lg:text-left">
+                <div className="space-y-4">
+                  <a href={`mailto:${portfolioProfile.email}`}>
+                    <Button size="lg" className="w-full">
+                      Email Me
+                    </Button>
                   </a>
-                ))}
+                  <a href={portfolioProfile.whatsapp} target="_blank" rel="noopener">
+                    <Button variant="outline" size="lg" className="w-full">
+                      Message on WhatsApp
+                    </Button>
+                  </a>
+                </div>
+                <div className="mt-8 flex flex-wrap justify-center gap-2 lg:justify-start">
+                  {socialLinks.map((link) => (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-brand-primary)] hover:text-[var(--color-brand-primary)]"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+                <p className="mt-5 text-sm text-[var(--color-text-tertiary)]">
+                  Usually respond within 24 hours
+                </p>
               </div>
-              <p className="mt-5 text-sm text-[var(--color-text-tertiary)]">
-                Usually respond within 24 hours
-              </p>
             </div>
           </SectionReveal>
         </Container>
