@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 interface InfoPanelProps {
   stop: {
@@ -17,37 +16,36 @@ export function InfoPanel({ stop, onClose }: InfoPanelProps) {
   if (!stop) return null;
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
-      <div className="bg-[#0f172a] border border-white/20 rounded-2xl p-6 shadow-2xl">
-        <div className="flex justify-between items-start mb-4">
+    <div className="fixed bottom-6 left-1/2 z-[90] w-full max-w-[340px] -translate-x-1/2 px-4">
+      <div className="rounded-3xl border border-white/10 bg-black/85 backdrop-blur-2xl p-5 shadow-2xl">
+        <div className="flex justify-between items-start mb-3">
           <div>
-            <div className="text-xs text-[#22d3ee] font-medium tracking-widest">DISTRICT</div>
-            <h3 className="text-2xl font-semibold mt-1 text-white">{stop.name}</h3>
+            <div className="text-[10px] uppercase tracking-[1.5px] text-[#67e8f9]/80 font-medium">DISTRICT</div>
+            <h3 className="text-[21px] font-semibold tracking-[-0.3px] text-white leading-tight mt-1">{stop.name}</h3>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close district info panel"
-            className="text-white/50 hover:text-white text-xl leading-none"
+            className="text-white/40 hover:text-white text-2xl leading-none -mt-1 -mr-1"
           >
             ×
           </button>
         </div>
 
-        <p className="text-white/70 text-sm leading-relaxed mb-6">{stop.description}</p>
+        <p className="text-white/75 text-[13.5px] leading-relaxed mb-5">{stop.description}</p>
 
-        <div className="flex gap-3">
-          <Button
+        <div className="flex gap-2.5">
+          <button
             onClick={onClose}
-            variant="outline"
-            className="flex-1 border-white/30 text-white hover:bg-white/10"
+            className="flex-1 rounded-2xl border border-white/15 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/5 active:bg-white/10"
           >
             Continue Tour
-          </Button>
+          </button>
           <Link href="/portfolio" className="flex-1">
-            <Button className="w-full bg-[#22d3ee] text-black hover:bg-[#67e8f9]">
+            <button className="w-full rounded-2xl bg-white py-2.5 text-sm font-semibold text-[#0a0c12] transition hover:bg-[#f4f4f5] active:bg-white">
               Learn More
-            </Button>
+            </button>
           </Link>
         </div>
       </div>
