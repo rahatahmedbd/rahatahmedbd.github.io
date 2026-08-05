@@ -80,16 +80,9 @@ const trustPoints = [
 ] as const;
 
 /* ------------------------------------------------------------------ */
-/* Navigation model used by both the sticky navbar and the scrollspy  */
+/* Bottom navigation tabs (Phase 3: global topbar now handles primary nav) */
 /* ------------------------------------------------------------------ */
-const NAV_ITEMS = [
-  { id: "about", label: "About" },
-  { id: "education", label: "Education" },
-  { id: "achievements", label: "Achievements" },
-  { id: "experience", label: "Experience" },
-  { id: "services", label: "Services" },
-  { id: "contact", label: "Contact" },
-] as const;
+
 
 /* ------------------------------------------------------------------ */
 /* Mobile bottom navigation (Phase 26) — 5 tabs, mobile/tablet only.  */
@@ -178,8 +171,6 @@ function SectionReveal({ children, className }: { children: React.ReactNode; cla
 // Modern Premium Portfolio Redesign - Phase 04
 export default function ModernPortfolio() {
   const reduceMotion = useReducedMotion();
-  const [scrolled, setScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("top");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   // Swipe-to-navigate: records the touch start position for the lightbox.
@@ -205,31 +196,15 @@ export default function ModernPortfolio() {
     document.getElementById(tabId)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // Scrollspy (Phase 28 fine-tune): one rAF-throttled pass keeps the top
-  // bar and bottom nav active states perfectly in sync.
-  // - Top bar: the last nav section whose top has crossed ~30% of the
-  //   viewport (the reading line just below the sticky bar) is active.
-  // - Bottom nav: the tab whose section center is closest to the viewport
-  //   center wins — boundaries flip precisely at the halfway point and
-  //   never flicker; if no tab section is on screen the last tab stays.
+  // Scrollspy (Phase 3 update): Only bottom nav active state needed now that
+  // the global PremiumTopbar (Phase 2) handles primary navigation.
+  // Bottom nav: the tab whose section center is closest to the viewport center wins.
   useEffect(() => {
     let frame = 0;
 
     const update = () => {
       const y = window.scrollY;
-      setScrolled(y > 16);
       const height = window.innerHeight;
-
-      // Top bar scrollspy.
-      const probe = y + height * 0.3;
-      let current = "";
-      for (const item of NAV_ITEMS) {
-        const el = document.getElementById(item.id);
-        if (el && el.getBoundingClientRect().top + y <= probe) {
-          current = item.id;
-        }
-      }
-      setActiveSection(current);
 
       // Bottom nav scrollspy — closest section center to viewport center.
       const center = y + height * 0.5;
@@ -240,7 +215,7 @@ export default function ModernPortfolio() {
         if (!el) continue;
         const top = el.getBoundingClientRect().top + y;
         const bottom = top + el.offsetHeight;
-        if (bottom < y || top > y + height) continue; // off-screen
+        if (bottom < y || top > y + height) continue;
         const distance = Math.abs((top + bottom) / 2 - center);
         if (distance < bestDistance) {
           bestDistance = distance;
@@ -293,97 +268,30 @@ export default function ModernPortfolio() {
   }, [lightboxIndex]);
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)] pb-24 text-[var(--color-text-primary)] lg:pb-0">
-      {/* Top Bar — slim on mobile (logo + badge), full nav on desktop.
-          Transparent at top, glassmorphism on scroll. Safe-area aware. */}
-      <nav
-        style={{ paddingTop: "env(safe-area-inset-top)" }}
-        className={`sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out ${
-          scrolled
-            ? "border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-bg)_80%,transparent)] shadow-[var(--shadow-sm)] backdrop-blur-xl"
-            : "border-transparent bg-transparent backdrop-blur-none"
-        }`}
-      >
-        <Container>
-          <div className="flex h-14 items-center justify-between md:h-20">
-            {/* Compact identity */}
-            <div className="flex min-w-0 items-center gap-2 md:gap-3">
-              <div className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-[var(--color-brand-primary)] text-white font-bold text-sm md:h-10 md:w-10 md:rounded-xl md:text-xl">
-                RA
-              </div>
-              <div className="min-w-0">
-                <div className="truncate font-semibold text-base leading-tight md:text-xl">
-                  Rahat Ahmed
-                </div>
-                <div className="-mt-0.5 hidden text-xs text-[var(--color-text-secondary)] sm:block">
-                  Portfolio
-                </div>
-              </div>
+    <div className="min-h-screen bg-[var(--color-bg)] pb-24 pt-16 text-[var(--color-text-primary)] lg:pb-0 lg:pt-0">
+      {/* 
+        Phase 3: Global PremiumTopbar (from Phase 2) now handles primary navigation.
+        Removed the old duplicate sticky navbar for cleaner hierarchy and consistency.
+        Added top padding on mobile to account for fixed global topbar.
+      */}
 
-              {/* Highlight badge — real info: the website order flow is live */}
-              <span className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--color-success)_25%,transparent)] bg-[color-mix(in_srgb,var(--color-success)_10%,transparent)] px-2 py-1 text-[10px] font-medium text-[var(--color-success-dark)] md:ml-2 md:px-2.5 md:text-xs">
-                <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-success)] opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--color-success)]" />
-                </span>
-                Now Taking Orders
-              </span>
-            </div>
-
-            {/* Desktop horizontal nav */}
-            <div className="hidden items-center gap-8 text-sm font-medium md:flex">
-              {NAV_ITEMS.map((item) => {
-                const isActive = activeSection === item.id;
-                return (
-                  <a
-                    key={item.id}
-                    href={`#${item.id}`}
-                    aria-current={isActive ? "true" : undefined}
-                    className={`relative transition-colors ${
-                      isActive
-                        ? "text-[var(--color-brand-primary)] font-semibold after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:rounded-full after:bg-[var(--color-brand-primary)]"
-                        : "hover:text-[var(--color-brand-primary)]"
-                    }`}
-                  >
-                    {item.label}
-                  </a>
-                );
-              })}
-            </div>
-
-            <div className="flex flex-none items-center gap-1 sm:gap-4">
-              <Link href="/" aria-label="Back to Welcome">
-                <Button variant="ghost" size="sm" className="px-2 sm:px-4">
-                  <span className="md:hidden" aria-hidden="true">
-                    ←
-                  </span>
-                  <span className="hidden md:inline">← Back to Welcome</span>
-                </Button>
-              </Link>
-              {/* Redundant on mobile — Contact lives in the bottom nav */}
-              <a href="#contact" className="hidden sm:inline">
-                <Button size="sm" className="px-3 sm:px-4">
-                  Get in Touch
-                </Button>
-              </a>
-            </div>
-          </div>
-        </Container>
-      </nav>
-
-      {/* HERO SECTION — Redesigned Phase 27: cinematic split layout */}
+      {/* HERO SECTION — Phase 3: Premium cinematic elevation */}
       <section
         id="top"
-        className="relative overflow-hidden border-b border-[var(--color-border)] pt-20 pb-20 md:pt-28 md:pb-28"
+        className="relative overflow-hidden border-b border-[var(--color-border)] pt-16 pb-20 md:pt-24 md:pb-28"
       >
-        {/* Decorative background — cinematic atmosphere (phase-25 style) */}
+        {/* Premium cinematic background layers */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,12,46,0.1),transparent_55%),radial-gradient(circle_at_bottom_left,rgba(26,60,90,0.08),transparent_50%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(122,12,46,0.13),transparent_58%)]"
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-[length:4px_4px] opacity-20"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(26,60,90,0.09),transparent_55%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-[length:3.5px_3.5px] opacity-[0.18]"
         />
 
         <Container className="relative">
@@ -392,12 +300,12 @@ export default function ModernPortfolio() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
-            className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16"
+            className="grid items-center gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20"
           >
-            {/* ---------------- LEFT: TEXT CONTENT ---------------- */}
+            {/* ---------------- LEFT: TEXT CONTENT (Phase 3 premium elevation) ---------------- */}
             <div className="text-center lg:text-left">
-              <motion.div variants={fadeUp} className="mb-6 flex justify-center lg:justify-start">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--color-brand-primary)_15%,transparent)] bg-[color-mix(in_srgb,var(--color-brand-primary)_8%,transparent)] px-3 py-1.5 text-sm font-medium text-[var(--color-brand-primary)]">
+              <motion.div variants={fadeUp} className="mb-7 flex justify-center lg:justify-start">
+                <span className="inline-flex items-center gap-2.5 rounded-full border border-[color-mix(in_srgb,var(--color-brand-primary)_20%,transparent)] bg-[color-mix(in_srgb,var(--color-brand-primary)_10%,transparent)] px-4 py-1.5 text-sm font-medium tracking-[0.5px] text-[var(--color-brand-primary)]">
                   <Sparkles className="h-4 w-4" aria-hidden="true" />
                   {portfolioProfile.roles}
                 </span>
@@ -405,39 +313,39 @@ export default function ModernPortfolio() {
 
               <motion.h1
                 variants={fadeUp}
-                className="text-5xl font-semibold leading-[1.02] tracking-[-0.03em] text-[var(--color-text-primary)] sm:text-6xl md:text-7xl"
+                className="text-[52px] font-semibold leading-[0.96] tracking-[-0.042em] text-[var(--color-text-primary)] sm:text-[60px] md:text-[68px] lg:text-[72px]"
               >
                 {portfolioProfile.name}
               </motion.h1>
 
               <motion.p
                 variants={fadeUp}
-                className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-[var(--color-text-secondary)] sm:text-xl md:text-2xl lg:mx-0"
+                className="mx-auto mt-6 max-w-[38ch] text-[17px] leading-relaxed text-[var(--color-text-secondary)] tracking-[-0.005em] sm:text-[18px] sm:max-w-xl md:text-[19px] lg:mx-0"
               >
                 {portfolioProfile.headline}
               </motion.p>
 
-              {/* Primary CTAs */}
+              {/* Primary CTAs — elevated */}
               <motion.div
                 variants={fadeUp}
-                className="mt-9 flex flex-col items-stretch gap-4 sm:flex-row sm:justify-center lg:justify-start"
+                className="mt-10 flex flex-col items-stretch gap-3.5 sm:flex-row sm:justify-center lg:justify-start"
               >
                 <Link href="/order" className="sm:w-auto">
                   <Button
                     size="lg"
-                    className="w-full px-8 text-base transition-[transform,box-shadow] duration-200 ease-out hover:scale-[1.03] hover:shadow-[var(--shadow-xl)] sm:text-lg"
+                    className="w-full px-9 text-[15px] font-semibold tracking-[-0.2px] transition-all duration-200 ease-out hover:scale-[1.015] hover:shadow-[var(--shadow-xl)] sm:text-base"
                   >
                     Order a Website
-                    <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                    <ArrowRight className="h-4.5 w-4.5" aria-hidden="true" />
                   </Button>
                 </Link>
                 <a href="#achievements" className="sm:w-auto">
                   <Button
                     variant="outline"
                     size="lg"
-                    className="w-full px-8 text-base transition-[transform,box-shadow] duration-200 ease-out hover:scale-[1.03] hover:shadow-[var(--shadow-lg)] sm:text-lg"
+                    className="w-full px-8 text-[15px] font-medium transition-all duration-200 ease-out hover:scale-[1.015] hover:shadow-[var(--shadow-lg)] sm:text-base"
                   >
-                    <Trophy className="h-5 w-5" aria-hidden="true" />
+                    <Trophy className="h-4.5 w-4.5" aria-hidden="true" />
                     View Achievements
                   </Button>
                 </a>
@@ -445,9 +353,9 @@ export default function ModernPortfolio() {
 
               <motion.p
                 variants={fadeUp}
-                className="mt-7 text-sm text-[var(--color-text-tertiary)]"
+                className="mt-8 text-xs tracking-[1px] text-[var(--color-text-tertiary)]"
               >
-                Scroll to explore my journey ↓
+                SCROLL TO EXPLORE MY JOURNEY
               </motion.p>
             </div>
 
@@ -465,13 +373,12 @@ export default function ModernPortfolio() {
                 className="absolute -inset-5 rounded-[2.25rem] bg-[radial-gradient(ellipse_at_35%_30%,color-mix(in_srgb,var(--color-brand-primary)_38%,transparent),transparent_62%),radial-gradient(ellipse_at_70%_75%,color-mix(in_srgb,var(--color-brand-accent)_22%,transparent),transparent_58%)] blur-2xl"
               />
 
-              {/* Image container with gradient border */}
+              {/* Image container — Phase 3 premium cinematic treatment */}
               <motion.div
                 variants={fadeUp}
-                className="relative aspect-[4/5] w-full overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-[var(--color-brand-primary)] via-[var(--color-brand-primary-light)] to-[var(--color-brand-secondary)] p-[2px] shadow-[var(--shadow-2xl)]"
+                className="relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-gradient-to-br from-[var(--color-brand-primary)] via-[var(--color-brand-primary-light)] to-[var(--color-brand-secondary)] p-[3px] shadow-[var(--shadow-2xl)]"
               >
-                <div className="relative h-full w-full overflow-hidden rounded-[1.65rem] bg-[var(--color-bg-secondary)]">
-                  {/* Placeholder slot — swap PROFILE_IMAGE_SRC constant above for Cloudinary URL */}
+                <div className="relative h-full w-full overflow-hidden rounded-[1.85rem] bg-[var(--color-bg-secondary)] ring-1 ring-white/10">
                   <Image
                     src={PROFILE_IMAGE_SRC}
                     alt={PROFILE_IMAGE_ALT}
@@ -480,10 +387,14 @@ export default function ModernPortfolio() {
                     priority
                     className="object-cover"
                   />
-                  {/* Subtle overlay for premium feel */}
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"
+                    className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/5 to-transparent"
+                  />
+                  {/* Elegant inner highlight */}
+                  <div 
+                    aria-hidden="true" 
+                    className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent" 
                   />
                 </div>
               </motion.div>
@@ -554,7 +465,7 @@ export default function ModernPortfolio() {
         </Container>
       </section>
 
-      {/* ABOUT SECTION */}
+      {/* ABOUT SECTION — Phase 3 refined typography & rhythm */}
       <section id="about" className="py-20 border-b border-[var(--color-border)]">
         <Container>
           <SectionReveal>
@@ -565,7 +476,7 @@ export default function ModernPortfolio() {
             />
 
             <div className="max-w-3xl mx-auto text-center">
-              <div className="prose prose-lg text-[var(--color-text-secondary)]">
+              <div className="prose prose-lg text-[var(--color-text-secondary)] text-[15px] leading-relaxed tracking-[-0.1px]">
                 <p>{portfolioProfile.summary}</p>
                 <p>
                   Currently an HSC 2nd Year Science student at Sunamganj Government College, I am
@@ -596,24 +507,28 @@ export default function ModernPortfolio() {
             />
 
             <div className="max-w-4xl mx-auto">
-              <div className="space-y-6">
-                {educationItems.map((edu) => (
-                  <Card key={edu.title} variant="bordered" className="p-6">
-                    <div className="flex flex-col md:flex-row md:items-center gap-4">
-                      <div className="md:w-48 text-sm font-mono text-[var(--color-text-tertiary)]">
-                        {edu.year}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-xl">{edu.title}</div>
-                        <div className="text-[var(--color-text-secondary)]">{edu.institution}</div>
-                        <div className="mt-1 text-sm text-[var(--color-text-tertiary)]">
-                          {edu.desc}
-                        </div>
+            <div className="space-y-4 max-w-4xl mx-auto">
+              {educationItems.map((edu) => (
+                <Card 
+                  key={edu.title} 
+                  variant="bordered" 
+                  className="group p-6 md:p-7 transition-all hover:shadow-md hover:border-[var(--color-border-strong)]"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
+                    <div className="md:w-44 shrink-0 text-[13px] font-mono tracking-[0.5px] text-[var(--color-text-tertiary)] group-hover:text-[var(--color-brand-primary)] transition-colors">
+                      {edu.year}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-[19px] tracking-[-0.2px] mb-0.5">{edu.title}</div>
+                      <div className="text-[var(--color-text-secondary)] text-[14.5px]">{edu.institution}</div>
+                      <div className="mt-1.5 text-sm text-[var(--color-text-tertiary)]">
+                        {edu.desc}
                       </div>
                     </div>
-                  </Card>
-                ))}
-              </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
             </div>
           </SectionReveal>
         </Container>
@@ -629,27 +544,27 @@ export default function ModernPortfolio() {
               align="center"
             />
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
               {achievementItems.map((item) => {
                 const CardIcon = CARD_ICON_MAP[item.icon];
                 return (
                   <Card
                     key={item.title}
                     variant="elevated"
-                    className="border border-transparent p-6 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
+                    className="group border border-transparent p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_22%,transparent)] hover:shadow-[var(--shadow-xl)]"
                   >
                     {CardIcon ? (
-                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--color-brand-primary)_10%,transparent)] text-[var(--color-brand-primary)]">
-                        <CardIcon className="h-6 w-6" aria-hidden="true" />
+                      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--color-brand-primary)_10%,transparent)] text-[var(--color-brand-primary)] transition-transform group-hover:scale-110">
+                        <CardIcon className="h-5 w-5" aria-hidden="true" />
                       </div>
                     ) : (
                       <div className="mb-4 text-4xl">{item.icon}</div>
                     )}
-                    <div className="font-semibold text-xl mb-1">{item.title}</div>
-                    <div className="text-sm text-[var(--color-brand-primary)] font-medium mb-3">
+                    <div className="font-semibold text-[19px] leading-tight tracking-[-0.2px] mb-1.5">{item.title}</div>
+                    <div className="text-xs font-medium tracking-[0.5px] text-[var(--color-brand-primary)] mb-2.5">
                       {item.year}
                     </div>
-                    <div className="text-[var(--color-text-secondary)] text-sm">{item.desc}</div>
+                    <div className="text-[var(--color-text-secondary)] text-[13.5px] leading-relaxed">{item.desc}</div>
                   </Card>
                 );
               })}
@@ -671,31 +586,31 @@ export default function ModernPortfolio() {
               align="center"
             />
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
               {portfolioServices.map((service) => (
                 <Card
                   key={service.title}
                   variant="elevated"
-                  className="group flex flex-col border border-transparent p-7 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
+                  className="group flex flex-col border border-transparent p-7 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_22%,transparent)] hover:shadow-[var(--shadow-xl)]"
                 >
                   <div>
-                    <div className="font-semibold text-2xl mb-2 group-hover:text-[var(--color-brand-primary)] transition-colors">
+                    <div className="font-semibold text-[21px] leading-tight tracking-[-0.3px] mb-2 group-hover:text-[var(--color-brand-primary)] transition-colors">
                       {service.title}
                     </div>
-                    <div className="text-3xl font-semibold text-[var(--color-brand-primary)] mb-1">
+                    <div className="text-[28px] font-semibold tracking-[-0.5px] text-[var(--color-brand-primary)] mb-1">
                       {service.price}
                     </div>
-                    <div className="text-sm text-[var(--color-text-tertiary)] mb-4">
+                    <div className="text-xs tracking-[0.6px] uppercase text-[var(--color-text-tertiary)] mb-4">
                       Delivery: {service.time}
                     </div>
-                    <p className="text-[var(--color-text-secondary)] leading-relaxed">
+                    <p className="text-[var(--color-text-secondary)] text-[14.5px] leading-relaxed">
                       {service.desc}
                     </p>
                   </div>
 
-                  <div className="mt-auto pt-6">
+                  <div className="mt-auto pt-7">
                     <Link href="/order">
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" className="w-full group-hover:bg-[var(--color-brand-primary)] group-hover:text-white group-hover:border-[var(--color-brand-primary)] transition-all">
                         Choose This Service →
                       </Button>
                     </Link>
@@ -723,20 +638,20 @@ export default function ModernPortfolio() {
               align="center"
             />
 
-            <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+            <div className="mx-auto grid max-w-5xl gap-5 md:grid-cols-3">
               {trustPoints.map((point) => (
                 <Card
                   key={point.title}
                   variant="elevated"
-                  className="p-7 text-center transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)] border border-transparent"
+                  className="group p-7 text-center transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_22%,transparent)] hover:shadow-[var(--shadow-xl)] border border-transparent"
                 >
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--color-brand-primary)_10%,transparent)] text-[var(--color-brand-primary)]">
-                    <point.icon className="h-7 w-7" aria-hidden="true" />
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--color-brand-primary)_10%,transparent)] text-[var(--color-brand-primary)] transition-transform group-hover:scale-110">
+                    <point.icon className="h-6 w-6" aria-hidden="true" />
                   </div>
-                  <h3 className="text-xl font-semibold text-[var(--color-text-primary)]">
+                  <h3 className="text-[18px] font-semibold tracking-[-0.2px] text-[var(--color-text-primary)] mb-1.5">
                     {point.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+                  <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">
                     {point.text}
                   </p>
                 </Card>
@@ -770,27 +685,27 @@ export default function ModernPortfolio() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-5 max-w-5xl mx-auto">
               {initiatives.map((initiative) => {
                 const CardIcon = CARD_ICON_MAP[initiative.icon];
                 return (
                   <Card
                     key={initiative.title}
                     variant="elevated"
-                    className="border border-transparent p-8 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_25%,transparent)] hover:shadow-[var(--shadow-xl)]"
+                    className="group border border-transparent p-7 md:p-8 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--color-brand-primary)_22%,transparent)] hover:shadow-[var(--shadow-xl)]"
                   >
                     {CardIcon ? (
-                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--color-brand-secondary)_10%,transparent)] text-[var(--color-brand-secondary)]">
-                        <CardIcon className="h-6 w-6" aria-hidden="true" />
+                      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--color-brand-secondary)_12%,transparent)] text-[var(--color-brand-secondary)] transition-transform group-hover:scale-110">
+                        <CardIcon className="h-5.5 w-5.5" aria-hidden="true" />
                       </div>
                     ) : (
                       <div className="mb-4 text-4xl">{initiative.icon}</div>
                     )}
-                    <div className="font-semibold text-2xl">{initiative.title}</div>
-                    <div className="text-[var(--color-brand-primary)] font-medium">
+                    <div className="font-semibold text-[20px] tracking-[-0.2px] mb-0.5">{initiative.title}</div>
+                    <div className="text-[var(--color-brand-primary)] text-sm font-medium tracking-[0.3px]">
                       {initiative.role}
                     </div>
-                    <p className="mt-4 text-[var(--color-text-secondary)]">
+                    <p className="mt-4 text-[var(--color-text-secondary)] text-[14.5px] leading-relaxed">
                       {initiative.description}
                     </p>
                   </Card>
@@ -835,7 +750,7 @@ export default function ModernPortfolio() {
               align="center"
             />
 
-            <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mx-auto grid max-w-6xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {galleryItems.map((item, index) => {
                 const CardIcon = CARD_ICON_MAP[item.icon];
                 return (
@@ -852,26 +767,29 @@ export default function ModernPortfolio() {
                         setLightboxIndex(index);
                       }
                     }}
-                    className="cursor-pointer overflow-hidden p-0 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[var(--shadow-xl)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
+                    className="group cursor-pointer overflow-hidden p-0 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[var(--shadow-xl)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
                   >
-                    <Image
-                      src={item.image}
-                      alt={item.alt}
-                      width={600}
-                      height={400}
-                      sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
-                      className="aspect-[3/2] w-full object-cover"
-                      loading="lazy"
-                    />
+                    <div className="relative overflow-hidden">
+                      <Image
+                        src={item.image}
+                        alt={item.alt}
+                        width={600}
+                        height={400}
+                        sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                        className="aspect-[3/2] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition" />
+                    </div>
                     <div className="p-5">
                       {CardIcon ? (
-                        <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--color-brand-primary)_10%,transparent)] text-[var(--color-brand-primary)]">
-                          <CardIcon className="h-5 w-5" aria-hidden="true" />
+                        <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--color-brand-primary)_10%,transparent)] text-[var(--color-brand-primary)] transition group-hover:scale-110">
+                          <CardIcon className="h-4.5 w-4.5" aria-hidden="true" />
                         </div>
                       ) : (
                         <div className="mb-1 text-2xl">{item.icon}</div>
                       )}
-                      <h3 className="font-semibold text-lg">{item.title}</h3>
+                      <h3 className="font-semibold text-[17px] tracking-[-0.1px]">{item.title}</h3>
                       <p className="mt-1 text-sm text-[var(--color-text-tertiary)]">{item.meta}</p>
                     </div>
                   </Card>
